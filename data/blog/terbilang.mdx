@@ -1,0 +1,27 @@
+---
+title: 'Simplify Numeric to Text Conversion in Bahasa Indonesia with terbilang.js'
+date: '2024-04-28'
+tags: ['terbilangjs', 'npm package', 'numeric conversion', 'Bahasa Indonesia', 'software development', 'localization', 'number to text', 'programming', 'javascript', 'node.js']
+draft: false
+summary: Discover terbilang.js, an npm package designed to convert numerical values into their Bahasa Indonesia word equivalents effortlessly. Ideal for applications requiring number-to-text transformations, this tool supports conversions up to the billions, with further updates planned. Simply install it using npm or Yarn, and improve the readability and user-friendliness of your application by integrating terbilang.js to display numbers like 1,000,000 as "Satu juta."
+---
+
+If you're developing applications in Indonesia and need to convert numerical values into Bahasa Indonesia text, the terbilang.js package on npm is perfect for you. This tool can easily translate numbers like 1,000,000 into "Satu juta," making it easier to display numbers in a user-friendly way.
+
+To add this functionality to your projects, simply visit the [terbilang.js page on npm](https://www.npmjs.com/package/@andriansyahnc/terbilangjs). Install the package using:
+
+```bash
+npm i @andriansyahnc/terbilangjs
+```
+or, if you prefer Yarn:
+
+```bash
+yarn add @andriansyahnc/terbilangjs
+```
+After installation, incorporate it into your project like this:
+
+```javascript
+const terbilang = require('@andriansyahnc/terbilangjs');
+const angkaTerbilang = terbilang(1000);  // Outputs 'Seribu'
+```
+The package currently supports conversions up to billions, with future updates expected to expand further. It's a great tool for enhancing the presentation of numerical data in Indonesian language applications. Try it out and make your applications more accessible and user-friendly!

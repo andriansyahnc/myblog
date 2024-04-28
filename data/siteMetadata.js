@@ -6,7 +6,7 @@ const siteMetadata = {
   description: 'A blog created by NC',
   language: 'en-us',
   theme: 'system', // system, dark or light
-  siteUrl: 'https://http://nc-andriansyah.me',
+  siteUrl: 'https://nc-andriansyah.me/',
   siteRepo: 'https://github.com/andriansyahnc/myblog',
   siteLogo: '/static/images/logo.png',
   socialBanner: '/static/images/twitter-card.png',

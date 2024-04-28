@@ -1,8 +1,8 @@
 interface Project {
-  title: string,
-  description: string,
-  href?: string,
-  imgSrc?: string,
+  title: string
+  description: string
+  href?: string
+  imgSrc?: string
 }
 
 const projectsData: Project[] = [
@@ -19,10 +19,16 @@ const projectsData: Project[] = [
     href: 'https://www.moladin.com',
   },
   {
-    title: 'Keller Williams',
-    description: `Keller Williams' Command is a cutting-edge technology platform tailored specifically for its real estate agents. This all-in-one solution streamlines various aspects of the real estate business, including customer relationship management, marketing, transaction handling, and performance analytics. With Command, agents can efficiently manage their client interactions, create marketing materials, monitor deal progress, and glean insights from comprehensive analytics. Designed to enhance productivity and operational efficiency, Command positions Keller Williams agents at the forefront of the competitive real estate market through integrated technology.`,
+    title: `Keller Williams' Command`,
+    description: `Keller Williams' Command  a real estate website and marketing platform designed exclusively for Keller Williams' real estate agents.`,
     imgSrc: '/static/images/command.png',
     href: 'https://console.command.kw.com',
+  },
+  {
+    title: `Gudangada Wholesale Shopping`,
+    description: `GudangAda is an FMCG marketplace for wholesalers, retail shops, and MSMEs`,
+    imgSrc: '/static/images/gudangada.png',
+    href: 'https://gudangada.com',
   },
 ]
 

@@ -3,7 +3,7 @@ const siteMetadata = {
   title: "NC's Blog",
   author: 'M Andriansyah Nurcahya (NC)',
   headerTitle: "NC' Blog",
-  description: 'A blog created by NC',
+  description: 'A Backend Perspective, from Indonesia with Love 🇮🇩',
   language: 'en-us',
   theme: 'system', // system, dark or light
   siteUrl: 'https://nc-andriansyah.me/',
@@ -16,9 +16,9 @@ const siteMetadata = {
   twitter: 'https://twitter.com/andriansyahnc',
   facebook: 'https://facebook.com/andriansyahnc',
   // youtube: 'https://youtube.com',
-  linkedin: 'https://www.linkedin.com/in/andriansyahnc',
+  linkedin: 'https://www.linkedin.com/in/andriansyahnc/',
   // threads: 'https://www.threads.net',
-  instagram: 'https://www.instagram.com',
+  instagram: 'https://www.instagram.com/andriansyahnc',
   locale: 'en-US',
   analytics: {
     // If you want to use an analytics provider you have to add it to the

@@ -3,7 +3,7 @@ const siteMetadata = {
   title: "NC's Blog",
   author: 'M Andriansyah Nurcahya (NC)',
   headerTitle: "NC' Blog",
-  description: 'A blog created by NC',
+  description: 'A Backend Perspective, from Indonesia with Love 🇮🇩',
   language: 'en-us',
   theme: 'system', // system, dark or light
   siteUrl: 'https://nc-andriansyah.me/',

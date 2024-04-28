@@ -22,7 +22,7 @@ const projectsData: Project[] = [
     title: 'Keller Williams',
     description: `Keller Williams' Command is a cutting-edge technology platform tailored specifically for its real estate agents. This all-in-one solution streamlines various aspects of the real estate business, including customer relationship management, marketing, transaction handling, and performance analytics. With Command, agents can efficiently manage their client interactions, create marketing materials, monitor deal progress, and glean insights from comprehensive analytics. Designed to enhance productivity and operational efficiency, Command positions Keller Williams agents at the forefront of the competitive real estate market through integrated technology.`,
     imgSrc: '/static/images/command.png',
-    href: 'https://www.moladin.com',
+    href: 'https://console.command.kw.com',
   },
 ]
 

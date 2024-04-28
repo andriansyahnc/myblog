@@ -16,7 +16,7 @@ const siteMetadata = {
   twitter: 'https://twitter.com/andriansyahnc',
   facebook: 'https://facebook.com/andriansyahnc',
   // youtube: 'https://youtube.com',
-  linkedin: 'https://www.linkedin.com/in/andriansyahnc',
+  linkedin: 'https://www.linkedin.com/in/andriansyahnc/',
   // threads: 'https://www.threads.net',
   instagram: 'https://www.instagram.com',
   locale: 'en-US',

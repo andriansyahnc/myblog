@@ -19,6 +19,7 @@ const siteMetadata = {
   linkedin: 'https://www.linkedin.com/in/andriansyahnc/',
   // threads: 'https://www.threads.net',
   instagram: 'https://www.instagram.com/andriansyahnc',
+  drupal: 'https://www.drupal.org/u/andriansyah',
   locale: 'en-US',
   analytics: {
     // If you want to use an analytics provider you have to add it to the

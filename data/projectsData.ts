@@ -7,6 +7,12 @@ interface Project {
 
 const projectsData: Project[] = [
   {
+    title: `Keller Williams' Command`,
+    description: `Keller Williams' Command  a real estate website and marketing platform designed exclusively for Keller Williams' real estate agents.`,
+    imgSrc: '/static/images/command.png',
+    href: 'https://console.command.kw.com',
+  },
+  {
     title: 'Moladin Internal Marketplace',
     description: `Moladin marketplace is a streamlined platform for buying and selling used cars. Easily list your vehicle, connect with buyers in your network or beyond, and enjoy secure, hassle-free transactions. Moladin marketplace makes selling your secondhand car straightforward and reliable.`,
     imgSrc: '/static/images/internal-marketplace.jpg',
@@ -19,16 +25,22 @@ const projectsData: Project[] = [
     href: 'https://www.moladin.com',
   },
   {
-    title: `Keller Williams' Command`,
-    description: `Keller Williams' Command  a real estate website and marketing platform designed exclusively for Keller Williams' real estate agents.`,
-    imgSrc: '/static/images/command.png',
-    href: 'https://console.command.kw.com',
-  },
-  {
     title: `Gudangada Wholesale Shopping`,
     description: `GudangAda is an FMCG marketplace for wholesalers, retail shops, and MSMEs`,
     imgSrc: '/static/images/gudangada.png',
     href: 'https://gudangada.com',
+  },
+  {
+    title: `PLUS! NTUC Membership Program`,
+    description: `PLUS! NTUC is a membership program by NTUC that provides exclusive discounts, promotions, and benefits across various sectors to NTUC members.`,
+    imgSrc: '/static/images/ntuc.png',
+    href: '',
+  },
+  {
+    title: `Open University's Scientific Paper Document Management System`,
+    description: `The Scientific Paper Document Management System (DMS) for Universitas Terbuka streamlines the organization, storage, and management of scholarly works, including research papers, theses, and dissertations, to enhance accessibility, security, and efficiency in academic processes.`,
+    imgSrc: '/static/images/karil.png',
+    href: '',
   },
 ]
 

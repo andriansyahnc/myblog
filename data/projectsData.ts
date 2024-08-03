@@ -16,7 +16,7 @@ const projectsData: Project[] = [
     title: 'Moladin Internal Marketplace',
     description: `Moladin marketplace is a streamlined platform for buying and selling used cars. Easily list your vehicle, connect with buyers in your network or beyond, and enjoy secure, hassle-free transactions. Moladin marketplace makes selling your secondhand car straightforward and reliable.`,
     imgSrc: '/static/images/internal-marketplace.jpg',
-    href: 'https://www.moladin.com',
+    href: 'https://play.google.com/store/apps/details?id=com.moladin.mofi&hl=id&pli=1',
   },
   {
     title: 'Moladin Internal App',
@@ -29,6 +29,18 @@ const projectsData: Project[] = [
     description: `GudangAda is an FMCG marketplace for wholesalers, retail shops, and MSMEs`,
     imgSrc: '/static/images/gudangada.png',
     href: 'https://gudangada.com',
+  },
+  {
+    title: `GTM Vision`,
+    description: `GTMVision is a technology company specializing in digital transformation solutions, offering services in data analytics, business intelligence, and cloud computing to enhance IT infrastructure and strategic decision-making.`,
+    imgSrc: '/static/images/gtmvision.png',
+    href: '',
+  },
+  {
+    title: `My Boosters`,
+    description: `My Boosters is a platform designed to enhance personal and professional development through a range of resources, including educational content and productivity tools.`,
+    imgSrc: '/static/images/myboosters.png',
+    href: '',
   },
   {
     title: `PLUS! NTUC Membership Program`,

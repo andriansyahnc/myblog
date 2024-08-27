@@ -2,7 +2,7 @@
 title: "Handling Asynchronous Operations with JavaScript's `map`"
 tags: ["JavaScript", "Async", "map", "Promise"]
 date: "2024-08-28"
-summary In the shadowy depths of JavaScript, a hidden challenge lurks—map and async functions, a deceptive duo. What appears to be a simple transformation reveals an array of unfulfilled promises, leaving developers bewildered. Yet, there exists a key to unlocking their true potential: Promise.all, the ancient incantation that resolves this enigma and unveils the data concealed within.
+summary In the shadowy depths of JavaScript, a hidden challenge lurks—map and async functions, a deceptive duo. What appears to be a simple transformation reveals an array of unfulfilled promises, leaving developers bewildered. Yet, there exists a key to unlocking their true potential: `Promise.all`, the ancient incantation that resolves this enigma and unveils the data concealed within.
 ---
 
 ## Introduction
@@ -33,7 +33,7 @@ The map method is designed to apply a function to each element of an array and r
 
 ## The Solution
 
-To handle this correctly, you need to use Promise.all. Promise.all takes an array of promises and returns a single promise that resolves when all of the promises in the array have resolved.
+To handle this correctly, you need to use Promise.all. Promise.all takes an array of promises and returns a single promise that resolves when all the promises in the array have resolved.
 
 Here's how you can modify the previous example:
 
@@ -49,7 +49,7 @@ const results = await Promise.all(ids.map(fetchData));
 console.log(results); // Logs: [{ id: 1, data: 'Data for 1' }, { id: 2, data: 'Data for 2' }, { id: 3, data: 'Data for 3' }]
 ```
 
-In this solution, Promise.all waits for all promises to resolve and returns an array of resolved values, giving you the expected data.
+In this solution, `Promise.all` waits for all promises to resolve and returns an array of resolved values, giving you the expected data.
 
 ## Key Takeaways
 
@@ -58,4 +58,4 @@ Using Promise.all: To get the resolved values of these promises, use Promise.all
 
 ## Conclusion
 
-Handling asynchronous operations in JavaScript can be tricky, especially when using array methods like map. By understanding how map works with async functions and how to use Promise.all, you can avoid common pitfalls and write more reliable code.
+Handling asynchronous operations in JavaScript can be tricky, especially when using array methods like map. By understanding how map works with async functions and how to use `Promise.all`, you can avoid common pitfalls and write more reliable code.

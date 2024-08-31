@@ -1,11 +1,12 @@
 /** @type {import("pliny/config").PlinyConfig } */
 const siteMetadata = {
-  title: "NC's Blog",
+  title: "NC's Daily Tech - Code Snippets and Real-Life Solutions",
   author: 'M Andriansyah Nurcahya (NC)',
   headerTitle: "NC' Blog",
-  description: 'A Backend Perspective, from Indonesia with Love 🇮🇩',
+  description:
+    "Explore NC's Blog for daily tech insights, practical code snippets, and real-life solutions in backend development, Drupal, and leadership. Join the journey of a tech lead sharing hands-on experiences.",
   language: 'en-us',
-  theme: 'system', // system, dark or light
+  theme: 'dark', // system, dark or light
   siteUrl: 'https://nc-andriansyah.me/',
   siteRepo: 'https://github.com/andriansyahnc/myblog',
   siteLogo: '/static/images/logo.png',

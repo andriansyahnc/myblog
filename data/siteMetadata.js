@@ -2,7 +2,7 @@
 const siteMetadata = {
   title: "NC's Daily Tech - Code Snippets and Real-Life Solutions",
   author: 'M Andriansyah Nurcahya (NC)',
-  headerTitle: "NC's Daily Tech - Code Snippets and Real-Life Solutions",
+  headerTitle: "NC' Blog",
   description:
     "Explore NC's Blog for daily tech insights, practical code snippets, and real-life solutions in backend development, Drupal, and leadership. Join the journey of a tech lead sharing hands-on experiences.",
   language: 'en-us',

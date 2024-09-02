@@ -1,0 +1,56 @@
+---
+title: "How to Extract YouTube Video IDs and Create Embeddable URLs in PHP"
+tags: ["PHP YouTube Integration", "Extract YouTube Video ID", "YouTube Embed URLs", "Web Development Tips", "CMS Development", "Drupal YouTube Embedding", "PHP"]
+summary: "In this article, we explore a PHP function that extracts YouTube video IDs from various URL formats and generates a consistent embed link. Perfect for web developers working with content management systems or custom video players, this guide ensures you can handle any YouTube URL with ease."
+date: '2024-09-03'
+draft: false
+---
+
+If you're working on a project that requires embedding YouTube videos, you might need to extract the video ID from various YouTube URL formats. In this article, we'll explore a simple PHP function that can do just that and return the video in an embeddable format.
+
+### Why Extract YouTube Video IDs?
+YouTube videos can be embedded in multiple ways, and the URLs can come in various formats. Whether it's the standard YouTube URL, a shortened youtu.be link, or an embed link, you'll need to extract the video ID to create a consistent embed URL. This is particularly useful for content management systems (CMS) like Drupal or WordPress, where users might paste different URL formats.
+
+### The PHP Function
+Here's the PHP function you'll use to extract the YouTube video ID from a given URL:
+
+```php
+function getYouTubeVideoId($url) {
+  // Regular expression to match different YouTube URL formats, including the embed format
+  $pattern = '%(?:youtube(?:-nocookie)?\.com/(?:[^/]+/.+/|(?:v|e(?:mbed)?)|embed/|v/|watch\\?v=|\\?v=)|youtu\.be/|embed/)([^"&?/ ]{11})%i';
+
+  // Attempt to match the pattern to the URL
+  if (preg_match($pattern, $url, $matches)) {
+    return $matches[1];
+  } else {
+    return false; // Return false if no match is found
+  }
+}
+```
+
+This function uses a regular expression to match various YouTube URL patterns. Once it finds a match, it extracts the 11-character video ID, which is then returned. If the URL does not match any recognized pattern, the function returns false.
+
+### Generating an Embeddable URL
+Once you have the video ID, generating an embeddable URL is straightforward. Here’s how you can do it:
+
+```php
+$videoId = getYouTubeVideoId($url);
+if ($videoId) {
+  $embedUrl = "https://youtube.com/embed/$videoId";
+  echo $embedUrl;
+} else {
+  echo "Invalid YouTube URL";
+}
+```
+
+This snippet checks if the function returns a valid video ID and then constructs the embed URL. If the URL is invalid or doesn't match the expected format, an error message is displayed.
+
+### Real-World Use Cases
+- Content Management Systems: This function can be integrated into CMS platforms like Drupal to handle user-submitted YouTube URLs, ensuring consistent embedding.
+- Video Galleries: If you're building a video gallery, this function allows you to dynamically generate embed URLs from a database of YouTube links.
+- Custom Video Players: When building custom video players, extracting the video ID ensures that you can handle any YouTube URL format.
+
+### Conclusion
+Extracting YouTube video IDs is a common requirement for many web applications, and this PHP function offers a simple and reliable solution. By using this method, you can ensure that your application can handle different YouTube URL formats and generate consistent embed links.
+
+For more coding tips and tutorials, check out other articles on [NC's Blog](http://nc-andriansyah.me).

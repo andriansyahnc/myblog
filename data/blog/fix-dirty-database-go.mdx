@@ -1,0 +1,128 @@
+---
+title: "How to Fix a Dirty Database Using a Go Script"
+date: "2024-09-24"
+summary: "Learn how to fix a dirty database state caused by failed migrations in Go using the golang-migrate package, even when you don't have MySQL admin permissions."
+tags: ["golang", "database", "migrations", "golang-migrate", "dirty database", "fix database", "Go scripts"]
+---
+
+### Introduction
+
+A dirty database state occurs when a migration fails mid-way, leaving the database in an inconsistent state. This can block further migrations until the issue is resolved. In this guide, we will show you how to programmatically fix a dirty database using a Go script with the `golang-migrate` package.
+
+By the end of this article, you'll know how to force a migration version in Go, clearing the dirty state and allowing further migrations to be executed smoothly.
+
+### Why Does a Database Become Dirty?
+
+A dirty database often occurs due to:
+
+- Partial failures during migrations (e.g., network issues, syntax errors).
+- Manual schema changes that mismatch with migrations.
+- Incomplete or failed rollback operations.
+
+When a migration fails, the database becomes “dirty,” preventing future migrations until you address the issue and force the version.
+
+### Step-by-Step Guide to Fix a Dirty Database with Go
+
+#### 1. Install the `golang-migrate` Package
+
+First, you need to install the `golang-migrate` package, which will help you handle database migrations:
+
+```bash
+go get -u github.com/golang-migrate/migrate/v4
+```
+
+Make sure to also install the necessary drivers for your database. For example, for MySQL:
+
+```bash
+go get -u github.com/golang-migrate/migrate/v4/database/mysql
+```
+
+#### 2. Create a Go Script to Force the Migration Version
+
+Now, let's create a Go script that will force the migration version and clear the dirty state: (fix_migration.go)
+
+```go
+package main
+
+import (
+	"flag"
+	"github.com/golang-migrate/migrate/v4"
+	_ "github.com/golang-migrate/migrate/v4/database/mysql"
+	_ "github.com/golang-migrate/migrate/v4/source/file"
+	"log"
+	"strconv"
+)
+
+var (
+	commit  string
+	builtAt string
+)
+
+func main() {
+	// load environment
+
+	versionStr := flag.String("version", "", "Migration version to force (required)")
+
+	flag.Parse()
+
+	// Check if required flags are provided
+	if *versionStr == "" {
+		log.Fatalf("Error: You must provide a migration version to force using the -version flag")
+	}
+
+	forcedVersion, err := strconv.Atoi(*versionStr)
+	if err != nil {
+		log.Fatalf("Invalid version number provided: %v", err)
+	}
+
+	err = database.InitDBTables()
+	if err != nil {
+		logger.Error().Println(err)
+	}
+
+	connectionString := cfg.BuildDbConnString()
+
+	m, err := migrate.New(
+		"file://migrations", // Path to migration files
+		"mysql://"+connectionString,
+	)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Run migration up
+	err = m.Force(forcedVersion)
+	if err != nil {
+		log.Fatalf("Failed to force migration version: %v", err)
+	}
+
+	log.Printf("Successfully forced migration version to: %d\n", forcedVersion)
+}
+
+```
+
+#### 3. How It Works
+
+- Flags: The -version flags allow you to specify the version number you want to force.
+- Error Handling: The script checks if the -version flag is missing and ensures the provided version is a valid integer.
+- Migration Logic: Once the script connects to the database, it forces the migration version and clears the dirty state.
+
+#### 4. Running the Script
+
+```
+go run fix_migration.go -version=20240924005347
+```
+
+If you don't pass the -version flag, the script will exit with an error, prompting you to provide it.
+
+### Best Practices
+- Backup Your Database: Always back up your database before forcing a migration, especially if you're working in a production environment.
+- Check for Schema Conflicts: Before forcing the migration, ensure that the schema aligns with what the migration expects.
+- Use Transactional Migrations: If possible, run migrations in a transactional manner, so a failed migration rolls back automatically.
+
+### Conclusion
+By following the steps in this article, you can quickly and safely fix a dirty database state using a Go script and the golang-migrate package. This approach helps avoid manual intervention and ensures smooth execution of future migrations.
+
+With this solution, you no longer need to worry about blocked migrations due to dirty states, keeping your database healthy and ready for updates.
+
+For more coding tips and tutorials, check out other articles on [NC's Blog](http://nc-andriansyah.me).

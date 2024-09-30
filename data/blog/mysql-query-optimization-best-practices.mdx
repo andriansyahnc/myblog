@@ -1,0 +1,87 @@
+---
+title: 'Improving MySQL Database Queries: Best Practices for Better Performance'
+tags: ["MySQL", "Query Optimization", "Database Indexing", "SQL Performance", "Common Table Expressions (CTEs)", "Subquery Optimization", "Query Execution Plan (QEP)", "SQL Best Practices", "Database Performance Tuning", "MySQL Indexing"]
+summary: 'Learn how to optimize MySQL database queries for better performance. Tips include using indexes, optimizing CTEs, avoiding subqueries, and analyzing queries with QEP'
+date: '2024-09-24'
+draft: false
+---
+
+When working with MySQL, one of the most critical aspects of ensuring a performant application is optimizing your database queries. Poorly optimized queries can slow down your system, increase load times, and create bottlenecks in your application. In this article, we will discuss several best practices to improve MySQL database query performance.
+
+### Create Indexes on `WHERE` and `JOIN` Columns
+Indexes are essential for speeding up queries, especially when you're filtering with WHERE or joining tables using JOIN. Without an index, MySQL has to scan every row to find the relevant data, which is both time-consuming and resource-heavy.
+
+#### Composite Indexes for Pattern Queries
+If your queries often involve multiple columns, consider creating composite indexes. A composite index allows MySQL to filter by multiple columns in a single scan, rather than scanning separately for each column. For example:
+
+```sql
+CREATE INDEX idx_user_order ON orders (user_id, order_date);
+```
+
+In this example, if you're often querying by user_id and order_date, a composite index helps optimize this pattern.
+
+#### Best Practices for Indexes:
+- Add indexes to columns used in WHERE, JOIN, or ORDER BY.
+- Limit the number of indexes per table to avoid overhead.
+- Regularly monitor and clean unused indexes.
+
+### Optimize Common Table Expressions (CTEs)
+When using Common Table Expressions (CTEs), start with the least detailed (i.e., aggregated) data set. CTEs can often become inefficient if the first query returns a large dataset, especially when that dataset isn’t necessary for the final result. Think of it as "starting small" before building up.
+
+#### Aggregated CTE Example:
+```sql
+WITH summary AS (
+  SELECT user_id, COUNT(order_id) AS total_orders
+  FROM orders
+  GROUP BY user_id
+)
+SELECT * FROM summary WHERE total_orders > 10;
+```
+In this case, start with summary data, instead of working with a large, detailed table of all order records.
+
+#### Avoid Historical Data in CTE:
+- Use CTEs for aggregated data.
+- Avoid referencing historical or detailed tables directly in CTEs.
+
+### Avoid Subqueries When Possible
+Subqueries may seem convenient but can be a performance hit, especially when they aren't optimized. Subqueries often run multiple times, especially when used in WHERE clauses, making them less efficient than alternatives like joins or CTEs.
+
+#### Example of a Subquery to Avoid:
+```sql
+SELECT * FROM users
+WHERE user_id IN (SELECT user_id FROM orders WHERE total > 100);
+```
+Instead, rewrite the query using a JOIN:
+```sql
+SELECT u.* FROM users u
+JOIN orders o ON u.user_id = o.user_id
+WHERE o.total > 100;
+```
+
+#### Why Avoid Subqueries?
+- Subqueries often execute multiple times.
+- Joins or CTEs are generally faster for complex queries.
+
+### Use Query Execution Plan (QEP) for Optimization
+MySQL’s Query Execution Plan (QEP) is one of the best tools for understanding how your query is executed. By analyzing the plan, you can identify bottlenecks, missing indexes, or inefficient joins.
+
+#### How to Use QEP:
+Run EXPLAIN before your query to see its execution plan:
+
+```sql
+EXPLAIN SELECT * FROM orders WHERE user_id = 1;
+```
+
+The output will show how MySQL processes the query, including whether indexes are being used or if a full table scan is required. Use this information to make improvements, such as adding necessary indexes or restructuring the query.
+
+#### Key Points to Look For in QEP:
+- type: Ensure this is index or ref instead of ALL, which indicates a full scan.
+- possible_keys: Shows potential indexes that can be used. Ensure this field isn't empty.
+- Extra: Watch for unwanted operations like Using temporary or Using filesort.
+
+### Conclusion
+Improving your MySQL database queries can drastically enhance your application's performance. Start by indexing the right columns, using CTEs wisely, avoiding subqueries, and regularly reviewing your queries with QEP. These best practices will help you optimize query execution, reduce load times, and keep your database running efficiently.
+
+By following these steps, you’ll create queries that are scalable and performant, helping your system handle larger datasets as it grows.
+
+For more coding tips and tutorials, check out other articles on [NC's Blog](http://nc-andriansyah.me).

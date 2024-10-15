@@ -1,0 +1,48 @@
+---
+title: 'Understanding the Difference Between WHERE and HAVING in MySQL'
+tags: ["MySQL", "MySQL Clauses", "MySQL WHERE Clause", "MySQL HAVING Clause", "Query Optimization"]
+summary: 'In MySQL, the WHERE and HAVING clauses are crucial for filtering data but serve different purposes. This article explores their distinct functionalities, usage scenarios, and provides practical examples to enhance your MySQL querying skills.'
+date: '2024-10-16'
+draft: false
+---
+
+MySQL (My Structured Query Language) is a widely used relational database management system. Among its many clauses, the WHERE and HAVING clauses are essential for filtering data effectively. While they may appear similar, they serve different roles in MySQL queries. This article clarifies their differences, provides practical examples, and highlights best practices for their use.
+
+### 1. What is the WHERE Clause?
+The WHERE clause filters records before any grouping or aggregation takes place in MySQL. It specifies conditions that individual rows must meet to be included in the result set.
+
+#### Example of WHERE Clause:
+```sql
+SELECT *
+FROM employees
+WHERE department = 'Sales';
+```
+
+#### Usage:
+- Filters rows before grouping.
+- Cannot use aggregate functions. It filters raw data.
+- Use when filtering rows based on conditions directly related to the fields in the table.
+
+In this example, the query retrieves all records from the employees table where the department is 'Sales'.
+
+### 2. What is the HAVING Clause?
+The HAVING clause, on the other hand, filters groups after aggregation has been performed in MySQL. It is typically used with aggregate functions like SUM, AVG, and COUNT and is applied after the GROUP BY clause.
+
+#### Example of HAVING Clause:
+```sql
+SELECT department, COUNT(*) AS employee_count
+FROM employees
+GROUP BY department
+HAVING COUNT(*) > 10;
+```
+Here, the query counts the number of employees in each department and only includes those departments with more than 10 employees in the results.
+
+#### Usage:
+- Filters groups after aggregation.
+- Can use aggregate functions. It filters based on the results of aggregation.
+- Use when filtering based on the results of aggregate functions or groups.
+
+### Conclusion
+Understanding the differences between the WHERE and HAVING clauses is crucial for effective MySQL querying. The WHERE clause filters rows before aggregation, while the HAVING clause filters after aggregation. By mastering these clauses, you can write more efficient queries and gain deeper insights from your data.
+
+For more coding tips and tutorials, check out other articles on [NC's Blog](http://nc-andriansyah.me).

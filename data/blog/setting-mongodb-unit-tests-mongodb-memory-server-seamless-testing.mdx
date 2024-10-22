@@ -1,0 +1,180 @@
+---
+title: "Setting Up MongoDB Unit Tests with mongodb-memory-server for Seamless Testing"
+tags: ["MongoDB", "Unit Testing", "mongodb-memory-server", "software development", "Mongoose", "JavaScript", "Node.js", "javascript", "Testing Strategies", "Backend Development"]
+summary: "In this article, we explore how to implement mongodb-memory-server to simplify and optimize your MongoDB unit tests. By using an in-memory MongoDB instance, you can run tests in isolation without affecting your production database. We walk through configuring MongoDB for production and testing environments, creating a schema, setting up the necessary tests, and adding debugging capabilities for troubleshooting. This setup ensures fast, reliable, and independent unit tests for your MongoDB projects."
+date: '2024-10-23'
+draft: false
+---
+
+Unit testing is an essential part of ensuring your code works as expected, but using a live database during testing can lead to issues like database state pollution or unwanted modifications. That’s where mongodb-memory-server comes in, providing an in-memory MongoDB instance that allows you to run tests in complete isolation from your production data.
+
+In this post, we’ll walk through how to set up mongodb-memory-server for MongoDB unit tests, create a schema, and configure your project to run smoothly with in-memory databases. Let’s dive in!
+
+### Why mongodb-memory-server?
+Unit testing your MongoDB models with a real database can cause unpredictable results. The mongodb-memory-server package eliminates that by providing an in-memory version of MongoDB for testing purposes, so no actual database is needed.
+
+Advantages of using mongodb-memory-server:
+
+- Isolated testing: Each test starts with a clean database state.
+- No external dependencies: Tests run without needing a running MongoDB server.
+= Fast test execution: Since everything runs in-memory, tests complete faster.
+
+### Setting Up MongoDB for Production
+
+Let’s first configure how MongoDB works in production. In your src/provider/mongodb.js, you’ll find the following:
+
+```js
+const mongoose = require("mongoose");
+
+// define your connection string here
+
+if (process.env.NODE_ENV !== "test") {
+  const connectToDatabase = async () => {
+    try {
+      await mongoose.connect(connectionString);
+      console.log("Mongo db connected successfully");
+    } catch (error) {
+      console.error(`Mongo db connection error: ${error.message}`);
+      throw new Error("Database connection failed");
+    }
+  };
+
+  connectToDatabase().catch((error) => {
+    logger.error(`Initial connection failed: ${error.message}`);
+    process.exit(1);
+  });
+}
+
+module.exports = mongoose;
+```
+This code handles connecting to a live MongoDB instance using environment variables for authentication.
+
+### Using mongodb-memory-server for Testing
+
+Now, let’s see how to implement mongodb-memory-server for testing purposes. Create a new file, tests/handler/db.js, and set up your in-memory MongoDB like this:
+
+```js
+// I'm using mongodb-memory-server v10.1.2 and mongoose v7.8.2
+const mongoose = require("mongoose");
+const { MongoMemoryServer } = require("mongodb-memory-server");
+
+let mongod;
+
+const startMemoryServer = async () => {
+  mongod = await MongoMemoryServer.create();
+  console.log("MongoDB Memory Server started at", mongod.getUri());
+};
+
+const connect = async () => {
+  await startMemoryServer().catch((error) => {
+    console.error("Failed to start MongoDB Memory Server:", error);
+  });
+  const uri = mongod.getUri();
+
+  const mongooseOpts = {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  };
+
+  await mongoose.connect(uri, mongooseOpts);
+};
+
+const closeDatabase = async () => {
+  await mongoose.connection.dropDatabase();
+  await mongoose.connection.close();
+  await mongod.stop();
+};
+
+const clearDatabase = async () => {
+  const collections = await mongoose.connection.db.collections();
+  await Promise.all(
+    collections.map(async (collection) => {
+      await collection.deleteMany({});
+    })
+  );
+};
+
+module.exports = {
+  connect,
+  closeDatabase,
+  clearDatabase,
+};
+```
+Key Parts of the Setup:
+- connect(): This function connects Mongoose to the in-memory MongoDB instance.
+- closeDatabase(): Closes the in-memory database and stops the MongoDB memory server.
+- clearDatabase(): Ensures all documents are cleared between tests.
+
+### Create Your Schema
+Let’s create a simple schema for testing. Here's a basic User schema:
+```js
+const mongoose = require("../providers/listing-customization-mongodb");
+
+const userSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  email: { type: String, required: true, unique: true },
+});
+
+const User = mongoose.model("User", userSchema);
+
+module.exports = User;
+
+```
+
+### Writing Unit Tests
+Now we’ll write some unit tests for the User model using the in-memory MongoDB setup. Here's how you can structure your test file:
+```js
+const { connect, closeDatabase, clearDatabase } = require("./handler/db");
+const User = require("../src/models/user");
+
+beforeAll(async () => {
+  await connect();
+});
+
+afterAll(async () => {
+  await closeDatabase();
+});
+
+afterEach(async () => {
+  await clearDatabase();
+});
+
+test("should create and save a user", async () => {
+  const userData = { name: "John Doe", email: "johndoe@example.com" };
+  const user = new User(userData);
+  const savedUser = await user.save();
+
+  expect(savedUser._id).toBeDefined();
+  expect(savedUser.name).toBe(userData.name);
+  expect(savedUser.email).toBe(userData.email);
+});
+
+test("should fail when saving a duplicate email", async () => {
+  const userData = { name: "John Doe", email: "johndoe@example.com" };
+  const user = new User(userData);
+  await user.save();
+
+  const duplicateUser = new User(userData);
+  await expect(duplicateUser.save()).rejects.toThrow();
+});
+
+```
+This structure ensures that your tests are independent of each other and use a fresh in-memory database instance.
+
+### Debugging with mongodb-memory-server
+If you need to debug issues during testing, you can add debugging options for mongodb-memory-server. Simply update your package.json to include:
+```json
+{
+  "config": {
+    "mongodbMemoryServer": {
+      "debug": "0"
+    }
+  }
+}
+```
+This will disable the debug logs. To enable them, you can set "debug": "1", which will provide more insight into what's happening during the tests.
+
+### Conclusion
+Using mongodb-memory-server is an excellent way to test your MongoDB-related code without relying on an actual database instance. It keeps your tests isolated, fast, and reliable. By following the setup provided in this article, you’ll have an efficient MongoDB testing environment, improving your development workflow.
+
+For more coding tips and tutorials, check out other articles on [NC's Blog](http://nc-andriansyah.me).

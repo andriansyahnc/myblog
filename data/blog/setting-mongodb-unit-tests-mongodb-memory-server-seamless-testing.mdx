@@ -54,6 +54,7 @@ This code handles connecting to a live MongoDB instance using environment variab
 Now, let’s see how to implement mongodb-memory-server for testing purposes. Create a new file, tests/handler/db.js, and set up your in-memory MongoDB like this:
 
 ```js
+// I'm using mongodb-memory-server v10.1.2 and mongoose v7.8.2
 const mongoose = require("mongoose");
 const { MongoMemoryServer } = require("mongodb-memory-server");
 
@@ -175,4 +176,5 @@ This will disable the debug logs. To enable them, you can set "debug": "1", whic
 
 ### Conclusion
 Using mongodb-memory-server is an excellent way to test your MongoDB-related code without relying on an actual database instance. It keeps your tests isolated, fast, and reliable. By following the setup provided in this article, you’ll have an efficient MongoDB testing environment, improving your development workflow.
+
 For more coding tips and tutorials, check out other articles on [NC's Blog](http://nc-andriansyah.me).

@@ -1,0 +1,185 @@
+---
+title: 'AsyncLocalStorage in Node.js - Beginner Guide'
+tags: ['Node.js', 'AsyncLocalStorage', 'Context Management', 'Backend']
+summary: 'Learn how to use AsyncLocalStorage in Node.js to manage request-level context with practical, file-based examples.'
+date: '2025-08-18'
+draft: false
+---
+
+### Introduction
+
+In large Node.js applications, managing request-specific context across asynchronous calls can be tricky. That’s where AsyncLocalStorage (introduced in Node.js 13) comes in. It provides a way to store and access data throughout the lifetime of an asynchronous operation — like request IDs, user sessions, or transaction contexts.
+
+In this guide, we’ll explore how AsyncLocalStorage works with real project-like examples.
+
+### Why Use AsyncLocalStorage?
+
+- Request Tracking: Attach a unique request ID and log it everywhere.
+- Context Sharing: Pass user/session data without threading it manually.
+- Clean Code: Avoid adding parameters everywhere just to propagate context.
+
+### Project Setup
+
+Let’s create a simple project:
+
+```bash
+mkdir async-local-storage-example && cd async-local-storage-example
+pnpm init
+pnpm install express
+```
+
+Project structure:
+
+```bash
+async-local-storage-example/
+├── index.js
+├── logger.js
+└── context.js
+```
+
+#### Step 1: Setup AsyncLocalStorage Context
+
+```
+// context.js
+import { AsyncLocalStorage } from "node:async_hooks";
+
+const asyncLocalStorage = new AsyncLocalStorage();
+
+export function runWithContext(store, callback) {
+  return asyncLocalStorage.run(store, callback);
+}
+
+export function getContext() {
+  return asyncLocalStorage.getStore();
+}
+```
+
+Here we:
+
+- Create a global AsyncLocalStorage instance.
+- Wrap requests in runWithContext.
+- Provide a helper getContext to fetch current context.
+
+#### Step 2: Add Request Context in Express
+
+```js
+// index.js
+import express from 'express'
+import { runWithContext, getContext } from './context.js'
+import { logInfo } from './logger.js'
+import { randomUUID } from 'node:crypto'
+
+const app = express()
+
+app.use((req, res, next) => {
+  const store = { requestId: randomUUID(), url: req.url }
+  runWithContext(store, () => next())
+})
+
+app.get('/', (req, res) => {
+  logInfo('Hello World!')
+  res.send('Check logs for request context!')
+})
+
+app.listen(3000, () => console.log('Server running on http://localhost:3000'))
+```
+
+What happens:
+
+- Each request gets a unique requestId.
+- We store it inside the context.
+- All logs now automatically include it.
+
+#### Step 3: Logging with Context
+
+```js
+// logger.js
+import { getContext } from './context.js'
+
+export function logInfo(message) {
+  const ctx = getContext()
+  const prefix = ctx ? `[${ctx.requestId}]` : '[no-context]'
+  console.log(`${prefix} ${message}`)
+}
+```
+
+Now every log has the request ID:
+
+```bash
+[9a7f1a2d-1234] Hello World!
+```
+
+#### Step 4: Testing Nested Async Calls
+
+```js
+// index.js
+[...]
+app.get("/db", async (req, res) => {
+  await fakeDbCall();
+  res.send("DB request done");
+});
+
+async function fakeDbCall() {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      logInfo("Query executed");
+      resolve();
+    }, 200);
+  });
+}
+[...]
+```
+
+Even inside async/await + setTimeout, the context still works!
+
+```bash
+[e07cabc7-787a-48af-8bc3-3dc29ce113f4] Query executed
+```
+
+#### Step 5: Direct AsyncLocalStorage Usage Example
+
+Sometimes, you may want to access the context directly inside a deeply nested async function. Here’s how you can do it:
+
+```js
+// index.js
+[...]
+async function deepAsyncOperation() {
+  await new Promise((resolve) => setTimeout(resolve, 100));
+  const ctx = getContext();
+  logInfo(`Deep async operation for request: ${ctx?.requestId}`);
+}
+
+app.get("/deep", async (req, res) => {
+  await deepAsyncOperation();
+  res.send("Deep async operation done");
+});
+[...]
+```
+
+Example response in your terminal logs:
+
+```bash
+[c2a1e7b0-5678] Deep async operation for request: c2a1e7b0-5678
+```
+
+This demonstrates that even in deeply nested async calls, you can reliably fetch the context using `getContext()`.
+
+### Real-World Use Cases
+
+- Transaction tracing across microservices.
+- Multi-tenant apps where you need tenant context.
+- Monitoring & debugging request flow.
+
+### Conclusion
+
+AsyncLocalStorage is a powerful but underused feature in Node.js. It makes context handling elegant and less error-prone. If you’ve ever struggled passing IDs or user data across layers, this tool can save you.
+
+Next time you build middleware-heavy apps, try AsyncLocalStorage for clean and contextual logging.
+
+### Example Project Based on This Guide
+
+You can find a practical demo project that implements the concepts from this article at the following link:
+
+[AsyncLocalStorage Demo – Example Implementation](https://github.com/andriansyahnc/myblog-examples/tree/main/async-local-storage-example)
+
+For more coding tips and tutorials, check out other articles on [NC's Blog](http://nc-andriansyah.me).

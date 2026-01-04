@@ -140,6 +140,18 @@ export const Authors = defineDocumentType(() => ({
     github: { type: 'string' },
     layout: { type: 'string' },
     drupal: { type: 'string' },
+    stats: {
+      type: 'list',
+      of: {
+        type: 'nested',
+        def: () => ({
+          fields: {
+            label: { type: 'string', required: true },
+            value: { type: 'string', required: true },
+          },
+        }),
+      },
+    },
   },
   computedFields,
 }))

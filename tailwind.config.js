@@ -64,14 +64,14 @@ module.exports = {
         invert: {
           css: {
             a: {
-              color: theme('colors.pink.400'),
+              color: theme('colors.cyan.400'),
               '&:hover': {
-                backgroundImage: 'linear-gradient(135deg, #f472b6 0%, #fb923c 100%)',
+                backgroundImage: 'linear-gradient(135deg, #22d3ee 0%, #60a5fa 100%)',
                 backgroundClip: 'text',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
               },
-              code: { color: theme('colors.pink.400') },
+              code: { color: theme('colors.cyan.400') },
             },
             'h1,h2,h3,h4,h5,h6': {
               color: theme('colors.gray.50'),

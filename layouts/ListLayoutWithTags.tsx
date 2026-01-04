@@ -105,14 +105,14 @@ export default function ListLayoutWithTags({
             <div className="px-6 py-4">
               {pathname.startsWith('/blog') ? (
                 <h3 className="bg-gradient-to-r from-cyan-500 to-blue-600 bg-clip-text font-bold uppercase text-transparent">
-                  All Posts
+                  All Articles
                 </h3>
               ) : (
                 <Link
                   href={`/blog`}
                   className="font-bold uppercase text-gray-700 hover:text-cyan-600 dark:text-gray-300 dark:hover:text-cyan-400"
                 >
-                  All Posts
+                  All Articles
                 </Link>
               )}
               <ul>

@@ -128,7 +128,7 @@ export default function Home({ posts }: HomeProps) {
             <Link
               href="/blog"
               className="inline-flex items-center gap-2 text-sm font-semibold transition-all hover:gap-3"
-              aria-label="All posts"
+              aria-label="All articles"
             >
               <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent">
                 View All

@@ -3,7 +3,7 @@
 /**
  * Image Optimization Script
  * Converts images to WebP format using sharp
- * 
+ *
  * Usage: pnpm optimize-images
  */
 
@@ -45,26 +45,26 @@ async function optimizeImage(imagePath) {
     const originalSize = (await stat(imagePath)).size
 
     // Generate WebP
-    await sharp(imagePath)
-      .webp({ quality: WEBP_QUALITY })
-      .toFile(webpPath)
-    
+    await sharp(imagePath).webp({ quality: WEBP_QUALITY }).toFile(webpPath)
+
     const webpSize = (await stat(webpPath)).size
-    const webpSavings = ((originalSize - webpSize) / originalSize * 100).toFixed(2)
-    
+    const webpSavings = (((originalSize - webpSize) / originalSize) * 100).toFixed(2)
+
     console.log(`✓ Created WebP: ${webpPath}`)
-    console.log(`  Saved ${webpSavings}% (${(originalSize / 1024).toFixed(2)}KB → ${(webpSize / 1024).toFixed(2)}KB)`)
+    console.log(
+      `  Saved ${webpSavings}% (${(originalSize / 1024).toFixed(2)}KB → ${(webpSize / 1024).toFixed(2)}KB)`
+    )
 
     // Generate AVIF
-    await sharp(imagePath)
-      .avif({ quality: AVIF_QUALITY })
-      .toFile(avifPath)
-    
+    await sharp(imagePath).avif({ quality: AVIF_QUALITY }).toFile(avifPath)
+
     const avifSize = (await stat(avifPath)).size
-    const avifSavings = ((originalSize - avifSize) / originalSize * 100).toFixed(2)
-    
+    const avifSavings = (((originalSize - avifSize) / originalSize) * 100).toFixed(2)
+
     console.log(`✓ Created AVIF: ${avifPath}`)
-    console.log(`  Saved ${avifSavings}% (${(originalSize / 1024).toFixed(2)}KB → ${(avifSize / 1024).toFixed(2)}KB)\n`)
+    console.log(
+      `  Saved ${avifSavings}% (${(originalSize / 1024).toFixed(2)}KB → ${(avifSize / 1024).toFixed(2)}KB)\n`
+    )
   } catch (error) {
     console.error(`✗ Failed to optimize ${imagePath}:`, error.message)
   }
@@ -82,7 +82,9 @@ async function main() {
     }
 
     console.log('✨ Image optimization complete!')
-    console.log('\n💡 Tip: Next.js will automatically serve WebP/AVIF when supported by the browser.')
+    console.log(
+      '\n💡 Tip: Next.js will automatically serve WebP/AVIF when supported by the browser.'
+    )
   } catch (error) {
     console.error('Error:', error.message)
     process.exit(1)

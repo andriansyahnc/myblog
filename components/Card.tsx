@@ -6,9 +6,13 @@ interface CardProps {
   description: string
   imgSrc?: string
   href?: string
+  role?: string
+  period?: string
+  techStack?: string[]
+  impact?: string
 }
 
-const Card = ({ title, description, imgSrc, href }: CardProps) => (
+const Card = ({ title, description, imgSrc, href, role, period, techStack, impact }: CardProps) => (
   <div className="md max-w-[544px] p-4 md:w-1/2">
     <div
       className={`${
@@ -36,6 +40,16 @@ const Card = ({ title, description, imgSrc, href }: CardProps) => (
           />
         ))}
       <div className="p-6">
+        {(role || period) && (
+          <div className="mb-3 flex flex-wrap items-center gap-2 text-sm">
+            {role && (
+              <span className="rounded-full bg-cyan-100 px-3 py-1 font-medium text-cyan-700 dark:bg-cyan-900/30 dark:text-cyan-400">
+                {role}
+              </span>
+            )}
+            {period && <span className="text-gray-500 dark:text-gray-400">{period}</span>}
+          </div>
+        )}
         <h2 className="mb-3 text-2xl font-bold leading-8 tracking-tight">
           {href ? (
             <Link
@@ -50,6 +64,21 @@ const Card = ({ title, description, imgSrc, href }: CardProps) => (
           )}
         </h2>
         <p className="prose mb-3 max-w-none text-gray-600 dark:text-gray-400">{description}</p>
+        {impact && (
+          <p className="mb-3 text-sm font-semibold text-cyan-600 dark:text-cyan-400">💡 {impact}</p>
+        )}
+        {techStack && techStack.length > 0 && (
+          <div className="mb-4 flex flex-wrap gap-2">
+            {techStack.map((tech) => (
+              <span
+                key={tech}
+                className="rounded-md bg-gray-100 px-2 py-1 text-xs font-medium text-gray-700 dark:bg-gray-800 dark:text-gray-300"
+              >
+                {tech}
+              </span>
+            ))}
+          </div>
+        )}
         {href && (
           <Link
             href={href}

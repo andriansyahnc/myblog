@@ -12,8 +12,8 @@ interface Post {
   slug: string
   date: string
   title: string
-  summary: string
-  tags: string[]
+  summary?: string
+  tags?: string[]
 }
 
 interface HomeProps {
@@ -154,7 +154,7 @@ export default function Home({ posts }: HomeProps) {
                         {title}
                       </h3>
                       <div className="flex flex-wrap gap-2">
-                        {tags.slice(0, 2).map((tag) => (
+                        {tags?.slice(0, 2).map((tag) => (
                           <span
                             key={tag}
                             className="rounded-full border border-cyan-500/30 bg-cyan-500/10 px-2 py-0.5 text-xs text-cyan-600 dark:text-cyan-400"

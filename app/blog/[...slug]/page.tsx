@@ -19,7 +19,9 @@ const layouts = {
   PostSimple,
   PostLayout,
   PostBanner,
-}
+} as const
+
+type LayoutKey = keyof typeof layouts
 
 export async function generateMetadata({
   params,
@@ -106,7 +108,8 @@ export default async function Page({ params }: { params: { slug: string[] } }) {
     }
   })
 
-  const Layout = layouts[post.layout || defaultLayout]
+  const layoutKey = (post.layout || defaultLayout) as LayoutKey
+  const Layout = layouts[layoutKey]
 
   return (
     <>

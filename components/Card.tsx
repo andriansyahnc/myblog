@@ -4,8 +4,8 @@ import Link from './Link'
 interface CardProps {
   title: string
   description: string
-  imgSrc: string
-  href: string
+  imgSrc?: string
+  href?: string
 }
 
 const Card = ({ title, description, imgSrc, href }: CardProps) => (

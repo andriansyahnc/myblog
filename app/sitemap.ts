@@ -17,7 +17,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     lastModified: new Date().toISOString().split('T')[0],
   }))
 
-  const playgroundRoutes = ['json-beautifier'].map((tool) => ({
+  const playgroundRoutes = ['json-beautifier', 'timezone-compare'].map((tool) => ({
     url: `${siteUrl}/playground/${tool}`,
     lastModified: new Date().toISOString().split('T')[0],
   }))

@@ -17,6 +17,14 @@ const liveProjects = [
     tags: ['JSON', 'Formatter', 'Developer Tools'],
   },
   {
+    title: 'Timezone Compare',
+    description: 'Compare current time across different cities and timezones in real-time',
+    href: '/playground/timezone-compare',
+    icon: '🌍',
+    status: 'active',
+    tags: ['Time', 'Timezone', 'Utility'],
+  },
+  {
     title: 'Coming Soon',
     description: 'More interactive tools and live projects coming soon...',
     href: '#',

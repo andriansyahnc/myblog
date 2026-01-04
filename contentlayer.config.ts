@@ -59,14 +59,14 @@ const computedFields: ComputedFields = {
 /**
  * Count the occurrences of all tags across blog posts and write to json file
  */
-function createTagCount(allBlogs) {
+function createTagCount(allBlogs: Array<{ tags?: string[]; draft?: boolean }>) {
   const tagCount: Record<string, number> = {}
   allBlogs.forEach((file) => {
     if (file.tags && (!isProduction || file.draft !== true)) {
       file.tags.forEach((tag) => {
         const formattedTag = slug(tag)
         if (formattedTag in tagCount) {
-          tagCount[formattedTag] += 1
+          tagCount[formattedTag] = (tagCount[formattedTag] ?? 0) + 1
         } else {
           tagCount[formattedTag] = 1
         }
@@ -76,7 +76,8 @@ function createTagCount(allBlogs) {
   writeFileSync('./app/tag-data.json', JSON.stringify(tagCount))
 }
 
-function createSearchIndex(allBlogs) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function createSearchIndex(allBlogs: any[]) {
   if (
     siteMetadata?.search?.provider === 'kbar' &&
     siteMetadata.search.kbarConfig.searchDocumentsPath
@@ -139,6 +140,18 @@ export const Authors = defineDocumentType(() => ({
     github: { type: 'string' },
     layout: { type: 'string' },
     drupal: { type: 'string' },
+    stats: {
+      type: 'list',
+      of: {
+        type: 'nested',
+        def: () => ({
+          fields: {
+            label: { type: 'string', required: true },
+            value: { type: 'string', required: true },
+          },
+        }),
+      },
+    },
   },
   computedFields,
 }))

@@ -12,11 +12,14 @@ import { ThemeProviders } from './theme-providers'
 import { Metadata } from 'next'
 import { Analytics as VercelAnalytics } from '@vercel/analytics/react'
 import { SpeedInsights } from '@vercel/speed-insights/next'
+import { WebSiteSchema } from '@/components/seo/JsonLd'
 
 const space_grotesk = Space_Grotesk({
   subsets: ['latin'],
   display: 'swap',
   variable: '--font-space-grotesk',
+  preload: true,
+  fallback: ['system-ui', 'arial'],
 })
 
 export const metadata: Metadata = {
@@ -75,7 +78,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <meta name="theme-color" media="(prefers-color-scheme: light)" content="#fff" />
       <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#000" />
       <link rel="alternate" type="application/rss+xml" href="/feed.xml" />
-      <body className="bg-white pl-[calc(100vw-100%)] text-black antialiased dark:bg-gray-950 dark:text-white">
+      <body className="bg-gray-100 pl-[calc(100vw-100%)] text-gray-900 antialiased dark:bg-[#0a0a0a] dark:text-gray-100">
+        <WebSiteSchema siteUrl={siteMetadata.siteUrl} name={siteMetadata.title} />
         <VercelAnalytics />
         <SpeedInsights />
         <ThemeProviders>

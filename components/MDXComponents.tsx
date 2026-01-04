@@ -9,8 +9,11 @@ import TableWrapper from './TableWrapper'
 export const components: MDXComponents = {
   Image,
   TOCInline,
-  a: CustomLink,
-  pre: Pre,
-  table: TableWrapper,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  a: CustomLink as any,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  pre: Pre as any,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  table: TableWrapper as any,
   BlogNewsletterForm,
 }

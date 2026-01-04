@@ -3,56 +3,92 @@ interface Project {
   description: string
   href?: string
   imgSrc?: string
+  role?: string
+  period?: string
+  techStack?: string[]
+  impact?: string
+  category?: 'work' | 'consulting' | 'client'
 }
 
 const projectsData: Project[] = [
   {
     title: `Keller Williams' Command`,
-    description: `Keller Williams' Command  a real estate website and marketing platform designed exclusively for Keller Williams' real estate agents.`,
+    description: `Real estate platform and CRM designed exclusively for Keller Williams agents. Handles marketing automation, lead management, and transaction coordination.`,
     imgSrc: '/static/images/command.png',
     href: 'https://console.command.kw.com',
+    role: 'Backend Engineer',
+    period: '2020 - Present',
+    techStack: ['Node.js', 'Laravel', 'Golang', 'MongoDB', 'PubSub'],
+    impact: 'Serving 180K+ agents worldwide',
+    category: 'work',
+  },
+  {
+    title: 'Moladin Dealer Platform',
+    description: `Digital financing and loan origination platform for automotive dealers in Indonesia. Built from scratch to streamline lending operations and dealer management.`,
+    imgSrc: '/static/images/moladin-internal.png',
+    href: 'https://www.moladin.com',
+    role: 'Technical Lead / Engineering Manager',
+    period: '2022 - 2024',
+    techStack: ['Node.js', 'TypeScript', 'MongoDB', 'Kafka', 'Microservices'],
+    impact: '100K+ dealers and agents on platform',
+    category: 'work',
   },
   {
     title: 'Moladin Internal Marketplace',
-    description: `Moladin marketplace is a streamlined platform for buying and selling used cars. Easily list your vehicle, connect with buyers in your network or beyond, and enjoy secure, hassle-free transactions. Moladin marketplace makes selling your secondhand car straightforward and reliable.`,
+    description: `Peer-to-peer marketplace for used cars. Enables dealers and agents to list vehicles, connect with buyers, and manage secure transactions within the ecosystem.`,
     imgSrc: '/static/images/internal-marketplace.jpg',
     href: 'https://play.google.com/store/apps/details?id=com.moladin.mofi&hl=id&pli=1',
+    role: 'Senior Software Engineer',
+    period: '2022 - 2024',
+    techStack: ['Node.js', 'TypeScript', 'MongoDB', 'Docker'],
+    impact: 'Thousands of monthly transactions',
+    category: 'work',
   },
   {
-    title: 'Moladin Internal App',
-    description: `Moladin Dealer offers a reliable digital financing and credit platform designed for the automotive industry players in Indonesia, from agents and micro-dealers to financing partners. Engaging over 100,000 agents and dealers, the platform streamlines the financial process by providing an integrated, easy-to-use solution that supports the growth and operational efficiency of automotive businesses.`,
-    imgSrc: '/static/images/moladin-internal.png',
-    href: 'https://www.moladin.com',
-  },
-  {
-    title: `Gudangada Wholesale Shopping`,
-    description: `GudangAda is an FMCG marketplace for wholesalers, retail shops, and MSMEs`,
+    title: `GudangAda Wholesale Platform`,
+    description: `B2B marketplace connecting FMCG wholesalers with retail shops and MSMEs across Indonesia.`,
     imgSrc: '/static/images/gudangada.png',
     href: 'https://gudangada.com',
+    role: 'Backend Software Engineer',
+    period: '2018 - 2020',
+    techStack: ['Drupal 8', 'GraphQL', 'React.js', 'MySQL'],
+    category: 'work',
   },
   {
-    title: `GTM Vision`,
-    description: `GTMVision is a technology company specializing in digital transformation solutions, offering services in data analytics, business intelligence, and cloud computing to enhance IT infrastructure and strategic decision-making.`,
+    title: `GTM Vision Analytics Platform`,
+    description: `Business intelligence and data analytics platform for strategic decision-making and IT infrastructure optimization.`,
     imgSrc: '/static/images/gtmvision.png',
-    href: '',
+    role: 'Software Developer',
+    period: '2016 - 2018',
+    techStack: ['Drupal 7', 'Node.js', 'Python', 'Jenkins'],
+    category: 'consulting',
   },
   {
-    title: `My Boosters`,
-    description: `My Boosters is a platform designed to enhance personal and professional development through a range of resources, including educational content and productivity tools.`,
+    title: `My Boosters Learning Platform`,
+    description: `Educational platform providing resources and productivity tools for personal and professional development.`,
     imgSrc: '/static/images/myboosters.png',
-    href: '',
+    role: 'Backend Developer',
+    period: '2014 - 2015',
+    techStack: ['Drupal 7', 'PHP', 'MySQL'],
+    category: 'client',
   },
   {
     title: `PLUS! NTUC Membership Program`,
-    description: `PLUS! NTUC is a membership program by NTUC that provides exclusive discounts, promotions, and benefits across various sectors to NTUC members.`,
+    description: `Membership rewards platform providing exclusive discounts and benefits to NTUC members across Singapore.`,
     imgSrc: '/static/images/ntuc.png',
-    href: '',
+    role: 'Analyst Programmer',
+    period: '2013 - 2014',
+    techStack: ['Drupal 6', 'PHP', 'MySQL'],
+    category: 'client',
   },
   {
-    title: `Open University's Scientific Paper Document Management System`,
-    description: `The Scientific Paper Document Management System (DMS) for Universitas Terbuka streamlines the organization, storage, and management of scholarly works, including research papers, theses, and dissertations, to enhance accessibility, security, and efficiency in academic processes.`,
+    title: `Open University Document Management System`,
+    description: `Digital archive system for managing research papers, theses, and dissertations for Universitas Terbuka Indonesia.`,
     imgSrc: '/static/images/karil.png',
-    href: '',
+    role: 'Lead Developer',
+    period: '2011 - 2013',
+    techStack: ['PHP', 'MySQL', 'JavaScript'],
+    category: 'client',
   },
 ]
 

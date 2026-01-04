@@ -12,8 +12,8 @@ const Header = () => {
         <Link href="/" aria-label={siteMetadata.headerTitle}>
           <div className="flex items-center justify-between">
             {typeof siteMetadata.headerTitle === 'string' ? (
-              <div className="hidden h-6 text-2xl font-semibold sm:block">
-                {siteMetadata.headerTitle}
+              <div className="hidden text-2xl font-bold sm:block">
+                <span className="gradient-text">{siteMetadata.headerTitle}</span>
               </div>
             ) : (
               siteMetadata.headerTitle
@@ -28,7 +28,7 @@ const Header = () => {
             <Link
               key={link.title}
               href={link.href}
-              className="hidden font-medium text-gray-900 dark:text-gray-100 sm:block"
+              className="hidden font-medium text-gray-700 transition-colors hover:text-cyan-600 dark:text-gray-300 dark:hover:text-cyan-400 sm:block"
             >
               {link.title}
             </Link>

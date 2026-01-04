@@ -25,10 +25,21 @@ module.exports = {
         sans: ['var(--font-space-grotesk)', ...fontFamily.sans],
       },
       colors: {
-        primary: colors.pink,
+        primary: colors.cyan,
+        secondary: colors.blue,
         gray: colors.gray,
+        dark: {
+          bg: '#0a0a0a',
+          card: '#1a1a1a',
+          border: '#2a2a2a',
+        },
       },
-      typography: ({ theme }) => ({
+      backgroundImage: {
+        'gradient-primary': 'linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%)',
+        'gradient-secondary': 'linear-gradient(135deg, #0ea5e9 0%, #2563eb 100%)',
+        'gradient-text': 'linear-gradient(135deg, #22d3ee 0%, #60a5fa 100%)',
+      },
+      typography: (/** @type {any} */ { theme }) => ({
         DEFAULT: {
           css: {
             a: {
@@ -53,14 +64,21 @@ module.exports = {
         invert: {
           css: {
             a: {
-              color: theme('colors.primary.500'),
+              color: theme('colors.pink.400'),
               '&:hover': {
-                color: `${theme('colors.primary.400')}`,
+                backgroundImage: 'linear-gradient(135deg, #f472b6 0%, #fb923c 100%)',
+                backgroundClip: 'text',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
               },
-              code: { color: theme('colors.primary.400') },
+              code: { color: theme('colors.pink.400') },
             },
             'h1,h2,h3,h4,h5,h6': {
-              color: theme('colors.gray.100'),
+              color: theme('colors.gray.50'),
+              fontWeight: '700',
+            },
+            p: {
+              color: theme('colors.gray.300'),
             },
           },
         },

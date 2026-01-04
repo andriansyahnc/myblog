@@ -2,6 +2,30 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  body {
+    @apply bg-gray-100 text-gray-900 dark:bg-dark-bg dark:text-gray-100;
+  }
+}
+
+@layer utilities {
+  .gradient-text {
+    @apply bg-gradient-to-r from-cyan-400 via-cyan-500 to-blue-500 bg-clip-text text-transparent;
+  }
+
+  .gradient-text-hover:hover {
+    @apply bg-gradient-to-r from-cyan-400 via-cyan-500 to-blue-500 bg-clip-text text-transparent;
+  }
+
+  .card-gradient {
+    @apply bg-gradient-to-br from-dark-card to-dark-bg;
+  }
+
+  .border-gradient {
+    border-image: linear-gradient(135deg, #06b6d4, #3b82f6) 1;
+  }
+}
+
 .task-list-item::before {
   @apply hidden;
 }

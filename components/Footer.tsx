@@ -34,6 +34,13 @@ export default function Footer() {
           >
             Cheatsheet
           </Link>
+          <span className="text-gray-400">•</span>
+          <Link
+            href="/uses"
+            className="text-cyan-600 transition-colors hover:text-blue-600 dark:text-cyan-400 dark:hover:text-blue-400"
+          >
+            Uses
+          </Link>
         </div>
 
         <div className="mb-2 flex space-x-2 text-sm text-gray-500 dark:text-gray-400">

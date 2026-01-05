@@ -1,0 +1,232 @@
+---
+title: 'Timezone Compare: A Simple Tool for Remote Teams'
+date: '2026-01-06'
+tags: ['tools', 'productivity', 'remote-work', 'timezone', 'web-development']
+draft: false
+summary: 'Managing multiple timezones can be challenging for remote teams. I built a simple timezone comparison tool to make scheduling across different locations easier.'
+---
+
+## The Problem with Timezones
+
+Working with remote teams across different timezones can be challenging. Whether you're scheduling meetings with colleagues in different countries or trying to figure out the best time to deploy code that won't disrupt users, timezone math is something we all deal with.
+
+I often found myself:
+
+- Opening multiple world clock apps
+- Calculating time differences manually
+- Missing meetings because of timezone confusion
+- Wondering "What time is it for my teammate in Austin right now?"
+
+So I built a simple tool to solve this: [Timezone Compare](/playground/timezone-compare).
+
+## Features
+
+The timezone compare tool includes:
+
+### Real-Time Clock Display
+
+Each timezone shows a live clock that updates every second, so you always see the current time in each location.
+
+### Pre-configured Cities
+
+I've included the cities I work with most frequently:
+
+- **Jakarta** (GMT+7) - Where I'm based
+- **Austin, Texas** (GMT-6) - Central Time
+- **Ukraine (Kyiv)** (GMT+2) - Eastern European Time
+
+Plus popular locations like New York, London, Tokyo, Singapore, and more.
+
+### Automatic Time Difference Calculation
+
+When you add multiple cities, the tool automatically calculates the time difference between them. This makes it easy to see:
+
+- How many hours ahead/behind each location is
+- Which teammates are in the same working hours
+- The best time for team meetings
+
+### Clean, Responsive Interface
+
+The tool uses a card-based layout that adapts to mobile, tablet, and desktop screens. Each timezone card shows:
+
+- City name
+- Current time (HH:MM:SS format)
+- Current date
+- GMT offset
+- IANA timezone identifier
+- Time differences from other selected timezones
+
+## How to Use It
+
+Using the timezone compare tool is straightforward:
+
+1. **Visit the tool**: Navigate to [/playground/timezone-compare](/playground/timezone-compare)
+2. **Add cities**: Select a city from the dropdown menu
+3. **Click "Add City"**: The timezone card appears with real-time updates
+4. **Compare times**: Each card shows the time difference from previously added cities
+5. **Remove cities**: Click the X button on any card (except the last one)
+
+### Use Cases
+
+Here are some practical scenarios where this tool helps:
+
+**Scheduling Meetings**
+
+```
+You're in Jakarta (18:00) and need to schedule with:
+- Austin colleague (05:00, -13 hours)
+- Poland teammate (12:00, -6 hours)
+
+Best meeting time: Jakarta 15:00 = Austin 02:00 ❌ = Poland 09:00 ✅
+Better option: Jakarta 20:00 = Austin 07:00 ✅ = Poland 14:00 ✅
+```
+
+**Deployment Planning**
+Check when different regions are in low-traffic hours to schedule deployments without disrupting users.
+
+**Remote Team Awareness**
+Keep the tool open to always know what time it is for your teammates. This helps avoid messaging someone at 2 AM their time!
+
+## Technical Implementation
+
+The tool is built with:
+
+- **Next.js 14** with App Router
+- **React Hooks** for state management (useState, useEffect)
+- **Intl.DateTimeFormat API** for timezone conversions
+- **Tailwind CSS** for styling
+
+Key technical features:
+
+### Timezone Handling
+
+```typescript
+const formatter = new Intl.DateTimeFormat('en-US', {
+  timeZone: tz.timezone,
+  hour: '2-digit',
+  minute: '2-digit',
+  second: '2-digit',
+  hour12: false,
+})
+```
+
+The browser's `Intl.DateTimeFormat` API handles all timezone conversions accurately, accounting for daylight saving time changes automatically.
+
+### Real-time Updates
+
+```typescript
+useEffect(() => {
+  const updateTimes = () => {
+    // Update all times
+  }
+  updateTimes()
+  const interval = setInterval(updateTimes, 1000)
+  return () => clearInterval(interval)
+}, [timezones])
+```
+
+A `setInterval` updates all clocks every second, and cleanup happens on component unmount.
+
+### Time Difference Calculation
+
+```typescript
+const getTimeDifference = (tz1: TimeZone, tz2: TimeZone): string => {
+  const diff = tz2.offset - tz1.offset
+  const hours = Math.floor(Math.abs(diff))
+  const minutes = Math.abs((diff % 1) * 60)
+  const sign = diff > 0 ? '+' : '-'
+  return `${sign}${hours}${minutes > 0 ? `:${minutes}` : ''} hours`
+}
+```
+
+## Building with AI Assistance
+
+This tool was built with help from **GitHub Copilot** and AI-powered development tools. Here's how AI assisted in the development process:
+
+### Code Generation
+
+AI helped generate boilerplate code and common patterns:
+
+- React component structure with TypeScript types
+- State management hooks (useState, useEffect)
+- Tailwind CSS utility classes for styling
+- Time formatting and calculation logic
+
+### Problem Solving
+
+When I encountered challenges, AI provided solutions:
+
+- **Timezone conversion**: Suggested using `Intl.DateTimeFormat` API instead of manual calculations
+- **Performance optimization**: Recommended cleanup in useEffect to prevent memory leaks
+- **Type safety**: Helped define proper TypeScript interfaces for timezone data
+
+### Best Practices
+
+AI pointed out improvements I might have missed:
+
+- Proper cleanup of setInterval on component unmount
+- Accessibility considerations (aria-labels for remove buttons)
+- Responsive design patterns for mobile/tablet/desktop
+- Error handling for invalid timezone data
+
+### Time Savings
+
+What would have taken several hours of research and trial-and-error was completed much faster with AI assistance. This let me focus on:
+
+- User experience design
+- Selecting the right cities for pre-configuration
+- Testing the tool with real-world scenarios
+- Writing this documentation
+
+### The Human Touch
+
+While AI is incredibly helpful, the important decisions were still human:
+
+- **Feature selection**: Which cities to include based on my actual team locations
+- **UI/UX design**: The card-based layout and color scheme matching my site theme
+- **Use case identification**: Real problems I face daily with timezone coordination
+- **Code review**: Understanding every line of AI-generated code before using it
+
+AI is a powerful tool, but it's just that—a tool. The vision, problem-solving, and quality control still come from the developer.
+
+## Future Improvements
+
+Some ideas for future enhancements:
+
+1. **Custom Timezones**: Allow users to add any IANA timezone, not just pre-configured cities
+2. **Saved Preferences**: Remember selected timezones using localStorage
+3. **Meeting Scheduler**: Highlight optimal meeting times based on work hours
+4. **Shareable Links**: Generate URLs with pre-selected timezones
+5. **12/24 Hour Format Toggle**: User preference for time display
+6. **Dark/Light Theme**: Match the site's theme switching
+
+## Why Build This?
+
+You might wonder, "Aren't there dozens of timezone tools already?" Absolutely! But building your own tools has benefits:
+
+1. **Customization**: I can add exactly the cities I need
+2. **Learning**: Great practice with Intl API and React hooks
+3. **Integration**: Lives alongside my other tools in the playground
+4. **No Ads**: Clean, distraction-free interface
+5. **Control**: I own the code and can modify it anytime
+
+## Try It Out
+
+Head over to [/playground/timezone-compare](/playground/timezone-compare) and give it a try. Whether you're coordinating with remote teams, planning international travel, or just curious about what time it is around the world, I hope you find it useful!
+
+Found a bug or have a feature request? Let me know!
+
+---
+
+## Related Tools
+
+Check out other tools in the [Playground](/playground):
+
+- **JSON Beautifier**: Format and validate JSON data
+- More tools coming soon...
+
+## Resources
+
+- [IANA Time Zone Database](https://www.iana.org/time-zones)
+- [MDN: Intl.DateTimeFormat](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/DateTimeFormat)
+- [World Time Buddy](https://www.worldtimebuddy.com/) - Another great timezone tool

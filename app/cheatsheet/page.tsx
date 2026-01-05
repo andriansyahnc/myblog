@@ -358,7 +358,7 @@ export default function CheatSheet() {
   const currentSheet = cheatsheets.find((sheet) => sheet.id === activeSheet)
 
   return (
-    <div className="min-h-screen pb-32">
+    <div className="min-h-screen">
       <div className="divide-y divide-gray-200 dark:divide-gray-700">
         <div className="space-y-2 pb-8 pt-6 md:space-y-5">
           <h1 className="bg-gradient-to-r from-cyan-500 to-blue-600 bg-clip-text text-3xl font-extrabold leading-9 tracking-tight text-transparent sm:text-4xl sm:leading-10 md:text-6xl md:leading-14">
@@ -367,6 +367,26 @@ export default function CheatSheet() {
           <p className="text-lg leading-7 text-gray-500 dark:text-gray-400">
             Quick reference guides for common development tools and commands
           </p>
+
+          {/* Navigation Menu */}
+          <div className="flex items-center justify-center gap-2 overflow-x-auto pt-4">
+            {cheatsheets
+              .filter((sheet) => sheet.category === 'git')
+              .map((sheet) => (
+                <button
+                  key={sheet.id}
+                  onClick={() => setActiveSheet(sheet.id)}
+                  className={`flex items-center gap-2 whitespace-nowrap rounded-lg px-4 py-2 text-sm font-medium transition-all ${
+                    activeSheet === sheet.id
+                      ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-md'
+                      : 'border border-gray-300 bg-white text-gray-700 hover:border-cyan-500 hover:text-cyan-600 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:border-cyan-400 dark:hover:text-cyan-400'
+                  }`}
+                >
+                  <span className="text-lg">{sheet.icon}</span>
+                  <span>{sheet.title}</span>
+                </button>
+              ))}
+          </div>
         </div>
 
         {/* Cheatsheet Content */}
@@ -409,30 +429,6 @@ export default function CheatSheet() {
               ))}
             </div>
           )}
-        </div>
-      </div>
-
-      {/* Footer Navigation - Only Git Related */}
-      <div className="fixed bottom-0 left-0 right-0 border-t border-gray-200 bg-white/95 backdrop-blur-sm dark:border-gray-700 dark:bg-gray-900/95">
-        <div className="mx-auto max-w-7xl px-4 py-4">
-          <div className="flex items-center justify-center gap-2 overflow-x-auto">
-            {cheatsheets
-              .filter((sheet) => sheet.category === 'git')
-              .map((sheet) => (
-                <button
-                  key={sheet.id}
-                  onClick={() => setActiveSheet(sheet.id)}
-                  className={`flex items-center gap-2 whitespace-nowrap rounded-lg px-4 py-2 text-sm font-medium transition-all ${
-                    activeSheet === sheet.id
-                      ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-md'
-                      : 'border border-gray-300 bg-white text-gray-700 hover:border-cyan-500 hover:text-cyan-600 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:border-cyan-400 dark:hover:text-cyan-400'
-                  }`}
-                >
-                  <span className="text-lg">{sheet.icon}</span>
-                  <span>{sheet.title}</span>
-                </button>
-              ))}
-          </div>
         </div>
       </div>
     </div>

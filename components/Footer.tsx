@@ -17,6 +17,25 @@ export default function Footer() {
           <SocialIcon kind="threads" href={siteMetadata.threads} size={6} />
           <SocialIcon kind="drupal" href={siteMetadata.drupal} size={6} />
         </div>
+
+        {/* Tools & Resources */}
+        <div className="mb-4 flex flex-wrap items-center justify-center gap-3 text-sm">
+          <span className="font-semibold text-gray-700 dark:text-gray-300">Tools & Resources:</span>
+          <Link
+            href="/playground"
+            className="text-cyan-600 transition-colors hover:text-blue-600 dark:text-cyan-400 dark:hover:text-blue-400"
+          >
+            Playground
+          </Link>
+          <span className="text-gray-400">•</span>
+          <Link
+            href="/cheatsheet"
+            className="text-cyan-600 transition-colors hover:text-blue-600 dark:text-cyan-400 dark:hover:text-blue-400"
+          >
+            Cheatsheet
+          </Link>
+        </div>
+
         <div className="mb-2 flex space-x-2 text-sm text-gray-500 dark:text-gray-400">
           <div>{siteMetadata.author}</div>
           <div>{` • `}</div>

@@ -17,8 +17,8 @@ export default function Projects() {
             platforms to fintech solutions.
           </p>
         </div>
-        <div className="container py-12">
-          <div className="-m-4 flex flex-wrap">
+        <div className="py-12">
+          <div className="grid auto-rows-fr gap-6 md:grid-cols-2 lg:grid-cols-3">
             {projectsData.map((d) => (
               <Card
                 key={d.title}

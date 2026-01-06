@@ -78,9 +78,9 @@ export default function PostLayout({ content, authorDetails, next, prev, childre
                   <>
                     <span className="text-gray-300 dark:text-gray-600">•</span>
                     <div className="flex items-center gap-2">
-                      {authorDetails[0].avatar && (
+                      {authorDetails[0]?.avatar && (
                         <Image
-                          src={authorDetails[0].avatar}
+                          src={authorDetails[0]?.avatar || ''}
                           width={24}
                           height={24}
                           alt="avatar"
@@ -88,7 +88,7 @@ export default function PostLayout({ content, authorDetails, next, prev, childre
                         />
                       )}
                       <span className="font-medium text-gray-900 dark:text-gray-100">
-                        {authorDetails[0].name}
+                        {authorDetails[0]?.name}
                       </span>
                     </div>
                   </>

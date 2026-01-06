@@ -8,6 +8,7 @@ import SectionContainer from '@/components/SectionContainer'
 import Image from '@/components/Image'
 import Tag from '@/components/Tag'
 import ReadingProgress from '@/components/ReadingProgress'
+import RelatedPosts from '@/components/RelatedPosts'
 import siteMetadata from '@/data/siteMetadata'
 import ScrollTopAndComment from '@/components/ScrollTopAndComment'
 
@@ -27,10 +28,18 @@ interface LayoutProps {
   authorDetails: CoreContent<Authors>[]
   next?: { path: string; title: string }
   prev?: { path: string; title: string }
+  posts?: Array<{ title: string; slug: string; tags: string[]; summary?: string }>
   children: ReactNode
 }
 
-export default function PostLayout({ content, authorDetails, next, prev, children }: LayoutProps) {
+export default function PostLayout({
+  content,
+  authorDetails,
+  next,
+  prev,
+  posts,
+  children,
+}: LayoutProps) {
   const { filePath, path, slug, date, title, tags, readingTime } = content
   const basePath = path.split('/')[0]
 
@@ -284,6 +293,13 @@ export default function PostLayout({ content, authorDetails, next, prev, childre
                   Back to all articles
                 </Link>
               </div>
+
+              {/* Related Posts */}
+              {posts && posts.length > 0 && (
+                <div className="border-t border-gray-200 dark:border-gray-700">
+                  <RelatedPosts currentTags={tags} allPosts={posts} currentSlug={slug} />
+                </div>
+              )}
             </div>
 
             {/* Comments */}

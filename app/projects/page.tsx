@@ -1,5 +1,5 @@
 import projectsData from '@/data/projectsData'
-import Card from '@/components/Card'
+import ProjectsClient from './ProjectsClient'
 import { genPageMetadata } from 'app/seo'
 
 export const metadata = genPageMetadata({ title: 'Projects' })
@@ -18,21 +18,7 @@ export default function Projects() {
           </p>
         </div>
         <div className="py-12">
-          <div className="grid auto-rows-fr gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {projectsData.map((d) => (
-              <Card
-                key={d.title}
-                title={d.title}
-                description={d.description}
-                imgSrc={d.imgSrc}
-                href={d.href}
-                role={d.role}
-                period={d.period}
-                techStack={d.techStack}
-                impact={d.impact}
-              />
-            ))}
-          </div>
+          <ProjectsClient projects={projectsData} />
         </div>
       </div>
     </>

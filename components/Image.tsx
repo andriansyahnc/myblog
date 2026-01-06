@@ -1,10 +1,12 @@
 import NextImage, { ImageProps } from 'next/image'
 
-const Image = ({ ...rest }: ImageProps) => (
+const Image = ({ priority, ...rest }: ImageProps) => (
   <NextImage
     {...rest}
+    priority={priority}
     placeholder="blur"
     blurDataURL="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNzAwIiBoZWlnaHQ9IjQ3NSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB2ZXJzaW9uPSIxLjEiLz4="
+    {...(!priority && { loading: 'lazy' })}
   />
 )
 

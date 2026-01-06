@@ -1,12 +1,13 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import React from 'react'
 import { genPageMetadata } from 'app/seo'
 import { SiGit, SiDocker, SiMongodb, SiPostgresql } from 'react-icons/si'
-import { IoCopy, IoCheckmark } from 'react-icons/io5'
+import { IoCopy, IoCheckmark, IoSearch } from 'react-icons/io5'
 import { Listbox, Transition } from '@headlessui/react'
 import { Fragment } from 'react'
+import { useKeyboardShortcut } from '@/hooks/useKeyboardShortcut'
 
 // Icon mapping for cheatsheets
 const getCheatsheetIcon = (title: string) => {
@@ -384,11 +385,43 @@ export default function CheatSheet() {
     {} as Record<string, typeof cheatsheets>
   )
 
+  const [searchQuery, setSearchQuery] = useState('')
+  const searchInputRef = useRef<HTMLInputElement>(null)
+
+  // Keyboard shortcut to focus search
+  useKeyboardShortcut('k', () => {
+    searchInputRef.current?.focus()
+  })
+
   const copyToClipboard = (cmd: string) => {
     navigator.clipboard.writeText(cmd)
     setCopiedCmd(cmd)
+
+    // Haptic feedback on mobile
+    if ('vibrate' in navigator) {
+      navigator.vibrate(50)
+    }
+
     setTimeout(() => setCopiedCmd(null), 2000)
   }
+
+  // Filter commands based on search
+  const filteredSheet =
+    currentSheet && searchQuery
+      ? {
+          ...currentSheet,
+          sections: currentSheet.sections
+            .map((section) => ({
+              ...section,
+              commands: section.commands.filter(
+                (cmd) =>
+                  cmd.cmd.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                  cmd.desc.toLowerCase().includes(searchQuery.toLowerCase())
+              ),
+            }))
+            .filter((section) => section.commands.length > 0),
+        }
+      : currentSheet
 
   return (
     <div className="min-h-screen">
@@ -402,7 +435,7 @@ export default function CheatSheet() {
           </p>
 
           {/* Custom Dropdown with Icons and Grouping */}
-          <div className="flex items-center justify-center pt-4">
+          <div className="flex flex-col items-center justify-center gap-4 pt-4">
             <Listbox value={activeSheet} onChange={setActiveSheet}>
               <div className="relative w-full max-w-md">
                 <Listbox.Button className="relative w-full cursor-pointer rounded-lg border border-gray-300 bg-white py-3 pl-4 pr-10 text-left shadow-sm transition-all hover:border-cyan-500 focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 dark:border-gray-600 dark:bg-gray-800 dark:hover:border-cyan-400 dark:focus:border-cyan-400 dark:focus:ring-cyan-400 dark:focus:ring-offset-gray-900">
@@ -488,6 +521,19 @@ export default function CheatSheet() {
                 </Transition>
               </div>
             </Listbox>
+
+            {/* Search Input */}
+            <div className="relative w-full max-w-md">
+              <IoSearch className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
+              <input
+                ref={searchInputRef}
+                type="text"
+                placeholder="Search commands... (Cmd+K)"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full rounded-lg border border-gray-300 bg-white py-3 pl-10 pr-4 text-sm transition-all placeholder:text-gray-400 hover:border-cyan-500 focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 dark:border-gray-600 dark:bg-gray-800 dark:hover:border-cyan-400 dark:focus:border-cyan-400 dark:focus:ring-cyan-400 dark:focus:ring-offset-gray-900"
+              />
+            </div>
           </div>
         </div>
 
@@ -507,7 +553,7 @@ export default function CheatSheet() {
                 </h2>
               </div>
 
-              {currentSheet.sections.map((section) => (
+              {filteredSheet?.sections.map((section) => (
                 <div
                   key={section.title}
                   className="rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800"
@@ -515,37 +561,43 @@ export default function CheatSheet() {
                   <h3 className="mb-4 text-xl font-bold text-gray-900 dark:text-gray-100">
                     {section.title}
                   </h3>
-                  <div className="space-y-3">
-                    {section.commands.map((command, idx) => (
-                      <div
-                        key={idx}
-                        className="group rounded-lg border border-gray-200 bg-gray-50 p-4 transition-all focus-within:ring-2 focus-within:ring-cyan-500 hover:border-cyan-500 hover:shadow-md dark:border-gray-600 dark:bg-gray-700/50 dark:focus-within:ring-cyan-400 dark:hover:border-cyan-400"
-                      >
-                        <div className="flex items-start justify-between gap-3">
-                          <div className="flex-1">
-                            <div className="font-mono text-sm font-medium text-cyan-600 dark:text-cyan-400">
-                              {command.cmd}
+                  {section.commands.length === 0 ? (
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                      No commands found matching your search.
+                    </p>
+                  ) : (
+                    <div className="space-y-3">
+                      {section.commands.map((command, idx) => (
+                        <div
+                          key={idx}
+                          className="group rounded-lg border border-gray-200 bg-gray-50 p-4 transition-all focus-within:ring-2 focus-within:ring-cyan-500 hover:border-cyan-500 hover:shadow-md dark:border-gray-600 dark:bg-gray-700/50 dark:focus-within:ring-cyan-400 dark:hover:border-cyan-400"
+                        >
+                          <div className="flex items-start justify-between gap-3">
+                            <div className="flex-1">
+                              <div className="font-mono text-sm font-medium text-cyan-600 dark:text-cyan-400">
+                                {command.cmd}
+                              </div>
+                              <div className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+                                {command.desc}
+                              </div>
                             </div>
-                            <div className="mt-1 text-sm text-gray-600 dark:text-gray-400">
-                              {command.desc}
-                            </div>
+                            <button
+                              onClick={() => copyToClipboard(command.cmd)}
+                              className="flex h-8 w-8 items-center justify-center rounded-md border border-gray-300 bg-white transition-all hover:bg-gray-100 focus-visible:ring-2 focus-visible:ring-cyan-500 dark:border-gray-600 dark:bg-gray-600 dark:hover:bg-gray-500 dark:focus-visible:ring-cyan-400"
+                              title="Copy to clipboard"
+                              aria-label={`Copy ${command.cmd}`}
+                            >
+                              {copiedCmd === command.cmd ? (
+                                <IoCheckmark className="h-4 w-4 text-green-600 dark:text-green-400" />
+                              ) : (
+                                <IoCopy className="h-4 w-4 text-gray-600 group-hover:text-cyan-600 dark:text-gray-400 dark:group-hover:text-cyan-400" />
+                              )}
+                            </button>
                           </div>
-                          <button
-                            onClick={() => copyToClipboard(command.cmd)}
-                            className="flex h-8 w-8 items-center justify-center rounded-md border border-gray-300 bg-white transition-all hover:bg-gray-100 focus-visible:ring-2 focus-visible:ring-cyan-500 dark:border-gray-600 dark:bg-gray-600 dark:hover:bg-gray-500 dark:focus-visible:ring-cyan-400"
-                            title="Copy to clipboard"
-                            aria-label={`Copy ${command.cmd}`}
-                          >
-                            {copiedCmd === command.cmd ? (
-                              <IoCheckmark className="h-4 w-4 text-green-600 dark:text-green-400" />
-                            ) : (
-                              <IoCopy className="h-4 w-4 text-gray-600 group-hover:text-cyan-600 dark:text-gray-400 dark:group-hover:text-cyan-400" />
-                            )}
-                          </button>
                         </div>
-                      </div>
-                    ))}
-                  </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               ))}
             </div>

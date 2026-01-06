@@ -76,7 +76,11 @@ module.exports = () => {
     experimental: {
       optimizePackageImports: ['react-icons'],
     },
-    turbopack: {},
+    turbopack: {
+      resolveAlias: {
+        'contentlayer/generated': './.contentlayer/generated',
+      },
+    },
     async headers() {
       return [
         {

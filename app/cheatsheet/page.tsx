@@ -1,13 +1,29 @@
 'use client'
 
 import { useState } from 'react'
+import React from 'react'
 import { genPageMetadata } from 'app/seo'
+import { SiGit, SiDocker, SiMongodb, SiPostgresql } from 'react-icons/si'
+import { IoCopy, IoCheckmark } from 'react-icons/io5'
+import { Listbox, Transition } from '@headlessui/react'
+import { Fragment } from 'react'
+
+// Icon mapping for cheatsheets
+const getCheatsheetIcon = (title: string) => {
+  const iconMap: { [key: string]: React.ComponentType<{ className?: string }> } = {
+    'Git Commands': SiGit,
+    'Git Zsh Shortcuts': SiGit,
+    'Docker Commands': SiDocker,
+    'MongoDB Queries': SiMongodb,
+    'PostgreSQL Commands': SiPostgresql,
+  }
+  return iconMap[title]
+}
 
 const cheatsheets = [
   {
     id: 'git',
     title: 'Git Commands',
-    icon: '📦',
     category: 'git',
     sections: [
       {
@@ -97,7 +113,6 @@ const cheatsheets = [
   {
     id: 'docker',
     title: 'Docker Commands',
-    icon: '🐳',
     category: 'other',
     sections: [
       {
@@ -176,7 +191,6 @@ const cheatsheets = [
   {
     id: 'vim',
     title: 'Vim Editor',
-    icon: '📝',
     category: 'other',
     sections: [
       {
@@ -220,7 +234,6 @@ const cheatsheets = [
   {
     id: 'mysql',
     title: 'MySQL Commands',
-    icon: '🗄️',
     category: 'other',
     sections: [
       {
@@ -354,8 +367,28 @@ const cheatsheets = [
 
 export default function CheatSheet() {
   const [activeSheet, setActiveSheet] = useState('git')
+  const [copiedCmd, setCopiedCmd] = useState<string | null>(null)
 
   const currentSheet = cheatsheets.find((sheet) => sheet.id === activeSheet)
+  const currentIcon = currentSheet ? getCheatsheetIcon(currentSheet.title) : null
+
+  // Group cheatsheets by category
+  const groupedCheatsheets = cheatsheets.reduce(
+    (acc, sheet) => {
+      if (!acc[sheet.category]) {
+        acc[sheet.category] = []
+      }
+      acc[sheet.category].push(sheet)
+      return acc
+    },
+    {} as Record<string, typeof cheatsheets>
+  )
+
+  const copyToClipboard = (cmd: string) => {
+    navigator.clipboard.writeText(cmd)
+    setCopiedCmd(cmd)
+    setTimeout(() => setCopiedCmd(null), 2000)
+  }
 
   return (
     <div className="min-h-screen">
@@ -368,24 +401,93 @@ export default function CheatSheet() {
             Quick reference guides for common development tools and commands
           </p>
 
-          {/* Navigation Menu */}
-          <div className="flex items-center justify-center gap-2 overflow-x-auto pt-4">
-            {cheatsheets
-              .filter((sheet) => sheet.category === 'git')
-              .map((sheet) => (
-                <button
-                  key={sheet.id}
-                  onClick={() => setActiveSheet(sheet.id)}
-                  className={`flex items-center gap-2 whitespace-nowrap rounded-lg px-4 py-2 text-sm font-medium transition-all ${
-                    activeSheet === sheet.id
-                      ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-md'
-                      : 'border border-gray-300 bg-white text-gray-700 hover:border-cyan-500 hover:text-cyan-600 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:border-cyan-400 dark:hover:text-cyan-400'
-                  }`}
+          {/* Custom Dropdown with Icons and Grouping */}
+          <div className="flex items-center justify-center pt-4">
+            <Listbox value={activeSheet} onChange={setActiveSheet}>
+              <div className="relative w-full max-w-md">
+                <Listbox.Button className="relative w-full cursor-pointer rounded-lg border border-gray-300 bg-white py-3 pl-4 pr-10 text-left shadow-sm transition-all hover:border-cyan-500 focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 dark:border-gray-600 dark:bg-gray-800 dark:hover:border-cyan-400 dark:focus:border-cyan-400 dark:focus:ring-cyan-400 dark:focus:ring-offset-gray-900">
+                  <span className="flex items-center gap-3">
+                    {currentIcon &&
+                      React.createElement(currentIcon, {
+                        className: 'h-5 w-5 text-cyan-600 dark:text-cyan-400',
+                      })}
+                    <span className="block truncate font-medium text-gray-900 dark:text-gray-100">
+                      {currentSheet?.title}
+                    </span>
+                  </span>
+                  <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+                    <svg
+                      className="h-5 w-5 text-gray-400"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M19 9l-7 7-7-7"
+                      />
+                    </svg>
+                  </span>
+                </Listbox.Button>
+                <Transition
+                  as={Fragment}
+                  leave="transition ease-in duration-100"
+                  leaveFrom="opacity-100"
+                  leaveTo="opacity-0"
                 >
-                  <span className="text-lg">{sheet.icon}</span>
-                  <span>{sheet.title}</span>
-                </button>
-              ))}
+                  <Listbox.Options className="absolute z-10 mt-2 max-h-96 w-full overflow-auto rounded-lg border border-gray-200 bg-white py-1 shadow-lg focus:outline-none dark:border-gray-700 dark:bg-gray-800">
+                    {Object.entries(groupedCheatsheets).map(([category, sheets]) => (
+                      <div key={category}>
+                        <div className="px-3 py-2 text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                          {category === 'git' ? 'Git Tools' : 'Other Tools'}
+                        </div>
+                        {sheets.map((sheet) => {
+                          const IconComponent = getCheatsheetIcon(sheet.title)
+                          return (
+                            <Listbox.Option
+                              key={sheet.id}
+                              value={sheet.id}
+                              className={({ active }) =>
+                                `relative cursor-pointer select-none py-2.5 pl-4 pr-4 ${
+                                  active
+                                    ? 'bg-cyan-50 text-cyan-900 dark:bg-cyan-900/20 dark:text-cyan-100'
+                                    : 'text-gray-900 dark:text-gray-100'
+                                }`
+                              }
+                            >
+                              {({ selected }) => (
+                                <div className="flex items-center gap-3">
+                                  {IconComponent &&
+                                    React.createElement(IconComponent, {
+                                      className: `h-5 w-5 ${
+                                        selected
+                                          ? 'text-cyan-600 dark:text-cyan-400'
+                                          : 'text-gray-500 dark:text-gray-400'
+                                      }`,
+                                    })}
+                                  <span
+                                    className={`block truncate ${selected ? 'font-semibold' : 'font-normal'}`}
+                                  >
+                                    {sheet.title}
+                                  </span>
+                                  {selected && (
+                                    <span className="ml-auto">
+                                      <IoCheckmark className="h-5 w-5 text-cyan-600 dark:text-cyan-400" />
+                                    </span>
+                                  )}
+                                </div>
+                              )}
+                            </Listbox.Option>
+                          )
+                        })}
+                      </div>
+                    ))}
+                  </Listbox.Options>
+                </Transition>
+              </div>
+            </Listbox>
           </div>
         </div>
 
@@ -394,8 +496,11 @@ export default function CheatSheet() {
           {currentSheet && (
             <div className="space-y-8">
               <div className="flex items-center gap-4">
-                <div className="flex h-16 w-16 items-center justify-center rounded-lg bg-gradient-to-r from-cyan-500 to-blue-600 text-4xl">
-                  {currentSheet.icon}
+                <div className="flex h-16 w-16 items-center justify-center rounded-lg bg-gradient-to-r from-cyan-500 to-blue-600">
+                  {currentIcon &&
+                    React.createElement(currentIcon, {
+                      className: 'h-8 w-8 text-white',
+                    })}
                 </div>
                 <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
                   {currentSheet.title}
@@ -414,13 +519,29 @@ export default function CheatSheet() {
                     {section.commands.map((command, idx) => (
                       <div
                         key={idx}
-                        className="grid gap-4 rounded-md border border-gray-200 bg-gray-50 p-4 dark:border-gray-600 dark:bg-gray-700/50 md:grid-cols-2"
+                        className="group rounded-lg border border-gray-200 bg-gray-50 p-4 transition-all focus-within:ring-2 focus-within:ring-cyan-500 hover:border-cyan-500 hover:shadow-md dark:border-gray-600 dark:bg-gray-700/50 dark:focus-within:ring-cyan-400 dark:hover:border-cyan-400"
                       >
-                        <div className="font-mono text-sm font-medium text-cyan-600 dark:text-cyan-400">
-                          {command.cmd}
-                        </div>
-                        <div className="text-sm text-gray-600 dark:text-gray-400">
-                          {command.desc}
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="flex-1">
+                            <div className="font-mono text-sm font-medium text-cyan-600 dark:text-cyan-400">
+                              {command.cmd}
+                            </div>
+                            <div className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+                              {command.desc}
+                            </div>
+                          </div>
+                          <button
+                            onClick={() => copyToClipboard(command.cmd)}
+                            className="flex h-8 w-8 items-center justify-center rounded-md border border-gray-300 bg-white transition-all hover:bg-gray-100 focus-visible:ring-2 focus-visible:ring-cyan-500 dark:border-gray-600 dark:bg-gray-600 dark:hover:bg-gray-500 dark:focus-visible:ring-cyan-400"
+                            title="Copy to clipboard"
+                            aria-label={`Copy ${command.cmd}`}
+                          >
+                            {copiedCmd === command.cmd ? (
+                              <IoCheckmark className="h-4 w-4 text-green-600 dark:text-green-400" />
+                            ) : (
+                              <IoCopy className="h-4 w-4 text-gray-600 group-hover:text-cyan-600 dark:text-gray-400 dark:group-hover:text-cyan-400" />
+                            )}
+                          </button>
                         </div>
                       </div>
                     ))}

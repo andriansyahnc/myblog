@@ -11,6 +11,7 @@ import Link from '@/components/Link'
 import Tag from '@/components/Tag'
 import siteMetadata from '@/data/siteMetadata'
 import tagData from 'app/tag-data.json'
+import ScrollTopAndComment from '@/components/ScrollTopAndComment'
 
 interface PaginationProps {
   totalPages: number
@@ -302,6 +303,7 @@ export default function ListLayoutWithTags({
           <Pagination currentPage={pagination.currentPage} totalPages={pagination.totalPages} />
         )}
       </div>
+      <ScrollTopAndComment />
     </>
   )
 }

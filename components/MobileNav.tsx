@@ -64,8 +64,8 @@ const MobileNav = () => {
 
       {/* Mobile Menu Panel */}
       <div
-        className={`fixed left-0 top-0 z-30 h-full w-full transform bg-white shadow-lg duration-300 ease-in-out dark:bg-gray-950 sm:hidden ${
-          navShow ? 'translate-x-0' : 'translate-x-full'
+        className={`fixed inset-x-0 top-0 z-30 max-h-screen transform overflow-y-auto bg-white shadow-lg duration-300 ease-in-out dark:bg-gray-950 sm:hidden ${
+          navShow ? 'translate-y-0' : '-translate-y-full'
         }`}
       >
         {/* Close Button */}

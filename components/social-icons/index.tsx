@@ -30,22 +30,38 @@ type SocialIconProps = {
   size?: number
 }
 
+const socialLabels: Record<keyof typeof components, string> = {
+  mail: 'Email',
+  github: 'GitHub',
+  facebook: 'Facebook',
+  youtube: 'YouTube',
+  linkedin: 'LinkedIn',
+  twitter: 'Twitter',
+  mastodon: 'Mastodon',
+  threads: 'Threads',
+  instagram: 'Instagram',
+  drupal: 'Drupal',
+}
+
 const SocialIcon = ({ kind, href, size = 8 }: SocialIconProps) => {
   if (!href || (kind === 'mail' && !/^mailto:\w+([.-]?\w+)@\w+([.-]?\w+)(.\w{2,3})+$/.test(href)))
     return null
 
   const SocialSvg = components[kind]
+  const label = socialLabels[kind]
 
   return (
     <a
-      className="text-sm text-gray-500 transition hover:text-gray-600"
+      className="group inline-flex items-center justify-center rounded-lg p-2 transition-all duration-200 hover:bg-gray-100 dark:hover:bg-gray-800"
       target="_blank"
       rel="noopener noreferrer"
       href={href}
+      aria-label={label}
+      title={label}
     >
-      <span className="sr-only">{kind}</span>
+      <span className="sr-only">{label}</span>
       <SocialSvg
-        className={`fill-current text-gray-700 hover:text-cyan-600 dark:text-gray-200 dark:hover:text-cyan-400 h-${size} w-${size}`}
+        className={`fill-current text-gray-700 transition-colors group-hover:text-cyan-600 dark:text-gray-200 dark:group-hover:text-cyan-400 h-${size} w-${size}`}
       />
     </a>
   )

@@ -7,19 +7,19 @@ export default function Footer() {
     <footer>
       <div className="mt-16 flex flex-col items-center">
         {/* Social Icons - Grouped by Platform Type */}
-        <div className="mb-3 flex flex-wrap items-center justify-center gap-3">
+        <div className="mb-6 flex flex-wrap items-center justify-center gap-1 sm:gap-2">
           {/* Professional */}
           <SocialIcon kind="mail" href={`mailto:${siteMetadata.email}`} size={6} />
           <SocialIcon kind="github" href={siteMetadata.github} size={6} />
           <SocialIcon kind="linkedin" href={siteMetadata.linkedin} size={6} />
-          <span className="hidden text-gray-300 dark:text-gray-600 sm:inline">|</span>
+          <span className="hidden px-1 text-gray-300 dark:text-gray-600 sm:inline">|</span>
           {/* Developer Community */}
           <SocialIcon kind="drupal" href={siteMetadata.drupal} size={6} />
-          <span className="hidden text-gray-300 dark:text-gray-600 sm:inline">|</span>
+          <span className="hidden px-1 text-gray-300 dark:text-gray-600 sm:inline">|</span>
           {/* Microblogging */}
           <SocialIcon kind="twitter" href={siteMetadata.twitter} size={6} />
           <SocialIcon kind="threads" href={siteMetadata.threads} size={6} />
-          <span className="hidden text-gray-300 dark:text-gray-600 sm:inline">|</span>
+          <span className="hidden px-1 text-gray-300 dark:text-gray-600 sm:inline">|</span>
           {/* Media */}
           <SocialIcon kind="youtube" href={siteMetadata.youtube} size={6} />
           <SocialIcon kind="instagram" href={siteMetadata.instagram} size={6} />

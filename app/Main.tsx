@@ -57,13 +57,13 @@ export default function Home({ posts }: HomeProps) {
         <div className="flex flex-wrap items-center justify-center gap-4">
           <Link
             href="/about"
-            className="rounded-full bg-gradient-to-r from-cyan-500 to-blue-600 px-8 py-3 font-semibold text-white transition-all hover:from-cyan-600 hover:to-blue-700 hover:shadow-lg hover:shadow-cyan-500/50"
+            className="rounded-full bg-gradient-to-r from-cyan-500 to-blue-600 px-8 py-3 font-semibold text-white transition-all duration-200 hover:from-cyan-600 hover:to-blue-700 hover:shadow-lg hover:shadow-cyan-500/50 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 dark:focus:ring-offset-white"
           >
             Get in Touch
           </Link>
           <Link
             href="/projects"
-            className="rounded-full border-2 border-cyan-500 bg-transparent px-8 py-3 font-semibold text-cyan-500 transition-all hover:bg-cyan-500 hover:text-white dark:border-cyan-400 dark:text-cyan-400 dark:hover:bg-cyan-400 dark:hover:text-gray-900"
+            className="rounded-full border-2 border-cyan-500 bg-transparent px-8 py-3 font-semibold text-cyan-500 transition-all duration-200 hover:bg-cyan-500 hover:text-white focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 dark:border-cyan-400 dark:text-cyan-400 dark:hover:bg-cyan-400 dark:hover:text-gray-900 dark:focus:ring-offset-gray-950"
           >
             View Projects
           </Link>
@@ -119,64 +119,69 @@ export default function Home({ posts }: HomeProps) {
       </div>
 
       {/* Latest Posts Section */}
-      <div className="space-y-8 py-12">
-        <div className="flex items-center justify-between">
-          <h2 className="text-3xl font-bold md:text-4xl">
-            <span className="gradient-text">Latest Posts</span>
-          </h2>
-          {posts.length > MAX_DISPLAY && (
-            <Link
-              href="/blog"
-              className="inline-flex items-center gap-2 text-sm font-semibold transition-all hover:gap-3"
-              aria-label="All articles"
-            >
-              <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent">
-                View All
-              </span>
-              <span className="text-cyan-500">→</span>
-            </Link>
-          )}
-        </div>
+      <section className="border-t border-gray-200 py-16 dark:border-gray-700">
+        <div className="space-y-8">
+          <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
+            <h2 className="text-3xl font-bold leading-tight md:text-4xl">
+              <span className="gradient-text">Latest Posts</span>
+            </h2>
+            {posts.length > MAX_DISPLAY && (
+              <Link
+                href="/blog"
+                className="inline-flex items-center gap-2 rounded px-2 py-1 text-sm font-semibold text-cyan-600 transition-all duration-200 hover:gap-3 hover:underline focus:outline-none focus:ring-2 focus:ring-cyan-500 dark:text-cyan-400"
+                aria-label="View all articles"
+              >
+                <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent">
+                  View All
+                </span>
+                <span className="text-cyan-500 dark:text-cyan-400">→</span>
+              </Link>
+            )}
+          </div>
 
-        <ul className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {!posts.length && <p className="text-gray-400">No posts found.</p>}
-          {posts.slice(0, MAX_DISPLAY).map((post) => {
-            const { slug, date, title, summary, tags } = post
-            return (
-              <li key={slug} className="group">
-                <Link href={`/blog/${slug}`}>
-                  <article className="h-full rounded-2xl border border-gray-300 bg-gray-50 p-6 transition-all duration-300 hover:border-cyan-500/50 hover:bg-white hover:shadow-lg hover:shadow-cyan-500/20 dark:border-gray-800 dark:bg-gradient-to-br dark:from-dark-card dark:to-dark-bg dark:hover:border-cyan-500/30 dark:hover:shadow-cyan-500/10">
-                    <div className="flex h-full flex-col space-y-3">
-                      <time className="text-xs font-medium text-gray-500 dark:text-gray-500">
-                        {formatDate(date, siteMetadata.locale)}
-                      </time>
-                      <h3 className="group-hover:gradient-text text-xl font-bold leading-tight text-gray-900 transition-all dark:text-gray-50">
-                        {title}
-                      </h3>
-                      <div className="flex flex-wrap gap-2">
-                        {tags?.slice(0, 2).map((tag) => (
-                          <span
-                            key={tag}
-                            className="rounded-full border border-cyan-500/30 bg-cyan-500/10 px-2 py-0.5 text-xs text-cyan-600 dark:text-cyan-400"
-                          >
-                            {tag}
-                          </span>
-                        ))}
+          <ul className="grid auto-rows-fr gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {!posts.length && <p className="text-gray-400">No posts found.</p>}
+            {posts.slice(0, MAX_DISPLAY).map((post) => {
+              const { slug, date, title, summary, tags } = post
+              return (
+                <li key={slug} className="group flex flex-col">
+                  <Link
+                    href={`/blog/${slug}`}
+                    className="flex h-full flex-col rounded-2xl focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                  >
+                    <article className="h-full rounded-2xl border border-gray-200 bg-white p-6 transition-all duration-300 hover:border-cyan-500/50 hover:bg-gray-50/50 hover:shadow-lg hover:shadow-cyan-500/20 dark:border-gray-800 dark:bg-gradient-to-br dark:from-dark-card dark:to-dark-bg dark:hover:border-cyan-500/30 dark:hover:shadow-cyan-500/10">
+                      <div className="flex h-full flex-col space-y-4">
+                        <time className="text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                          {formatDate(date, siteMetadata.locale)}
+                        </time>
+                        <h3 className="group-hover:gradient-text text-lg font-bold leading-snug text-gray-900 transition-all dark:text-gray-50">
+                          {title}
+                        </h3>
+                        <div className="flex flex-wrap gap-2">
+                          {tags?.slice(0, 2).map((tag) => (
+                            <span
+                              key={tag}
+                              className="rounded-full border border-cyan-500/30 bg-cyan-500/10 px-3 py-1 text-xs font-medium text-cyan-600 dark:text-cyan-400"
+                            >
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
+                        <p className="line-clamp-3 flex-1 text-sm leading-relaxed text-gray-600 dark:text-gray-400">
+                          {summary}
+                        </p>
+                        <div className="inline-flex items-center gap-2 text-sm font-semibold text-cyan-600 transition-all group-hover:gap-3 dark:text-cyan-400">
+                          Read more <span>→</span>
+                        </div>
                       </div>
-                      <p className="line-clamp-3 flex-1 text-sm text-gray-600 dark:text-gray-400">
-                        {summary}
-                      </p>
-                      <div className="inline-flex items-center gap-2 text-sm font-semibold text-cyan-600 transition-all group-hover:gap-3 dark:text-cyan-400">
-                        Read more <span>→</span>
-                      </div>
-                    </div>
-                  </article>
-                </Link>
-              </li>
-            )
-          })}
-        </ul>
-      </div>
+                    </article>
+                  </Link>
+                </li>
+              )
+            })}
+          </ul>
+        </div>
+      </section>
 
       {siteMetadata.newsletter?.provider && (
         <div className="flex items-center justify-center pt-4">{/*<NewsletterForm />*/}</div>

@@ -1,5 +1,7 @@
 import Link from 'next/link'
 import { slug } from 'github-slugger'
+import { memo } from 'react'
+
 interface Props {
   text: string
 }
@@ -15,4 +17,6 @@ const Tag = ({ text }: Props) => {
   )
 }
 
-export default Tag
+Tag.displayName = 'Tag'
+
+export default memo(Tag)

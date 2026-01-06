@@ -5,11 +5,15 @@ import Link from '@/components/Link'
 import Tag from '@/components/Tag'
 import { slug } from 'github-slugger'
 import tagData from 'app/tag-data.json'
+import { useDebounce } from '@/hooks/useDebounce'
 
 export default function Page() {
   const [searchQuery, setSearchQuery] = useState('')
   const [viewMode, setViewMode] = useState<'popular' | 'alphabetical' | 'all'>('popular')
   const [showAll, setShowAll] = useState(false)
+
+  // Debounce search query to prevent re-renders on every keystroke
+  const debouncedSearch = useDebounce(searchQuery, 300)
 
   const tagCounts = tagData as Record<string, number>
   const tagKeys = Object.keys(tagCounts)
@@ -18,11 +22,11 @@ export default function Page() {
   const totalTags = tagKeys.length
   const maxCount = Math.max(...Object.values(tagCounts))
 
-  // Filter tags based on search query
+  // Filter tags based on debounced search query
   const filteredTags = useMemo(() => {
-    if (!searchQuery) return sortedTags
-    return sortedTags.filter((tag) => tag.toLowerCase().includes(searchQuery.toLowerCase()))
-  }, [searchQuery, sortedTags])
+    if (!debouncedSearch) return sortedTags
+    return sortedTags.filter((tag) => tag.toLowerCase().includes(debouncedSearch.toLowerCase()))
+  }, [debouncedSearch, sortedTags])
 
   // Get top tags (top 12)
   const topTags = sortedTags.slice(0, 12)
@@ -30,7 +34,7 @@ export default function Page() {
   // Group tags alphabetically
   const groupedTags = useMemo(() => {
     const groups: Record<string, string[]> = {}
-    const tagsToGroup = searchQuery ? filteredTags : sortedTags
+    const tagsToGroup = debouncedSearch ? filteredTags : sortedTags
 
     tagsToGroup.forEach((tag) => {
       const firstLetter = tag[0]?.toUpperCase() || '#'
@@ -40,11 +44,11 @@ export default function Page() {
       groups[firstLetter].push(tag)
     })
     return groups
-  }, [filteredTags, sortedTags, searchQuery])
+  }, [filteredTags, sortedTags, debouncedSearch])
 
   // Determine which tags to display
   const displayTags = useMemo(() => {
-    if (searchQuery) return filteredTags
+    if (debouncedSearch) return filteredTags
 
     switch (viewMode) {
       case 'popular':

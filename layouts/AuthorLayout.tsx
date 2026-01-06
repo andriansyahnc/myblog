@@ -24,40 +24,42 @@ export default function AuthorLayout({ children, content }: Props) {
   const [activeSection, setActiveSection] = useState('about')
   const [isScrolling, setIsScrolling] = useState(false)
 
-  // Update active section based on scroll position
+  // Update active section based on scroll position using IntersectionObserver
   useEffect(() => {
-    const handleScroll = () => {
-      if (isScrolling) return // Don't update during programmatic scroll
+    if (isScrolling) return
 
-      const sectionElements = sections.map((section) => ({
-        id: section.id,
-        element: document.getElementById(section.id),
-      }))
-
-      // Find the section closest to the top of the viewport
-      let closestSection = sectionElements[0]
-      let closestDistance = Infinity
-
-      sectionElements.forEach(({ id, element }) => {
-        if (!element) return
-        const rect = element.getBoundingClientRect()
-        const distance = Math.abs(rect.top - 150)
-
-        // If this section is visible and closer to our threshold
-        if (rect.top <= 150 && distance < closestDistance) {
-          closestDistance = distance
-          closestSection = { id, element }
+    const observer = new IntersectionObserver(
+      (entries) => {
+        // Find the entry with the highest intersection ratio
+        const visibleEntries = entries.filter((entry) => entry.isIntersecting)
+        if (visibleEntries.length > 0) {
+          // Sort by intersection ratio and position
+          const mostVisible = visibleEntries.reduce((prev, current) => {
+            if (current.intersectionRatio > prev.intersectionRatio) return current
+            if (current.intersectionRatio === prev.intersectionRatio) {
+              // If ratios are equal, prefer the one higher on the page
+              return current.boundingClientRect.top < prev.boundingClientRect.top ? current : prev
+            }
+            return prev
+          })
+          setActiveSection(mostVisible.target.id)
         }
-      })
-
-      if (closestSection) {
-        setActiveSection(closestSection.id)
+      },
+      {
+        threshold: [0, 0.25, 0.5, 0.75, 1],
+        rootMargin: '-100px 0px -50% 0px',
       }
-    }
+    )
 
-    window.addEventListener('scroll', handleScroll)
-    handleScroll() // Run once on mount
-    return () => window.removeEventListener('scroll', handleScroll)
+    // Observe all sections
+    sections.forEach((section) => {
+      const element = document.getElementById(section.id)
+      if (element) {
+        observer.observe(element)
+      }
+    })
+
+    return () => observer.disconnect()
   }, [isScrolling])
 
   const scrollToSection = (sectionId: string) => {

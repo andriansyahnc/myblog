@@ -3,20 +3,7 @@ import Tag from '@/components/Tag'
 import siteMetadata from '@/data/siteMetadata'
 import { formatDate } from 'pliny/utils/formatDate'
 import Image from '@/components/Image'
-import {
-  SiNodedotjs,
-  SiNestjs,
-  SiDrupal,
-  SiPhp,
-  SiMysql,
-  SiJavascript,
-  SiTypescript,
-  SiGo,
-  SiExpress,
-  SiLaravel,
-  SiMongodb,
-} from 'react-icons/si'
-import { GiGorilla } from 'react-icons/gi'
+import TechStack from '@/components/TechStack'
 // import NewsletterForm from 'pliny/ui/NewsletterForm'
 
 const MAX_DISPLAY = 3
@@ -83,108 +70,7 @@ export default function Home({ posts }: HomeProps) {
         </div>
 
         {/* Tech Stack */}
-        <div className="pt-12">
-          <p className="mb-6 text-sm font-semibold uppercase tracking-wider text-gray-400">
-            Backend Tech Stack
-          </p>
-          <div className="flex flex-wrap items-center justify-center gap-6">
-            {/* JavaScript */}
-            <div className="group flex flex-col items-center gap-2 transition-all">
-              <div className="flex h-16 w-16 items-center justify-center rounded-xl border border-gray-800 bg-gradient-to-br from-dark-card to-dark-bg transition-all group-hover:border-yellow-400/30 group-hover:shadow-lg group-hover:shadow-yellow-400/10">
-                <SiJavascript className="h-10 w-10 text-yellow-400" />
-              </div>
-              <span className="text-xs text-gray-400">JavaScript</span>
-            </div>
-
-            {/* TypeScript */}
-            <div className="group flex flex-col items-center gap-2 transition-all">
-              <div className="flex h-16 w-16 items-center justify-center rounded-xl border border-gray-800 bg-gradient-to-br from-dark-card to-dark-bg transition-all group-hover:border-blue-500/30 group-hover:shadow-lg group-hover:shadow-blue-500/10">
-                <SiTypescript className="h-10 w-10 text-blue-500" />
-              </div>
-              <span className="text-xs text-gray-400">TypeScript</span>
-            </div>
-
-            {/* Node.js */}
-            <div className="group flex flex-col items-center gap-2 transition-all">
-              <div className="flex h-16 w-16 items-center justify-center rounded-xl border border-gray-800 bg-gradient-to-br from-dark-card to-dark-bg transition-all group-hover:border-green-500/30 group-hover:shadow-lg group-hover:shadow-green-500/10">
-                <SiNodedotjs className="h-10 w-10 text-green-500" />
-              </div>
-              <span className="text-xs text-gray-400">Node.js</span>
-            </div>
-
-            {/* PHP */}
-            <div className="group flex flex-col items-center gap-2 transition-all">
-              <div className="flex h-16 w-16 items-center justify-center rounded-xl border border-gray-800 bg-gradient-to-br from-dark-card to-dark-bg transition-all group-hover:border-indigo-400/30 group-hover:shadow-lg group-hover:shadow-indigo-400/10">
-                <SiPhp className="h-10 w-10 text-indigo-400" />
-              </div>
-              <span className="text-xs text-gray-400">PHP</span>
-            </div>
-
-            {/* Go */}
-            <div className="group flex flex-col items-center gap-2 transition-all">
-              <div className="flex h-16 w-16 items-center justify-center rounded-xl border border-gray-800 bg-gradient-to-br from-dark-card to-dark-bg transition-all group-hover:border-cyan-400/30 group-hover:shadow-lg group-hover:shadow-cyan-400/10">
-                <SiGo className="h-10 w-10 text-cyan-400" />
-              </div>
-              <span className="text-xs text-gray-400">Go</span>
-            </div>
-
-            {/* NestJS */}
-            <div className="group flex flex-col items-center gap-2 transition-all">
-              <div className="flex h-16 w-16 items-center justify-center rounded-xl border border-gray-800 bg-gradient-to-br from-dark-card to-dark-bg transition-all group-hover:border-pink-500/30 group-hover:shadow-lg group-hover:shadow-pink-500/10">
-                <SiNestjs className="h-10 w-10 text-pink-500" />
-              </div>
-              <span className="text-xs text-gray-400">NestJS</span>
-            </div>
-
-            {/* Express */}
-            <div className="group flex flex-col items-center gap-2 transition-all">
-              <div className="flex h-16 w-16 items-center justify-center rounded-xl border border-gray-800 bg-gradient-to-br from-dark-card to-dark-bg transition-all group-hover:border-gray-400/30 group-hover:shadow-lg group-hover:shadow-gray-400/10">
-                <SiExpress className="h-10 w-10 text-gray-400" />
-              </div>
-              <span className="text-xs text-gray-400">Express</span>
-            </div>
-
-            {/* Laravel */}
-            <div className="group flex flex-col items-center gap-2 transition-all">
-              <div className="flex h-16 w-16 items-center justify-center rounded-xl border border-gray-800 bg-gradient-to-br from-dark-card to-dark-bg transition-all group-hover:border-red-500/30 group-hover:shadow-lg group-hover:shadow-red-500/10">
-                <SiLaravel className="h-10 w-10 text-red-500" />
-              </div>
-              <span className="text-xs text-gray-400">Laravel</span>
-            </div>
-
-            {/* Drupal */}
-            <div className="group flex flex-col items-center gap-2 transition-all">
-              <div className="flex h-16 w-16 items-center justify-center rounded-xl border border-gray-800 bg-gradient-to-br from-dark-card to-dark-bg transition-all group-hover:border-blue-400/30 group-hover:shadow-lg group-hover:shadow-blue-400/10">
-                <SiDrupal className="h-10 w-10 text-blue-400" />
-              </div>
-              <span className="text-xs text-gray-400">Drupal</span>
-            </div>
-
-            {/* Gorilla Mux */}
-            <div className="group flex flex-col items-center gap-2 transition-all">
-              <div className="flex h-16 w-16 items-center justify-center rounded-xl border border-gray-800 bg-gradient-to-br from-dark-card to-dark-bg transition-all group-hover:border-cyan-500/30 group-hover:shadow-lg group-hover:shadow-cyan-500/10">
-                <GiGorilla className="h-10 w-10 text-cyan-500" />
-              </div>
-              <span className="text-xs text-gray-400">Gorilla Mux</span>
-            </div>
-
-            {/* MongoDB */}
-            <div className="group flex flex-col items-center gap-2 transition-all">
-              <div className="flex h-16 w-16 items-center justify-center rounded-xl border border-gray-800 bg-gradient-to-br from-dark-card to-dark-bg transition-all group-hover:border-green-600/30 group-hover:shadow-lg group-hover:shadow-green-600/10">
-                <SiMongodb className="h-10 w-10 text-green-600" />
-              </div>
-              <span className="text-xs text-gray-400">MongoDB</span>
-            </div>
-
-            {/* MySQL */}
-            <div className="group flex flex-col items-center gap-2 transition-all">
-              <div className="flex h-16 w-16 items-center justify-center rounded-xl border border-gray-800 bg-gradient-to-br from-dark-card to-dark-bg transition-all group-hover:border-amber-500/30 group-hover:shadow-lg group-hover:shadow-amber-500/10">
-                <SiMysql className="h-10 w-10 text-amber-500" />
-              </div>
-              <span className="text-xs text-gray-400">MySQL</span>
-            </div>
-          </div>
-        </div>
+        <TechStack />
       </div>
 
       {/* Latest Posts Section */}

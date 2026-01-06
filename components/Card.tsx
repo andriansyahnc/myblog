@@ -1,5 +1,6 @@
 import Image from './Image'
 import Link from './Link'
+import { memo } from 'react'
 
 interface CardProps {
   title: string
@@ -100,4 +101,6 @@ const Card = ({ title, description, imgSrc, href, role, period, techStack, impac
   </div>
 )
 
-export default Card
+Card.displayName = 'Card'
+
+export default memo(Card)

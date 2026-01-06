@@ -21,7 +21,7 @@ type BodyType = 'none' | 'json' | 'form-data' | 'x-www-form-urlencoded' | 'raw'
 interface ApiResponse {
   status: number
   statusText: string
-  headers: Record<string, string>
+  headers: unknown
   data: unknown
 }
 
@@ -50,10 +50,13 @@ export default function ApiTester() {
     value: string | boolean
   ) => {
     const newHeaders = [...headers]
+    const header = newHeaders[index]
+    if (!header) return
+
     if (field === 'enabled') {
-      newHeaders[index][field] = value as boolean
+      header[field] = value as boolean
     } else {
-      newHeaders[index][field] = value as string
+      header[field] = value as string
     }
     setHeaders(newHeaders)
   }
@@ -72,10 +75,13 @@ export default function ApiTester() {
     value: string | boolean
   ) => {
     const newFormData = [...formData]
+    const item = newFormData[index]
+    if (!item) return
+
     if (field === 'enabled') {
-      newFormData[index][field] = value as boolean
+      item[field] = value as boolean
     } else {
-      newFormData[index][field] = value as string
+      item[field] = value as string
     }
     setFormData(newFormData)
   }
@@ -98,7 +104,10 @@ export default function ApiTester() {
     }
 
     if (contentTypeIndex !== -1 && type !== 'none') {
-      newHeaders[contentTypeIndex].value = contentTypeMap[type]
+      const header = newHeaders[contentTypeIndex]
+      if (header) {
+        header.value = contentTypeMap[type]
+      }
     } else if (type !== 'none') {
       newHeaders.unshift({ key: 'Content-Type', value: contentTypeMap[type], enabled: true })
     }
@@ -428,9 +437,9 @@ export default function ApiTester() {
                   <div className="space-y-2">
                     <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Body</h3>
                     <pre className="overflow-auto rounded-md border border-gray-300 bg-white p-4 font-mono text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-100">
-                      {typeof response.data === 'object'
+                      {typeof response.data === 'object' && response.data !== null
                         ? JSON.stringify(response.data, null, 2)
-                        : response.data}
+                        : String(response.data ?? '')}
                     </pre>
                   </div>
                 </>

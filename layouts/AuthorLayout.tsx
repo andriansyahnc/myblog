@@ -10,43 +10,60 @@ interface Props {
   content: Omit<Authors, '_id' | '_raw' | 'body'>
 }
 
+const sections = [
+  { id: 'about', label: 'About', icon: '👋' },
+  { id: 'experience', label: 'Experience', icon: '💼' },
+  { id: 'skills', label: 'Skills', icon: '🛠️' },
+  { id: 'contact', label: 'Contact', icon: '📧' },
+]
+
 export default function AuthorLayout({ children, content }: Props) {
   const { name, avatar, occupation, company, email, twitter, linkedin, github, drupal, stats } =
     content
 
   const [activeSection, setActiveSection] = useState('about')
-
-  const sections = [
-    { id: 'about', label: 'About', icon: '👋' },
-    { id: 'experience', label: 'Experience', icon: '💼' },
-    { id: 'skills', label: 'Skills', icon: '🛠️' },
-    { id: 'contact', label: 'Contact', icon: '📧' },
-  ]
+  const [isScrolling, setIsScrolling] = useState(false)
 
   // Update active section based on scroll position
   useEffect(() => {
     const handleScroll = () => {
+      if (isScrolling) return // Don't update during programmatic scroll
+
       const sectionElements = sections.map((section) => ({
         id: section.id,
         element: document.getElementById(section.id),
       }))
 
-      const currentSection = sectionElements.find(({ element }) => {
-        if (!element) return false
+      // Find the section closest to the top of the viewport
+      let closestSection = sectionElements[0]
+      let closestDistance = Infinity
+
+      sectionElements.forEach(({ id, element }) => {
+        if (!element) return
         const rect = element.getBoundingClientRect()
-        return rect.top <= 150 && rect.bottom >= 150
+        const distance = Math.abs(rect.top - 150)
+
+        // If this section is visible and closer to our threshold
+        if (rect.top <= 150 && distance < closestDistance) {
+          closestDistance = distance
+          closestSection = { id, element }
+        }
       })
 
-      if (currentSection) {
-        setActiveSection(currentSection.id)
+      if (closestSection) {
+        setActiveSection(closestSection.id)
       }
     }
 
     window.addEventListener('scroll', handleScroll)
+    handleScroll() // Run once on mount
     return () => window.removeEventListener('scroll', handleScroll)
-  }, [])
+  }, [isScrolling])
 
   const scrollToSection = (sectionId: string) => {
+    setActiveSection(sectionId)
+    setIsScrolling(true)
+
     const element = document.getElementById(sectionId)
     if (element) {
       const offset = 100
@@ -55,6 +72,11 @@ export default function AuthorLayout({ children, content }: Props) {
         top: elementPosition - offset,
         behavior: 'smooth',
       })
+
+      // Re-enable scroll detection after animation completes
+      setTimeout(() => {
+        setIsScrolling(false)
+      }, 1000)
     }
   }
 
@@ -170,15 +192,14 @@ export default function AuthorLayout({ children, content }: Props) {
         </div>
 
         {/* Content Sections */}
-        <div className="space-y-12 py-12">
-          {/* About Section */}
-          <section id="about" className="scroll-mt-24">
-            <h2 className="mb-6 flex items-center gap-3 text-3xl font-bold text-gray-900 dark:text-gray-100">
-              <span className="text-4xl">👋</span>
-              About Me
-            </h2>
-            <div className="prose max-w-none dark:prose-invert">{children}</div>
-          </section>
+        <div className="space-y-16 py-12">
+          {/* All content rendered from MDX with section anchors */}
+          <div className="prose max-w-none dark:prose-invert">
+            {/* Inject section IDs for navigation */}
+            <div id="about" className="scroll-mt-24">
+              {children}
+            </div>
+          </div>
 
           {/* Quick Info Cards */}
           <div className="grid gap-4 md:grid-cols-2">
@@ -235,15 +256,6 @@ export default function AuthorLayout({ children, content }: Props) {
               </div>
             </div>
           </div>
-
-          {/* Experience placeholder - content will come from MDX */}
-          <section id="experience" className="scroll-mt-24"></section>
-
-          {/* Skills placeholder */}
-          <section id="skills" className="scroll-mt-24"></section>
-
-          {/* Contact placeholder */}
-          <section id="contact" className="scroll-mt-24"></section>
         </div>
       </div>
     </>

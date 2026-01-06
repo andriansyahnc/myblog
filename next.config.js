@@ -62,9 +62,6 @@ module.exports = () => {
   return plugins.reduce((acc, next) => next(acc), {
     reactStrictMode: true,
     pageExtensions: ['ts', 'tsx', 'js', 'jsx', 'md', 'mdx'],
-    eslint: {
-      dirs: ['app', 'components', 'layouts', 'scripts'],
-    },
     images: {
       formats: ['image/avif', 'image/webp'],
       deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
@@ -79,6 +76,7 @@ module.exports = () => {
     experimental: {
       optimizePackageImports: ['react-icons'],
     },
+    turbopack: {},
     async headers() {
       return [
         {

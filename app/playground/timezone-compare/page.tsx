@@ -34,8 +34,15 @@ export default function TimezoneCompare() {
   ])
   const [currentTimes, setCurrentTimes] = useState<Record<string, string>>({})
   const [selectedCity, setSelectedCity] = useState('')
+  const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  useEffect(() => {
+    if (!mounted) return
+
     const updateTimes = () => {
       const times: Record<string, string> = {}
       timezones.forEach((tz) => {
@@ -60,7 +67,7 @@ export default function TimezoneCompare() {
     const interval = setInterval(updateTimes, 1000)
 
     return () => clearInterval(interval)
-  }, [timezones])
+  }, [timezones, mounted])
 
   const addTimezone = () => {
     if (!selectedCity) return
@@ -195,10 +202,10 @@ export default function TimezoneCompare() {
               {/* Time */}
               <div className="mb-4">
                 <div className="text-4xl font-bold tabular-nums text-cyan-600 dark:text-cyan-400">
-                  {currentTimes[tz.id] || '--:--:--'}
+                  {mounted ? currentTimes[tz.id] || '--:--:--' : '--:--:--'}
                 </div>
                 <div className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-                  {getLocalTime(tz.timezone)}
+                  {mounted ? getLocalTime(tz.timezone) : 'Loading...'}
                 </div>
               </div>
 

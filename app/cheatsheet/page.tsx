@@ -378,7 +378,7 @@ export default function CheatSheet() {
       if (!acc[sheet.category]) {
         acc[sheet.category] = []
       }
-      acc[sheet.category].push(sheet)
+      acc[sheet.category]!.push(sheet)
       return acc
     },
     {} as Record<string, typeof cheatsheets>

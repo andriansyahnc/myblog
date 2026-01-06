@@ -25,6 +25,14 @@ const liveProjects = [
     tags: ['Time', 'Timezone', 'Utility'],
   },
   {
+    title: 'API Tester',
+    description: 'Test HTTP requests and explore APIs - A lightweight Postman alternative',
+    href: '/playground/api-tester',
+    icon: '🔌',
+    status: 'active',
+    tags: ['API', 'HTTP', 'Developer Tools'],
+  },
+  {
     title: 'Coming Soon',
     description: 'More interactive tools and live projects coming soon...',
     href: '#',

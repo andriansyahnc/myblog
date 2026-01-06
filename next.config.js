@@ -1,4 +1,5 @@
 const { withContentlayer } = require('next-contentlayer2')
+const path = require('path')
 
 const withBundleAnalyzer = require('@next/bundle-analyzer')({
   enabled: process.env.ANALYZE === 'true',
@@ -78,7 +79,7 @@ module.exports = () => {
     },
     turbopack: {
       resolveAlias: {
-        'contentlayer/generated': './.contentlayer/generated',
+        'contentlayer/generated': './.contentlayer/generated/index.mjs',
       },
     },
     async headers() {

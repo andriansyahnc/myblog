@@ -93,6 +93,11 @@ const siteMetadata = {
     //   indexName: 'docsearch',
     // },
   },
+  features: {
+    timezoneCompare: {
+      maxCities: 6,
+    },
+  },
 }
 
 module.exports = siteMetadata

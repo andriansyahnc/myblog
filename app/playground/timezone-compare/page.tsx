@@ -1,7 +1,9 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { genPageMetadata } from 'app/seo'
+import { DateTime } from 'luxon'
+import siteMetadata from '@/data/siteMetadata'
 
 interface TimeZone {
   id: string
@@ -29,10 +31,14 @@ const popularTimezones = [
 ]
 
 export default function TimezoneCompare() {
+  const MAX_CITIES = siteMetadata.features?.timezoneCompare?.maxCities ?? 6
   const [timezones, setTimezones] = useState<TimeZone[]>([
     { id: '1', city: 'Jakarta', timezone: 'Asia/Jakarta', offset: 7 },
   ])
-  const [currentTimes, setCurrentTimes] = useState<Record<string, string>>({})
+  // Base settings: selected base timezone and minutes-of-day slider
+  const [baseZone, setBaseZone] = useState<string>('Asia/Jakarta')
+  const [baseMinutes, setBaseMinutes] = useState<number>(0)
+  const [baseDateStr, setBaseDateStr] = useState<string>('')
   const [selectedCity, setSelectedCity] = useState('')
   const [mounted, setMounted] = useState(false)
 
@@ -40,37 +46,17 @@ export default function TimezoneCompare() {
     setMounted(true)
   }, [])
 
+  // Initialize base slider and base date to current local time/date in the base zone
   useEffect(() => {
     if (!mounted) return
-
-    const updateTimes = () => {
-      const times: Record<string, string> = {}
-      timezones.forEach((tz) => {
-        try {
-          const now = new Date()
-          const formatter = new Intl.DateTimeFormat('en-US', {
-            timeZone: tz.timezone,
-            hour: '2-digit',
-            minute: '2-digit',
-            second: '2-digit',
-            hour12: false,
-          })
-          times[tz.id] = formatter.format(now)
-        } catch (error) {
-          times[tz.id] = 'Invalid timezone'
-        }
-      })
-      setCurrentTimes(times)
-    }
-
-    updateTimes()
-    const interval = setInterval(updateTimes, 1000)
-
-    return () => clearInterval(interval)
-  }, [timezones, mounted])
+    const nowInBase = DateTime.now().setZone(baseZone)
+    setBaseMinutes(nowInBase.hour * 60 + nowInBase.minute)
+    setBaseDateStr(nowInBase.toFormat('yyyy-LL-dd'))
+  }, [mounted, baseZone])
 
   const addTimezone = () => {
     if (!selectedCity) return
+    if (timezones.length >= MAX_CITIES) return
 
     const selected = popularTimezones.find((tz) => tz.city === selectedCity)
     if (!selected) return
@@ -90,26 +76,30 @@ export default function TimezoneCompare() {
     setTimezones(timezones.filter((tz) => tz.id !== id))
   }
 
+  // Derived base DateTime for the selected base zone, date, and slider minutes
+  const baseDateTime = useMemo(() => {
+    const baseDate = baseDateStr
+      ? DateTime.fromFormat(baseDateStr, 'yyyy-LL-dd', { zone: baseZone })
+      : DateTime.now().setZone(baseZone)
+    return baseDate.startOf('day').plus({ minutes: baseMinutes })
+  }, [baseZone, baseMinutes, baseDateStr])
+
   const getTimeDifference = (tz1: TimeZone, tz2: TimeZone): string => {
-    const diff = tz2.offset - tz1.offset
-    if (diff === 0) return 'Same time'
-    const hours = Math.floor(Math.abs(diff))
-    const minutes = Math.abs((diff % 1) * 60)
-    const sign = diff > 0 ? '+' : '-'
+    // Compute difference at the selected baseDateTime, using real zone offsets
+    const offset1 = baseDateTime.setZone(tz1.timezone).offset // in minutes
+    const offset2 = baseDateTime.setZone(tz2.timezone).offset // in minutes
+    const diffMin = offset2 - offset1
+    if (diffMin === 0) return 'Same time'
+    const sign = diffMin > 0 ? '+' : '-'
+    const absMin = Math.abs(diffMin)
+    const hours = Math.floor(absMin / 60)
+    const minutes = absMin % 60
     return `${sign}${hours}${minutes > 0 ? `:${minutes.toString().padStart(2, '0')}` : ''} hours`
   }
 
-  const getLocalTime = (timezone: string): string => {
+  const formatDateForZone = (timezone: string): string => {
     try {
-      const now = new Date()
-      const formatter = new Intl.DateTimeFormat('en-US', {
-        timeZone: timezone,
-        weekday: 'short',
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric',
-      })
-      return formatter.format(now)
+      return baseDateTime.setZone(timezone).toFormat('ccc, LLL dd, yyyy') // e.g., Wed, Jan 03, 2026
     } catch (error) {
       return 'Invalid date'
     }
@@ -127,6 +117,72 @@ export default function TimezoneCompare() {
       </div>
 
       <div className="py-8">
+        {/* Base Time Controller */}
+        <div className="mb-8 rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800">
+          <h2 className="mb-2 text-xl font-bold text-gray-900 dark:text-gray-100">Set Base Time</h2>
+          <p className="mb-4 text-sm text-gray-600 dark:text-gray-400">
+            Click a city card to set the base timezone. Use the slider to adjust the time for that
+            city; other cities update accordingly.
+          </p>
+          <div className="flex flex-col gap-6">
+            <div className="flex-1">
+              <div className="text-sm font-medium text-gray-700 dark:text-gray-300">Base Zone</div>
+              <div className="mt-1 text-lg font-semibold text-cyan-700 dark:text-cyan-400">
+                {timezones.find((tz) => tz.timezone === baseZone)?.city || baseZone}
+              </div>
+              <div className="mt-1 text-xs text-gray-500 dark:text-gray-400">{baseZone}</div>
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="flex-1">
+                <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Date: {baseDateTime.toFormat('ccc, LLL dd, yyyy')}
+                </label>
+                <input
+                  type="date"
+                  value={baseDateStr}
+                  onChange={(e) => setBaseDateStr(e.target.value)}
+                  className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:border-cyan-500 focus:ring-cyan-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+                />
+                <div className="mt-2 flex items-center gap-3">
+                  <button
+                    onClick={() => {
+                      const now = DateTime.now().setZone(baseZone)
+                      setBaseDateStr(now.toFormat('yyyy-LL-dd'))
+                    }}
+                    className="rounded-md border border-gray-300 px-3 py-1 text-sm text-gray-800 transition hover:bg-gray-100 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-700"
+                  >
+                    Reset to Today
+                  </button>
+                </div>
+              </div>
+              <div className="flex-1">
+                <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Time: {baseDateTime.toFormat('HH:mm')}
+                </label>
+                <input
+                  type="range"
+                  min={0}
+                  max={1439}
+                  step={1}
+                  value={baseMinutes}
+                  onChange={(e) => setBaseMinutes(Number(e.target.value))}
+                  className="w-full cursor-pointer appearance-none rounded-lg bg-gray-200 accent-cyan-600 dark:bg-gray-700"
+                />
+                <div className="mt-2 flex items-center gap-3">
+                  <button
+                    onClick={() => {
+                      const now = DateTime.now().setZone(baseZone)
+                      setBaseMinutes(now.hour * 60 + now.minute)
+                    }}
+                    className="rounded-md border border-gray-300 px-3 py-1 text-sm text-gray-800 transition hover:bg-gray-100 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-700"
+                  >
+                    Reset to Now
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
         {/* Add Timezone Section */}
         <div className="mb-8 rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800">
           <h2 className="mb-4 text-xl font-bold text-gray-900 dark:text-gray-100">
@@ -156,14 +212,17 @@ export default function TimezoneCompare() {
                     </option>
                   ))}
               </select>
+              <div className="mt-2 text-xs text-gray-600 dark:text-gray-400">
+                You can add up to {MAX_CITIES} cities. Currently {timezones.length}.
+              </div>
             </div>
             <div className="flex items-end">
               <button
                 onClick={addTimezone}
-                disabled={!selectedCity}
+                disabled={!selectedCity || timezones.length >= MAX_CITIES}
                 className="rounded-md bg-gradient-to-r from-cyan-500 to-blue-600 px-6 py-2 font-medium text-white transition-all hover:from-cyan-600 hover:to-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
               >
-                Add City
+                {timezones.length >= MAX_CITIES ? 'Limit Reached' : 'Add City'}
               </button>
             </div>
           </div>
@@ -174,12 +233,37 @@ export default function TimezoneCompare() {
           {timezones.map((tz, index) => (
             <div
               key={tz.id}
-              className="group relative overflow-hidden rounded-lg border border-gray-200 bg-white p-6 shadow-md transition-all hover:shadow-xl dark:border-gray-700 dark:bg-gray-800"
+              onClick={() => {
+                setBaseZone(tz.timezone)
+                const nowInZone = DateTime.now().setZone(tz.timezone)
+                setBaseMinutes(nowInZone.hour * 60 + nowInZone.minute)
+                setBaseDateStr(nowInZone.toFormat('yyyy-LL-dd'))
+              }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault()
+                  setBaseZone(tz.timezone)
+                  const nowInZone = DateTime.now().setZone(tz.timezone)
+                  setBaseMinutes(nowInZone.hour * 60 + nowInZone.minute)
+                  setBaseDateStr(nowInZone.toFormat('yyyy-LL-dd'))
+                }
+              }}
+              role="button"
+              tabIndex={0}
+              aria-label={`Set ${tz.city} as base timezone`}
+              className={`group relative overflow-hidden rounded-lg border bg-white p-6 shadow-md transition-all hover:shadow-xl dark:bg-gray-800 ${
+                tz.timezone === baseZone
+                  ? 'border-cyan-500 dark:border-cyan-500'
+                  : 'border-gray-200 dark:border-gray-700'
+              }`}
             >
               {/* Remove Button */}
               {timezones.length > 1 && (
                 <button
-                  onClick={() => removeTimezone(tz.id)}
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    removeTimezone(tz.id)
+                  }}
                   className="absolute right-4 top-4 rounded-full p-1 text-gray-400 transition-colors hover:bg-red-100 hover:text-red-600 dark:hover:bg-red-900/30 dark:hover:text-red-400"
                   aria-label="Remove timezone"
                 >
@@ -194,18 +278,30 @@ export default function TimezoneCompare() {
                 </button>
               )}
 
-              {/* City Name */}
-              <h3 className="mb-2 text-2xl font-bold text-gray-900 dark:text-gray-100">
-                {tz.city}
-              </h3>
+              {/* City Name + Base icon (inline) */}
+              <div className="mb-2 flex items-center justify-between">
+                <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{tz.city}</h3>
+                {tz.timezone === baseZone ? (
+                  <svg
+                    className="h-4 w-4 text-cyan-600 dark:text-cyan-400"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                    aria-label="Base timezone"
+                  >
+                    <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
+                  </svg>
+                ) : (
+                  <span className="invisible h-4 w-4" aria-hidden="true" />
+                )}
+              </div>
 
               {/* Time */}
               <div className="mb-4">
                 <div className="text-4xl font-bold tabular-nums text-cyan-600 dark:text-cyan-400">
-                  {mounted ? currentTimes[tz.id] || '--:--:--' : '--:--:--'}
+                  {mounted ? baseDateTime.setZone(tz.timezone).toFormat('HH:mm:ss') : '--:--:--'}
                 </div>
                 <div className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-                  {mounted ? getLocalTime(tz.timezone) : 'Loading...'}
+                  {mounted ? formatDateForZone(tz.timezone) : 'Loading...'}
                 </div>
               </div>
 

@@ -73,6 +73,32 @@ input:-webkit-autofill:focus {
   display: inline-block;
   vertical-align: middle;
 }
+/* Tech Stack Marquee */
+@media (prefers-reduced-motion: no-preference) {
+  @keyframes marquee {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-50%);
+    }
+  }
+  .animate-marquee {
+    animation: marquee 28s linear infinite;
+  }
+  .animate-marquee:hover {
+    animation-play-state: paused;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .animate-marquee {
+    animation: none;
+    flex-wrap: wrap;
+    justify-content: center;
+    width: auto !important;
+  }
+}
+
 /* Scroll Animation Classes */
 /* Animations only run when the user has not requested reduced motion */
 @media (prefers-reduced-motion: no-preference) {

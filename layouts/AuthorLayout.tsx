@@ -195,9 +195,8 @@ export default function AuthorLayout({ children, content }: Props) {
 
         {/* Content Sections */}
         <div className="space-y-16 py-12">
-          {/* All content rendered from MDX with section anchors */}
+          {/* About — MDX content */}
           <div className="prose max-w-none dark:prose-invert">
-            {/* Inject section IDs for navigation */}
             <div id="about" className="scroll-mt-24">
               {children}
             </div>

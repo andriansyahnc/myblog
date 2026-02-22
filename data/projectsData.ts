@@ -8,6 +8,7 @@ interface Project {
   techStack?: string[]
   impact?: string
   category?: 'work' | 'consulting' | 'client'
+  company?: string
 }
 
 const projectsData: Project[] = [
@@ -20,7 +21,8 @@ const projectsData: Project[] = [
     period: '2020 - Present',
     techStack: ['Node.js', 'Laravel', 'Golang', 'MongoDB', 'PubSub'],
     impact: 'Serving 180K+ agents worldwide',
-    category: 'work',
+    category: 'consulting',
+    company: 'Keller Williams',
   },
   {
     title: 'Moladin Dealer Platform',
@@ -32,6 +34,7 @@ const projectsData: Project[] = [
     techStack: ['Node.js', 'TypeScript', 'MongoDB', 'Kafka', 'Microservices'],
     impact: '100K+ dealers and agents on platform',
     category: 'work',
+    company: 'Moladin',
   },
   {
     title: 'Moladin Internal Marketplace',
@@ -43,6 +46,7 @@ const projectsData: Project[] = [
     techStack: ['Node.js', 'TypeScript', 'MongoDB', 'Docker'],
     impact: 'Thousands of monthly transactions',
     category: 'work',
+    company: 'Moladin',
   },
   {
     title: `GudangAda Wholesale Platform`,
@@ -53,6 +57,7 @@ const projectsData: Project[] = [
     period: '2018 - 2020',
     techStack: ['Drupal 8', 'GraphQL', 'React.js', 'MySQL'],
     category: 'work',
+    company: 'GudangAda',
   },
   {
     title: `GTM Vision Analytics Platform`,
@@ -62,6 +67,7 @@ const projectsData: Project[] = [
     period: '2016 - 2018',
     techStack: ['Drupal 7', 'Node.js', 'Python', 'Jenkins'],
     category: 'consulting',
+    company: 'Transformative Inventions',
   },
   {
     title: `My Boosters Learning Platform`,
@@ -71,24 +77,27 @@ const projectsData: Project[] = [
     period: '2014 - 2015',
     techStack: ['Drupal 7', 'PHP', 'MySQL'],
     category: 'client',
+    company: 'My Boosters',
   },
   {
     title: `PLUS! NTUC Membership Program`,
-    description: `Membership rewards platform providing exclusive discounts and benefits to NTUC members across Singapore.`,
+    description: `Membership rewards platform providing exclusive discounts and benefits to NTUC members across Singapore. Delivered as part of client engagement for NTUC.`,
     imgSrc: '/static/images/ntuc.png',
     role: 'Analyst Programmer',
     period: '2013 - 2014',
     techStack: ['Drupal 6', 'PHP', 'MySQL'],
-    category: 'client',
+    category: 'work',
+    company: 'Maven Lab Pte LTD',
   },
   {
     title: `Open University Document Management System`,
-    description: `Digital archive system for managing research papers, theses, and dissertations for Universitas Terbuka Indonesia.`,
+    description: `Digital archive system for managing research papers, theses, and dissertations for Universitas Terbuka Indonesia. Delivered as part of client engagement for Universitas Terbuka.`,
     imgSrc: '/static/images/karil.png',
-    role: 'Lead Developer',
+    role: 'Software Engineer',
     period: '2011 - 2013',
     techStack: ['PHP', 'MySQL', 'JavaScript'],
-    category: 'client',
+    category: 'work',
+    company: 'Informatika Reka Mandiri',
   },
 ]
 

@@ -4,9 +4,19 @@ import siteMetadata from '@/data/siteMetadata'
 import { formatDate } from 'pliny/utils/formatDate'
 import Image from '@/components/Image'
 import TechStack from '@/components/TechStack'
+import projectsData from '@/data/projectsData'
 // import NewsletterForm from 'pliny/ui/NewsletterForm'
 
 const MAX_DISPLAY = 3
+
+const STATS = [
+  { value: '15+', label: 'Years Experience' },
+  { value: '25+', label: 'Microservices Built' },
+  { value: '10', label: 'Team Size Led' },
+  { value: '180K+', label: 'Users Served' },
+]
+
+const FEATURED_WORK = projectsData.filter((p) => p.category === 'work').slice(0, 3)
 
 interface Post {
   slug: string
@@ -69,9 +79,94 @@ export default function Home({ posts }: HomeProps) {
           </Link>
         </div>
 
+        {/* Stats bar */}
+        <div className="flex flex-wrap justify-center gap-8 md:gap-14">
+          {STATS.map((stat) => (
+            <div key={stat.label} className="text-center">
+              <div className="gradient-text text-3xl font-extrabold">{stat.value}</div>
+              <div className="mt-0.5 text-xs font-medium text-gray-500 dark:text-gray-400">
+                {stat.label}
+              </div>
+            </div>
+          ))}
+        </div>
+
         {/* Tech Stack */}
         <TechStack />
       </div>
+
+      {/* Featured Work Section */}
+      <section className="border-t border-gray-200 py-16 dark:border-gray-700">
+        <div className="space-y-8">
+          <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
+            <h2 className="text-3xl font-bold leading-tight md:text-4xl">
+              <span className="gradient-text">Featured Work</span>
+            </h2>
+            <Link
+              href="/projects"
+              className="inline-flex items-center gap-2 rounded px-2 py-1 text-sm font-semibold text-cyan-600 transition-all duration-200 hover:gap-3 hover:underline focus:outline-none focus:ring-2 focus:ring-cyan-500 dark:text-cyan-400"
+              aria-label="View all projects"
+            >
+              <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent">
+                View All
+              </span>
+              <span className="text-cyan-500 dark:text-cyan-400">→</span>
+            </Link>
+          </div>
+
+          <div className="grid gap-6 md:grid-cols-3">
+            {FEATURED_WORK.map((work) => (
+              <div
+                key={work.title}
+                className="group flex flex-col rounded-2xl border border-gray-200 bg-white p-6 transition-all duration-300 hover:border-cyan-500/50 hover:shadow-lg hover:shadow-cyan-500/10 dark:border-gray-800 dark:bg-gradient-to-br dark:from-dark-card dark:to-dark-bg dark:hover:border-cyan-500/30"
+              >
+                <div className="mb-3 flex items-center justify-between gap-2">
+                  <span className="rounded-full bg-cyan-100 px-3 py-1 text-xs font-semibold text-cyan-700 dark:bg-cyan-900/30 dark:text-cyan-400">
+                    {work.role}
+                  </span>
+                  <span className="text-xs text-gray-400 dark:text-gray-500">{work.period}</span>
+                </div>
+
+                <h3 className="mb-2 text-base font-bold leading-snug text-gray-900 transition-colors group-hover:text-cyan-600 dark:text-gray-100 dark:group-hover:text-cyan-400">
+                  {work.href ? (
+                    <Link href={work.href} target="_blank" rel="noopener noreferrer">
+                      {work.title}
+                    </Link>
+                  ) : (
+                    work.title
+                  )}
+                </h3>
+
+                <p className="mb-4 flex-1 text-sm leading-relaxed text-gray-600 dark:text-gray-400">
+                  {work.description}
+                </p>
+
+                {work.impact && (
+                  <p className="mb-3 text-xs font-semibold text-cyan-600 dark:text-cyan-400">
+                    💡 {work.impact}
+                  </p>
+                )}
+
+                {work.techStack && (
+                  <div className="flex flex-wrap gap-1.5">
+                    {work.techStack.slice(0, 4).map((tech) => (
+                      <span
+                        key={tech}
+                        className="rounded-md bg-gray-100 px-2 py-0.5 text-xs text-gray-600 dark:bg-gray-800 dark:text-gray-300"
+                      >
+                        {tech}
+                      </span>
+                    ))}
+                    {work.techStack.length > 4 && (
+                      <span className="text-xs text-gray-400">+{work.techStack.length - 4}</span>
+                    )}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
 
       {/* Latest Posts Section */}
       <section className="border-t border-gray-200 py-16 dark:border-gray-700">

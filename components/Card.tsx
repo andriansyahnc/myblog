@@ -5,6 +5,29 @@ import Image from './Image'
 import Link from './Link'
 import { memo } from 'react'
 
+// Singleton IntersectionObserver shared across all Card instances
+let sharedObserver: IntersectionObserver | null = null
+const observerCallbacks = new Map<Element, () => void>()
+
+function getSharedObserver(): IntersectionObserver | null {
+  if (typeof window === 'undefined') return null
+  if (!sharedObserver) {
+    sharedObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            observerCallbacks.get(entry.target)?.()
+            observerCallbacks.delete(entry.target)
+            sharedObserver?.unobserve(entry.target)
+          }
+        })
+      },
+      { threshold: 0.1, rootMargin: '0px 0px -50px 0px' }
+    )
+  }
+  return sharedObserver
+}
+
 interface CardProps {
   title: string
   description: string
@@ -20,21 +43,16 @@ const Card = ({ title, description, imgSrc, href, role, period, techStack, impac
   const cardRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry && entry.isIntersecting) {
-          entry.target.classList.add('animate-in')
-          observer.unobserve(entry.target)
-        }
-      },
-      { threshold: 0.1, rootMargin: '0px 0px -50px 0px' }
-    )
-
-    if (cardRef.current) {
-      observer.observe(cardRef.current)
+    const el = cardRef.current
+    if (!el) return
+    const observer = getSharedObserver()
+    if (!observer) return
+    observerCallbacks.set(el, () => el.classList.add('animate-in'))
+    observer.observe(el)
+    return () => {
+      observerCallbacks.delete(el)
+      observer.unobserve(el)
     }
-
-    return () => observer.disconnect()
   }, [])
 
   return (

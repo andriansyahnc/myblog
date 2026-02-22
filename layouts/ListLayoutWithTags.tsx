@@ -32,9 +32,9 @@ function Pagination({ totalPages, currentPage }: PaginationProps) {
 
   return (
     <div className="space-y-2 pb-8 pt-6 md:space-y-5">
-      <nav className="flex justify-between">
+      <nav aria-label="Pagination" className="flex justify-between">
         {!prevPage && (
-          <button className="cursor-auto disabled:opacity-50" disabled={!prevPage}>
+          <button className="cursor-auto opacity-50" disabled aria-disabled="true">
             Previous
           </button>
         )}
@@ -46,11 +46,11 @@ function Pagination({ totalPages, currentPage }: PaginationProps) {
             Previous
           </Link>
         )}
-        <span>
+        <span aria-current="page">
           {currentPage} of {totalPages}
         </span>
         {!nextPage && (
-          <button className="cursor-auto disabled:opacity-50" disabled={!nextPage}>
+          <button className="cursor-auto opacity-50" disabled aria-disabled="true">
             Next
           </button>
         )}
@@ -188,7 +188,7 @@ export default function ListLayoutWithTags({
                 </label>
                 <input
                   id="search"
-                  type="text"
+                  type="search"
                   value={searchValue}
                   onChange={(e) => setSearchValue(e.target.value)}
                   placeholder="Search articles..."
@@ -216,7 +216,7 @@ export default function ListLayoutWithTags({
                     <button
                       key={t}
                       onClick={() => toggleTag(slug(t))}
-                      className={`rounded-full px-3 py-1 text-sm font-medium transition-colors ${
+                      className={`rounded-full px-3 py-1 text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-1 dark:focus:ring-offset-gray-800 ${
                         selectedTags.includes(slug(t))
                           ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-md'
                           : 'border border-gray-300 bg-white text-gray-700 hover:border-cyan-500 hover:text-cyan-600 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 dark:hover:border-cyan-400 dark:hover:text-cyan-400'

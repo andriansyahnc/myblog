@@ -74,76 +74,91 @@ input:-webkit-autofill:focus {
   vertical-align: middle;
 }
 /* Scroll Animation Classes */
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
+/* Animations only run when the user has not requested reduced motion */
+@media (prefers-reduced-motion: no-preference) {
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
-  to {
+
+  @keyframes fadeInLeft {
+    from {
+      opacity: 0;
+      transform: translateX(-30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  @keyframes fadeInRight {
+    from {
+      opacity: 0;
+      transform: translateX(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  .animate-in {
+    animation: fadeInUp 0.6s ease-out forwards;
+  }
+
+  .animate-in-left {
+    animation: fadeInLeft 0.6s ease-out forwards;
+  }
+
+  .animate-in-right {
+    animation: fadeInRight 0.6s ease-out forwards;
+  }
+
+  /* Stagger animation for multiple elements */
+  .animate-in-stagger > * {
+    animation: fadeInUp 0.6s ease-out forwards;
+  }
+
+  .animate-in-stagger > *:nth-child(1) {
+    animation-delay: 0s;
+  }
+
+  .animate-in-stagger > *:nth-child(2) {
+    animation-delay: 0.1s;
+  }
+
+  .animate-in-stagger > *:nth-child(3) {
+    animation-delay: 0.2s;
+  }
+
+  .animate-in-stagger > *:nth-child(4) {
+    animation-delay: 0.3s;
+  }
+
+  .animate-in-stagger > *:nth-child(5) {
+    animation-delay: 0.4s;
+  }
+
+  .animate-in-stagger > *:nth-child(n + 6) {
+    animation-delay: 0.5s;
+  }
+}
+
+/* When the user prefers reduced motion, make animated elements immediately visible */
+@media (prefers-reduced-motion: reduce) {
+  .animate-in,
+  .animate-in-left,
+  .animate-in-right,
+  .animate-in-stagger > * {
     opacity: 1;
-    transform: translateY(0);
+    transform: none;
+    animation: none;
   }
-}
-
-@keyframes fadeInLeft {
-  from {
-    opacity: 0;
-    transform: translateX(-30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-@keyframes fadeInRight {
-  from {
-    opacity: 0;
-    transform: translateX(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-.animate-in {
-  animation: fadeInUp 0.6s ease-out forwards;
-}
-
-.animate-in-left {
-  animation: fadeInLeft 0.6s ease-out forwards;
-}
-
-.animate-in-right {
-  animation: fadeInRight 0.6s ease-out forwards;
-}
-
-/* Stagger animation for multiple elements */
-.animate-in-stagger > * {
-  animation: fadeInUp 0.6s ease-out forwards;
-}
-
-.animate-in-stagger > *:nth-child(1) {
-  animation-delay: 0s;
-}
-
-.animate-in-stagger > *:nth-child(2) {
-  animation-delay: 0.1s;
-}
-
-.animate-in-stagger > *:nth-child(3) {
-  animation-delay: 0.2s;
-}
-
-.animate-in-stagger > *:nth-child(4) {
-  animation-delay: 0.3s;
-}
-
-.animate-in-stagger > *:nth-child(5) {
-  animation-delay: 0.4s;
-}
-
-.animate-in-stagger > *:nth-child(n + 6) {
-  animation-delay: 0.5s;
 }

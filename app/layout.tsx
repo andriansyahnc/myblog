@@ -79,6 +79,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#000" />
       <link rel="alternate" type="application/rss+xml" href="/feed.xml" />
       <body className="bg-gray-100 pl-[calc(100vw-100%)] text-gray-900 antialiased dark:bg-[#0a0a0a] dark:text-gray-100">
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-cyan-600 focus:px-4 focus:py-2 focus:text-white focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:ring-offset-2"
+        >
+          Skip to main content
+        </a>
         <WebSiteSchema siteUrl={siteMetadata.siteUrl} name={siteMetadata.title} />
         <VercelAnalytics />
         <SpeedInsights />
@@ -88,7 +94,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <div className="flex h-screen flex-col justify-between font-sans">
               <SearchProvider searchConfig={siteMetadata.search as SearchConfig}>
                 <Header />
-                <main className="mb-auto">{children}</main>
+                <main id="main-content" className="mb-auto">
+                  {children}
+                </main>
               </SearchProvider>
               <Footer />
             </div>

@@ -16,7 +16,9 @@ const STATS = [
   { value: '180K+', label: 'Users Served' },
 ]
 
-const FEATURED_WORK = projectsData.filter((p) => p.category === 'work').slice(0, 3)
+const FEATURED_WORK = projectsData
+  .filter((p) => p.category === 'work' || p.category === 'consulting')
+  .slice(0, 3)
 
 interface Post {
   slug: string

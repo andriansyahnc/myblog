@@ -1,8 +1,8 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 'use client'
 
-import { useState } from 'react'
-import { usePathname } from 'next/navigation'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { slug } from 'github-slugger'
 import { formatDate } from 'pliny/utils/formatDate'
 import { CoreContent } from 'pliny/utils/contentlayer'
@@ -13,6 +13,8 @@ import siteMetadata from '@/data/siteMetadata'
 import tagData from 'app/tag-data.json'
 import ScrollTopAndComment from '@/components/ScrollTopAndComment'
 import Breadcrumb from '@/components/Breadcrumb'
+import { UMAMI_EVENTS } from '@/data/umamiEvents'
+import { useUmamiEvent } from '@/hooks/useUmamiEvent'
 import { formatRelativeDate } from '@/utils/formatRelativeDate'
 
 interface BreadcrumbItem {
@@ -79,13 +81,88 @@ export default function ListLayoutWithTags({
   pagination,
   breadcrumbItems,
 }: ListLayoutProps) {
+  const router = useRouter()
   const pathname = usePathname()
+  const searchParams = useSearchParams()
+  const { trackEvent } = useUmamiEvent()
   const tagCounts = tagData as Record<string, number>
   const tagKeys = Object.keys(tagCounts)
   const sortedTags = tagKeys.sort((a, b) => (tagCounts[b] ?? 0) - (tagCounts[a] ?? 0))
-  const [filtersOpen, setFiltersOpen] = useState(false)
-  const [selectedTags, setSelectedTags] = useState<string[]>([])
-  const [searchValue, setSearchValue] = useState('')
+  const availableTagSlugs = useMemo(() => new Set(tagKeys.map((t) => slug(t))), [tagKeys])
+  const [filtersOpen, setFiltersOpen] = useState(() =>
+    Boolean(searchParams.get('tags') || searchParams.get('q'))
+  )
+  const [selectedTags, setSelectedTags] = useState<string[]>(() => {
+    const tagsFromUrl = (searchParams.get('tags') || '')
+      .split(',')
+      .map((tag) => tag.trim())
+      .filter(Boolean)
+    return tagsFromUrl
+  })
+  const [searchValue, setSearchValue] = useState(() => searchParams.get('q') || '')
+  const [didHydrateFromUrl, setDidHydrateFromUrl] = useState(false)
+  const hasSkippedInitialSearchTrack = useRef(false)
+
+  useEffect(() => {
+    const tagsFromUrl = (searchParams.get('tags') || '')
+      .split(',')
+      .map((tag) => tag.trim())
+      .filter((tag) => tag.length > 0)
+    const qFromUrl = searchParams.get('q') || ''
+
+    setSelectedTags((prev) => {
+      const prevSerialized = prev.join(',')
+      const nextSerialized = tagsFromUrl.join(',')
+      return prevSerialized === nextSerialized ? prev : tagsFromUrl
+    })
+    setSearchValue((prev) => (prev === qFromUrl ? prev : qFromUrl))
+    setDidHydrateFromUrl(true)
+  }, [searchParams])
+
+  useEffect(() => {
+    const params = new URLSearchParams(searchParams.toString())
+    const cleanedTags = selectedTags.filter((tag) => availableTagSlugs.has(tag)).sort()
+    const tagValue = cleanedTags.join(',')
+
+    if (tagValue) {
+      params.set('tags', tagValue)
+    } else {
+      params.delete('tags')
+    }
+
+    const trimmedQuery = searchValue.trim()
+    if (trimmedQuery) {
+      params.set('q', trimmedQuery)
+    } else {
+      params.delete('q')
+    }
+
+    const nextUrl = params.toString() ? `${pathname}?${params.toString()}` : pathname
+    const currentUrl = searchParams.toString() ? `${pathname}?${searchParams.toString()}` : pathname
+
+    if (nextUrl !== currentUrl) {
+      router.replace(nextUrl, { scroll: false })
+    }
+  }, [availableTagSlugs, pathname, router, searchParams, searchValue, selectedTags])
+
+  useEffect(() => {
+    if (!didHydrateFromUrl) return
+
+    if (!hasSkippedInitialSearchTrack.current) {
+      hasSkippedInitialSearchTrack.current = true
+      return
+    }
+
+    const trimmedQuery = searchValue.trim()
+    const timeout = window.setTimeout(() => {
+      trackEvent(UMAMI_EVENTS.SEARCH_QUERY_CHANGED, {
+        queryLength: trimmedQuery.length,
+        hasQuery: Boolean(trimmedQuery),
+      })
+    }, 400)
+
+    return () => window.clearTimeout(timeout)
+  }, [didHydrateFromUrl, searchValue, trackEvent])
 
   // When filters are active, show all posts; otherwise use paginated posts
   const hasActiveFilters = selectedTags.length > 0 || searchValue !== ''
@@ -105,10 +182,21 @@ export default function ListLayoutWithTags({
   })
 
   const toggleTag = (tag: string) => {
-    setSelectedTags((prev) => (prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]))
+    setSelectedTags((prev) => {
+      const next = prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]
+      trackEvent(UMAMI_EVENTS.TAG_FILTER_CHANGED, {
+        tag,
+        selectedCount: next.length,
+      })
+      return next
+    })
   }
 
   const clearFilters = () => {
+    trackEvent(UMAMI_EVENTS.TAG_FILTER_CLEARED, {
+      hadTags: selectedTags.length > 0,
+      hadQuery: Boolean(searchValue.trim()),
+    })
     setSelectedTags([])
     setSearchValue('')
   }

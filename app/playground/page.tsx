@@ -42,7 +42,21 @@ const liveProjects = [
   },
 ]
 
+const devOnlyProjects = [
+  {
+    title: 'Analytics Event Tester',
+    description: 'Validate Umami events and payload warnings during development',
+    href: '/playground/analytics-dev',
+    icon: '📊',
+    status: 'active',
+    tags: ['Analytics', 'Umami', 'Dev Only'],
+  },
+]
+
 export default function LiveProjects() {
+  const projects =
+    process.env.NODE_ENV === 'production' ? liveProjects : [...liveProjects, ...devOnlyProjects]
+
   return (
     <div className="divide-y divide-gray-200 dark:divide-gray-700">
       <div className="space-y-2 pb-8 pt-6 md:space-y-5">
@@ -56,7 +70,7 @@ export default function LiveProjects() {
 
       <div className="container py-12">
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {liveProjects.map((project) => (
+          {projects.map((project) => (
             <Link
               key={project.title}
               href={project.href}

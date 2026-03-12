@@ -15,6 +15,7 @@ import Breadcrumb from '@/components/Breadcrumb'
 import { formatDate } from 'pliny/utils/formatDate'
 import { formatRelativeDate } from '@/utils/formatRelativeDate'
 import TrackReadingHistory from '@/components/TrackReadingHistory'
+import PostScrollDepthTracker from '@/components/PostScrollDepthTracker'
 
 const CalendarIcon = () => (
   <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -106,6 +107,7 @@ export default function PostLayout({
   return (
     <>
       <TrackReadingHistory slug={slug} path={path} title={title} date={date} />
+      <PostScrollDepthTracker slug={slug} title={title} />
       <ReadingProgress />
       <SectionContainer>
         <ScrollTopAndComment />

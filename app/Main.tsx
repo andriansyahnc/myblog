@@ -5,9 +5,9 @@ import { formatDate } from 'pliny/utils/formatDate'
 import Image from '@/components/Image'
 import TechStack from '@/components/TechStack'
 import projectsData from '@/data/projectsData'
-import NewsletterForm from 'pliny/ui/NewsletterForm'
 import { formatRelativeDate } from '@/utils/formatRelativeDate'
 import ResumeReading from '@/components/ResumeReading'
+import TrackedNewsletterForm from '@/components/TrackedNewsletterForm'
 
 const MAX_DISPLAY = 3
 
@@ -277,7 +277,7 @@ export default function Home({ posts }: HomeProps) {
                 published.
               </p>
               <div className="mt-6">
-                <NewsletterForm />
+                <TrackedNewsletterForm />
               </div>
             </div>
           </div>

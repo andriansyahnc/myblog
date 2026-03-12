@@ -1,6 +1,7 @@
 import { AlgoliaButton } from 'pliny/search/AlgoliaButton'
 import { KBarButton } from 'pliny/search/KBarButton'
 import siteMetadata from '@/data/siteMetadata'
+import { UMAMI_EVENTS } from '@/data/umamiEvents'
 
 const SearchButton = () => {
   if (
@@ -11,7 +12,7 @@ const SearchButton = () => {
       siteMetadata.search.provider === 'algolia' ? AlgoliaButton : KBarButton
 
     return (
-      <span data-umami-event="search-open">
+      <span data-umami-event={UMAMI_EVENTS.SEARCH_OPEN}>
         <SearchButtonWrapper aria-label="Search">
           <svg
             xmlns="http://www.w3.org/2000/svg"

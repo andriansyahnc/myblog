@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import Link from '@/components/Link'
 import siteMetadata from '@/data/siteMetadata'
+import { UMAMI_EVENTS } from '@/data/umamiEvents'
 import { formatDate } from 'pliny/utils/formatDate'
 import { formatRelativeDate } from '@/utils/formatRelativeDate'
 
@@ -54,7 +55,7 @@ export default function ResumeReading() {
           </div>
           <Link
             href={`/${recentItem.path}`}
-            data-umami-event="resume-reading-click"
+            data-umami-event={UMAMI_EVENTS.RESUME_READING_CLICK}
             data-umami-event-title={recentItem.title}
             className="focus-ring inline-flex items-center justify-center rounded-full bg-gradient-to-r from-cyan-500 to-blue-600 px-5 py-2.5 text-sm font-semibold text-white transition-all hover:from-cyan-600 hover:to-blue-700"
           >

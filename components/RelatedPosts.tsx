@@ -2,6 +2,7 @@
 
 import Link from '@/components/Link'
 import Tag from '@/components/Tag'
+import { UMAMI_EVENTS } from '@/data/umamiEvents'
 
 interface RelatedPost {
   title: string
@@ -44,7 +45,7 @@ export default function RelatedPosts({ currentTags, allPosts, currentSlug }: Rel
           <Link
             key={post.slug}
             href={`/blog/${post.slug}`}
-            data-umami-event="related-post-click"
+            data-umami-event={UMAMI_EVENTS.RELATED_POST_CLICK}
             data-umami-event-title={post.title}
             className="group flex flex-col rounded-lg border border-gray-200 bg-white p-4 transition-all hover:-translate-y-0.5 hover:border-cyan-500 hover:shadow-md dark:border-gray-700 dark:bg-gray-800 dark:hover:border-cyan-400"
           >

@@ -69,6 +69,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   const analyticsConfig = siteMetadata.analytics as AnalyticsConfig
   const umamiWebsiteId = analyticsConfig?.umamiAnalytics?.umamiWebsiteId
   const enableUmamiInDev = process.env.NEXT_PUBLIC_ENABLE_UMAMI_DEV === 'true'
+  const enableUmamiDebugButton = process.env.NEXT_PUBLIC_ENABLE_UMAMI_DEBUG === 'true'
 
   return (
     <html
@@ -94,7 +95,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </a>
         <WebSiteSchema siteUrl={siteMetadata.siteUrl} name={siteMetadata.title} />
         <UmamiDebugProbe />
-        <UmamiDebugTestButton />
+        {enableUmamiDebugButton && <UmamiDebugTestButton />}
         {process.env.NODE_ENV !== 'production' && enableUmamiInDev && umamiWebsiteId && (
           <Script
             id="umami-dev"

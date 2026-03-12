@@ -13,6 +13,9 @@ import { Metadata } from 'next'
 import { Analytics as VercelAnalytics } from '@vercel/analytics/react'
 import { SpeedInsights } from '@vercel/speed-insights/next'
 import { WebSiteSchema } from '@/components/seo/JsonLd'
+import Script from 'next/script'
+import UmamiDebugProbe from '@/components/UmamiDebugProbe'
+import UmamiDebugTestButton from '@/components/UmamiDebugTestButton'
 
 const space_grotesk = Space_Grotesk({
   subsets: ['latin'],
@@ -63,6 +66,10 @@ export const metadata: Metadata = {
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
+  const analyticsConfig = siteMetadata.analytics as AnalyticsConfig
+  const umamiWebsiteId = analyticsConfig?.umamiAnalytics?.umamiWebsiteId
+  const enableUmamiInDev = process.env.NEXT_PUBLIC_ENABLE_UMAMI_DEV === 'true'
+
   return (
     <html
       lang={siteMetadata.language}
@@ -86,10 +93,20 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           Skip to main content
         </a>
         <WebSiteSchema siteUrl={siteMetadata.siteUrl} name={siteMetadata.title} />
+        <UmamiDebugProbe />
+        <UmamiDebugTestButton />
+        {process.env.NODE_ENV !== 'production' && enableUmamiInDev && umamiWebsiteId && (
+          <Script
+            id="umami-dev"
+            data-website-id={umamiWebsiteId}
+            src="https://analytics.umami.is/script.js"
+            strategy="afterInteractive"
+          />
+        )}
         <VercelAnalytics />
         <SpeedInsights />
         <ThemeProviders>
-          <Analytics analyticsConfig={siteMetadata.analytics as AnalyticsConfig} />
+          <Analytics analyticsConfig={analyticsConfig} />
           <SectionContainer>
             <div className="flex h-screen flex-col justify-between font-sans">
               <SearchProvider searchConfig={siteMetadata.search as SearchConfig}>

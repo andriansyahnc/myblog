@@ -15,12 +15,19 @@ declare global {
   }
 }
 
+function isUmamiDebugEnabled() {
+  if (typeof window === 'undefined') return false
+  return new URLSearchParams(window.location.search).get('umami-debug') === '1'
+}
+
 export function useUmamiEvent() {
   const trackEvent = useCallback(
     <TEventName extends UmamiEventName>(
       eventName: TEventName,
       eventData?: UmamiEventPayloadMap[TEventName]
     ) => {
+      const debugEnabled = isUmamiDebugEnabled()
+
       if (process.env.NODE_ENV !== 'production') {
         const payloadErrors = validateUmamiEventPayload(eventName, eventData)
         if (payloadErrors.length > 0) {
@@ -29,6 +36,14 @@ export function useUmamiEvent() {
             eventData
           )
         }
+      }
+
+      if (debugEnabled) {
+        console.info('[umami-debug] dispatch', {
+          eventName,
+          eventData,
+          hasUmamiRuntime: typeof window !== 'undefined' && Boolean(window.umami?.track),
+        })
       }
 
       if (typeof window !== 'undefined' && window.umami?.track) {

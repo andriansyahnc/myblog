@@ -9,6 +9,7 @@ export const UMAMI_EVENTS = {
   TAG_FILTER_CHANGED: 'tag-filter-changed',
   TAG_FILTER_CLEARED: 'tag-filter-cleared',
   POST_SCROLL_DEPTH: 'post-scroll-depth',
+  MANUAL_PROD_TEST: 'manual-prod-test',
 } as const
 
 export type UmamiEventName = (typeof UMAMI_EVENTS)[keyof typeof UMAMI_EVENTS]
@@ -44,6 +45,7 @@ export type UmamiEventPayloadMap = {
     slug: string
     title: string
   }
+  [UMAMI_EVENTS.MANUAL_PROD_TEST]: undefined
 }
 
 type PayloadValidator = (payload: unknown) => string[]
@@ -102,6 +104,7 @@ const payloadValidators: Record<UmamiEventName, PayloadValidator> = {
     if (!isString(payload.title)) errors.push('title must be a string')
     return errors
   },
+  [UMAMI_EVENTS.MANUAL_PROD_TEST]: () => [],
 }
 
 export function validateUmamiEventPayload(eventName: UmamiEventName, payload: unknown): string[] {

@@ -6,6 +6,11 @@ const footerLinkClass =
   'transition-colors duration-200 hover:text-cyan-600 dark:hover:text-cyan-400 underline-offset-2 hover:underline'
 
 export default function Footer() {
+  const socialMetadata = siteMetadata as typeof siteMetadata & {
+    threads?: string
+    youtube?: string
+  }
+
   return (
     <footer className="border-t border-gray-200 dark:border-gray-700">
       <div className="mx-auto max-w-2xl space-y-8 px-4 py-12 sm:px-6 lg:px-8">
@@ -31,7 +36,9 @@ export default function Footer() {
           </span>
           {/* Microblogging */}
           <SocialIcon kind="twitter" href={siteMetadata.twitter} size={6} />
-          <SocialIcon kind="threads" href={siteMetadata.threads} size={6} />
+          {socialMetadata.threads && (
+            <SocialIcon kind="threads" href={socialMetadata.threads} size={6} />
+          )}
           <span
             className="hidden px-1 text-gray-300 dark:text-gray-600 sm:inline"
             aria-hidden="true"
@@ -39,7 +46,9 @@ export default function Footer() {
             |
           </span>
           {/* Media */}
-          <SocialIcon kind="youtube" href={siteMetadata.youtube} size={6} />
+          {socialMetadata.youtube && (
+            <SocialIcon kind="youtube" href={socialMetadata.youtube} size={6} />
+          )}
           <SocialIcon kind="instagram" href={siteMetadata.instagram} size={6} />
           <SocialIcon kind="facebook" href={siteMetadata.facebook} size={6} />
         </div>

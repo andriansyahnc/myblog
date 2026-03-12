@@ -6,6 +6,7 @@ import { allBlogs } from 'contentlayer/generated'
 import tagData from 'app/tag-data.json'
 import { genPageMetadata } from 'app/seo'
 import { Metadata } from 'next'
+import { Suspense } from 'react'
 
 export async function generateMetadata(props: {
   params: Promise<{ tag: string }>
@@ -42,14 +43,22 @@ export default async function TagPage(props: { params: Promise<{ tag: string }> 
     sortPosts(allBlogs.filter((post) => post.tags && post.tags.map((t) => slug(t)).includes(tag)))
   )
   return (
-    <ListLayout
-      posts={filteredPosts}
-      title={title}
-      breadcrumbItems={[
-        { label: 'Home', href: '/' },
-        { label: 'Tags', href: '/tags' },
-        { label: title },
-      ]}
-    />
+    <Suspense
+      fallback={
+        <div className="py-12 text-center text-gray-500 dark:text-gray-400">
+          Loading tag posts...
+        </div>
+      }
+    >
+      <ListLayout
+        posts={filteredPosts}
+        title={title}
+        breadcrumbItems={[
+          { label: 'Home', href: '/' },
+          { label: 'Tags', href: '/tags' },
+          { label: title },
+        ]}
+      />
+    </Suspense>
   )
 }

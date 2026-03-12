@@ -3,6 +3,7 @@ import { allCoreContent, sortPosts } from 'pliny/utils/contentlayer'
 import { allBlogs } from 'contentlayer/generated'
 import { genPageMetadata } from 'app/seo'
 import { Metadata } from 'next'
+import { Suspense } from 'react'
 
 const POSTS_PER_PAGE = 12
 
@@ -21,12 +22,20 @@ export default function BlogPage() {
   }
 
   return (
-    <ListLayout
-      posts={posts}
-      initialDisplayPosts={initialDisplayPosts}
-      pagination={pagination}
-      title="All Articles"
-      breadcrumbItems={[{ label: 'Home', href: '/' }, { label: 'Blog' }]}
-    />
+    <Suspense
+      fallback={
+        <div className="py-12 text-center text-gray-500 dark:text-gray-400">
+          Loading blog posts...
+        </div>
+      }
+    >
+      <ListLayout
+        posts={posts}
+        initialDisplayPosts={initialDisplayPosts}
+        pagination={pagination}
+        title="All Articles"
+        breadcrumbItems={[{ label: 'Home', href: '/' }, { label: 'Blog' }]}
+      />
+    </Suspense>
   )
 }

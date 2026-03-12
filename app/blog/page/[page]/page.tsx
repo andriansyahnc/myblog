@@ -1,6 +1,7 @@
 import ListLayout from '@/layouts/ListLayoutWithTags'
 import { allCoreContent, sortPosts } from 'pliny/utils/contentlayer'
 import { allBlogs } from 'contentlayer/generated'
+import { Suspense } from 'react'
 
 const POSTS_PER_PAGE = 12
 
@@ -25,11 +26,19 @@ export default async function Page(props: { params: Promise<{ page: string }> })
   }
 
   return (
-    <ListLayout
-      posts={posts}
-      initialDisplayPosts={initialDisplayPosts}
-      pagination={pagination}
-      title="All Articles"
-    />
+    <Suspense
+      fallback={
+        <div className="py-12 text-center text-gray-500 dark:text-gray-400">
+          Loading blog posts...
+        </div>
+      }
+    >
+      <ListLayout
+        posts={posts}
+        initialDisplayPosts={initialDisplayPosts}
+        pagination={pagination}
+        title="All Articles"
+      />
+    </Suspense>
   )
 }

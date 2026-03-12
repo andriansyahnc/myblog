@@ -35,13 +35,18 @@ export default function RelatedPosts({ currentTags, allPosts, currentSlug }: Rel
 
   return (
     <div className="space-y-6 py-8">
-      <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Related Posts</h2>
+      <div>
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Related Posts</h2>
+        <div className="mt-2 h-1 w-16 rounded-full bg-gradient-to-r from-cyan-500 to-blue-600" />
+      </div>
       <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
         {relatedPosts.map((post) => (
           <Link
             key={post.slug}
             href={`/blog/${post.slug}`}
-            className="group flex flex-col rounded-lg border border-gray-200 bg-white p-4 transition-all hover:border-cyan-500 hover:shadow-md dark:border-gray-700 dark:bg-gray-800 dark:hover:border-cyan-400"
+            data-umami-event="related-post-click"
+            data-umami-event-title={post.title}
+            className="group flex flex-col rounded-lg border border-gray-200 bg-white p-4 transition-all hover:-translate-y-0.5 hover:border-cyan-500 hover:shadow-md dark:border-gray-700 dark:bg-gray-800 dark:hover:border-cyan-400"
           >
             <h3 className="mb-2 line-clamp-2 text-base font-semibold text-gray-900 group-hover:text-cyan-600 dark:text-gray-100 dark:group-hover:text-cyan-400">
               {post.title}

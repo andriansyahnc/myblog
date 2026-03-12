@@ -1,0 +1,12 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">NC Backend Notes Newsletter Icon</title>
+  <desc id="desc">A minimal envelope icon with a terminal prompt accent in cyan and blue on a dark slate background.</desc>
+
+  <rect width="512" height="512" rx="104" fill="#0B1220"/>
+
+  <rect x="96" y="128" width="320" height="256" rx="44" stroke="#06B6D4" stroke-width="16"/>
+  <path d="M112 164L240 264C249.3 271.3 262.7 271.3 272 264L400 164" stroke="#06B6D4" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <path d="M206 290L232 308L206 326" stroke="#3B82F6" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>
+  <line x1="246" y1="326" x2="292" y2="326" stroke="#3B82F6" stroke-width="14" stroke-linecap="round"/>
+</svg>

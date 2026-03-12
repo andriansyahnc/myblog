@@ -5,7 +5,9 @@ import { formatDate } from 'pliny/utils/formatDate'
 import Image from '@/components/Image'
 import TechStack from '@/components/TechStack'
 import projectsData from '@/data/projectsData'
-// import NewsletterForm from 'pliny/ui/NewsletterForm'
+import NewsletterForm from 'pliny/ui/NewsletterForm'
+import { formatRelativeDate } from '@/utils/formatRelativeDate'
+import ResumeReading from '@/components/ResumeReading'
 
 const MAX_DISPLAY = 3
 
@@ -96,6 +98,8 @@ export default function Home({ posts }: HomeProps) {
         {/* Tech Stack */}
         <TechStack />
       </div>
+
+      <ResumeReading />
 
       {/* Featured Work Section */}
       <section className="border-t border-gray-200 py-16 dark:border-gray-700">
@@ -204,7 +208,9 @@ export default function Home({ posts }: HomeProps) {
                     <article className="h-full rounded-2xl border border-gray-200 bg-white p-6 transition-all duration-300 hover:border-cyan-500/50 hover:bg-gray-50/50 hover:shadow-lg hover:shadow-cyan-500/20 dark:border-gray-800 dark:bg-gradient-to-br dark:from-dark-card dark:to-dark-bg dark:hover:border-cyan-500/30 dark:hover:shadow-cyan-500/10">
                       <div className="flex h-full flex-col space-y-4">
                         <time className="text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                          {formatDate(date, siteMetadata.locale)}
+                          <span title={formatDate(date, siteMetadata.locale)}>
+                            {formatRelativeDate(date, siteMetadata.locale)}
+                          </span>
                         </time>
                         <h3 className="group-hover:gradient-text text-lg font-bold leading-snug text-gray-900 transition-all dark:text-gray-50">
                           {title}
@@ -236,7 +242,46 @@ export default function Home({ posts }: HomeProps) {
       </section>
 
       {siteMetadata.newsletter?.provider && (
-        <div className="flex items-center justify-center pt-4">{/*<NewsletterForm />*/}</div>
+        <section className="border-t border-gray-200 py-16 dark:border-gray-700">
+          <div className="relative mx-auto max-w-2xl overflow-hidden rounded-2xl border border-cyan-500/30 bg-gradient-to-br from-white to-cyan-50/30 p-8 text-center dark:border-cyan-500/20 dark:from-dark-card dark:to-cyan-950/20">
+            {/* Decorative blobs */}
+            <div
+              className="pointer-events-none absolute -right-8 -top-8 h-40 w-40 rounded-full bg-cyan-500/10 blur-3xl"
+              aria-hidden="true"
+            />
+            <div
+              className="pointer-events-none absolute -bottom-8 -left-8 h-40 w-40 rounded-full bg-blue-500/10 blur-3xl"
+              aria-hidden="true"
+            />
+            <div className="relative">
+              <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-cyan-500/10">
+                <svg
+                  className="h-6 w-6 text-cyan-600 dark:text-cyan-400"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={1.5}
+                    d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                  />
+                </svg>
+              </div>
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                Stay in the loop
+              </h2>
+              <p className="mt-2 text-sm text-gray-700 dark:text-gray-300">
+                Get practical backend and leadership insights delivered when new posts are
+                published.
+              </p>
+              <div className="mt-6">
+                <NewsletterForm />
+              </div>
+            </div>
+          </div>
+        </section>
       )}
     </>
   )

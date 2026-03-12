@@ -56,7 +56,7 @@ const ThemeSwitch = () => {
     <div className="mr-5">
       <Menu as="div" className="relative inline-block text-left">
         <div>
-          <Menu.Button>
+          <Menu.Button className="focus-ring inline-flex h-11 w-11 items-center justify-center rounded-lg bg-gray-100 text-gray-900 transition-colors hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-100 dark:hover:bg-gray-700">
             {!mounted ? <Sun /> : resolvedTheme === 'dark' ? <Moon /> : <Sun />}
           </Menu.Button>
         </div>
@@ -74,7 +74,7 @@ const ThemeSwitch = () => {
               <div className="p-1">
                 <RadioGroup.Option value="light">
                   <Menu.Item>
-                    <button className="group flex w-full items-center rounded-md px-2 py-2 text-sm">
+                    <button className="focus-ring group flex min-h-11 w-full items-center rounded-md px-2 py-2 text-sm text-gray-700 transition-colors hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700">
                       <div className="mr-2">
                         <Sun />
                       </div>
@@ -84,7 +84,7 @@ const ThemeSwitch = () => {
                 </RadioGroup.Option>
                 <RadioGroup.Option value="dark">
                   <Menu.Item>
-                    <button className="group flex w-full items-center rounded-md px-2 py-2 text-sm">
+                    <button className="focus-ring group flex min-h-11 w-full items-center rounded-md px-2 py-2 text-sm text-gray-700 transition-colors hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700">
                       <div className="mr-2">
                         <Moon />
                       </div>
@@ -94,7 +94,7 @@ const ThemeSwitch = () => {
                 </RadioGroup.Option>
                 <RadioGroup.Option value="system">
                   <Menu.Item>
-                    <button className="group flex w-full items-center rounded-md px-2 py-2 text-sm">
+                    <button className="focus-ring group flex min-h-11 w-full items-center rounded-md px-2 py-2 text-sm text-gray-700 transition-colors hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700">
                       <div className="mr-2">
                         <Monitor />
                       </div>

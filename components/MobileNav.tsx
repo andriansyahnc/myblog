@@ -67,7 +67,7 @@ const MobileNav = () => {
         aria-label="Toggle Menu"
         aria-expanded={navShow}
         onClick={onToggleNav}
-        className="inline-flex items-center justify-center rounded-lg bg-gray-100 p-2 text-gray-900 transition-colors hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-cyan-500 dark:bg-gray-800 dark:text-gray-100 dark:hover:bg-gray-700 dark:focus:ring-cyan-400 sm:hidden"
+        className="focus-ring inline-flex h-11 w-11 items-center justify-center rounded-lg bg-gray-100 p-2 text-gray-900 transition-colors hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-100 dark:hover:bg-gray-700 sm:hidden"
       >
         <HamburgerIcon open={navShow} />
       </button>
@@ -83,8 +83,8 @@ const MobileNav = () => {
 
       {/* Mobile Menu Panel */}
       <div
-        className={`fixed inset-x-0 top-0 z-30 max-h-screen transform overflow-y-auto bg-white shadow-lg duration-300 ease-in-out dark:bg-gray-950 sm:hidden ${
-          navShow ? 'translate-y-0' : '-translate-y-full'
+        className={`fixed inset-x-0 top-0 z-30 max-h-screen overflow-y-auto bg-white shadow-lg transition-all duration-300 ease-in-out dark:bg-gray-950 sm:hidden ${
+          navShow ? 'translate-y-0 opacity-100' : 'pointer-events-none -translate-y-full opacity-0'
         }`}
       >
         {/* Close Button */}
@@ -92,7 +92,7 @@ const MobileNav = () => {
           <button
             aria-label="Close Menu"
             onClick={onToggleNav}
-            className="inline-flex items-center justify-center rounded-lg p-2 text-gray-900 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-cyan-500 dark:text-gray-100 dark:hover:bg-gray-800 dark:focus:ring-cyan-400"
+            className="focus-ring inline-flex h-11 w-11 items-center justify-center rounded-lg p-2 text-gray-900 hover:bg-gray-100 dark:text-gray-100 dark:hover:bg-gray-800"
           >
             <CloseIcon />
           </button>
@@ -101,11 +101,14 @@ const MobileNav = () => {
         {/* Navigation Links */}
         <nav className="overflow-y-auto px-6 py-8">
           <div className="space-y-2">
-            {headerNavLinks.map((link) => (
+            {headerNavLinks.map((link, index) => (
               <Link
                 key={link.title}
                 href={link.href}
-                className="block rounded-lg px-4 py-3 font-medium text-gray-900 transition-colors hover:bg-cyan-50 hover:text-cyan-600 focus:outline-none focus:ring-2 focus:ring-cyan-500 dark:text-gray-100 dark:hover:bg-gray-800 dark:hover:text-cyan-400 dark:focus:ring-cyan-400"
+                className={`focus-ring block rounded-lg px-4 py-3 font-medium text-gray-900 transition-colors hover:bg-cyan-50 hover:text-cyan-600 dark:text-gray-100 dark:hover:bg-gray-800 dark:hover:text-cyan-400 ${
+                  navShow ? 'animate-slide-up' : ''
+                }`}
+                style={navShow ? { animationDelay: `${index * 60}ms` } : undefined}
                 onClick={onToggleNav}
               >
                 {link.title}

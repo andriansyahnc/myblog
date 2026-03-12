@@ -6,6 +6,7 @@ import Tag from '@/components/Tag'
 import { slug } from 'github-slugger'
 import tagData from 'app/tag-data.json'
 import { useDebounce } from '@/hooks/useDebounce'
+import Breadcrumb from '@/components/Breadcrumb'
 
 export default function Page() {
   const [searchQuery, setSearchQuery] = useState('')
@@ -66,6 +67,7 @@ export default function Page() {
     <>
       <div className="divide-y divide-gray-200 dark:divide-gray-700">
         <div className="space-y-2 pb-8 pt-6 md:space-y-5">
+          <Breadcrumb items={[{ label: 'Home', href: '/' }, { label: 'Tags' }]} />
           <h1 className="bg-gradient-to-r from-cyan-500 to-blue-600 bg-clip-text text-3xl font-extrabold leading-9 tracking-tight text-transparent sm:text-4xl sm:leading-10 md:text-6xl md:leading-14">
             Topics & Tags
           </h1>

@@ -12,6 +12,13 @@ import Tag from '@/components/Tag'
 import siteMetadata from '@/data/siteMetadata'
 import tagData from 'app/tag-data.json'
 import ScrollTopAndComment from '@/components/ScrollTopAndComment'
+import Breadcrumb from '@/components/Breadcrumb'
+import { formatRelativeDate } from '@/utils/formatRelativeDate'
+
+interface BreadcrumbItem {
+  label: string
+  href?: string
+}
 
 interface PaginationProps {
   totalPages: number
@@ -22,6 +29,7 @@ interface ListLayoutProps {
   title: string
   initialDisplayPosts?: CoreContent<Blog>[]
   pagination?: PaginationProps
+  breadcrumbItems?: BreadcrumbItem[]
 }
 
 function Pagination({ totalPages, currentPage }: PaginationProps) {
@@ -69,6 +77,7 @@ export default function ListLayoutWithTags({
   title,
   initialDisplayPosts = [],
   pagination,
+  breadcrumbItems,
 }: ListLayoutProps) {
   const pathname = usePathname()
   const tagCounts = tagData as Record<string, number>
@@ -108,6 +117,7 @@ export default function ListLayoutWithTags({
     <>
       <div>
         <div className="space-y-2 pb-8 pt-6 md:space-y-5">
+          {breadcrumbItems && breadcrumbItems.length > 0 && <Breadcrumb items={breadcrumbItems} />}
           <h1 className="bg-gradient-to-r from-cyan-500 to-blue-600 bg-clip-text text-3xl font-extrabold leading-9 tracking-tight text-transparent sm:text-4xl sm:leading-10 md:text-6xl md:leading-14">
             {title}
           </h1>
@@ -259,11 +269,14 @@ export default function ListLayoutWithTags({
               return (
                 <article
                   key={path}
-                  className="group flex flex-col overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm transition-all hover:border-cyan-500 hover:shadow-lg dark:border-gray-700 dark:bg-gray-800/50 dark:hover:border-cyan-400"
+                  className="group flex flex-col overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm transition-all hover:-translate-y-1 hover:border-cyan-500 hover:shadow-lg dark:border-gray-700 dark:bg-gray-800/50 dark:hover:border-cyan-400"
                 >
+                  <div className="h-0.5 w-full bg-gradient-to-r from-cyan-500 to-blue-600 opacity-0 transition-opacity group-hover:opacity-100" />
                   <div className="flex flex-1 flex-col p-6">
                     <div className="mb-3 flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
-                      <time dateTime={date}>{formatDate(date, siteMetadata.locale)}</time>
+                      <time dateTime={date} title={formatDate(date, siteMetadata.locale)}>
+                        {formatRelativeDate(date, siteMetadata.locale)}
+                      </time>
                       {readingTime && (
                         <>
                           <span>•</span>

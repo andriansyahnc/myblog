@@ -2,10 +2,11 @@ import ListLayout from '@/layouts/ListLayoutWithTags'
 import { allCoreContent, sortPosts } from 'pliny/utils/contentlayer'
 import { allBlogs } from 'contentlayer/generated'
 import { genPageMetadata } from 'app/seo'
+import { Metadata } from 'next'
 
 const POSTS_PER_PAGE = 12
 
-export const metadata = genPageMetadata({ title: 'Blog' })
+export const metadata: Metadata = genPageMetadata({ title: 'Blog' })
 
 export default function BlogPage() {
   const posts = allCoreContent(sortPosts(allBlogs))
@@ -25,6 +26,7 @@ export default function BlogPage() {
       initialDisplayPosts={initialDisplayPosts}
       pagination={pagination}
       title="All Articles"
+      breadcrumbItems={[{ label: 'Home', href: '/' }, { label: 'Blog' }]}
     />
   )
 }

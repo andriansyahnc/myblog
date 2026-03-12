@@ -11,6 +11,10 @@ import ReadingProgress from '@/components/ReadingProgress'
 import RelatedPosts from '@/components/RelatedPosts'
 import siteMetadata from '@/data/siteMetadata'
 import ScrollTopAndComment from '@/components/ScrollTopAndComment'
+import Breadcrumb from '@/components/Breadcrumb'
+import { formatDate } from 'pliny/utils/formatDate'
+import { formatRelativeDate } from '@/utils/formatRelativeDate'
+import TrackReadingHistory from '@/components/TrackReadingHistory'
 
 const CalendarIcon = () => (
   <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -78,13 +82,6 @@ const editUrl = (path: string) => `${siteMetadata.siteRepo}/blob/main/data/${pat
 const discussUrl = (path: string) =>
   `https://mobile.twitter.com/search?q=${encodeURIComponent(`${siteMetadata.siteUrl}/${path}`)}`
 
-const postDateTemplate: Intl.DateTimeFormatOptions = {
-  weekday: 'long',
-  year: 'numeric',
-  month: 'long',
-  day: 'numeric',
-}
-
 interface LayoutProps {
   content: CoreContent<Blog>
   authorDetails: CoreContent<Authors>[]
@@ -103,22 +100,34 @@ export default function PostLayout({
   children,
 }: LayoutProps) {
   const { filePath, path, slug, date, title, tags, readingTime } = content
-  const basePath = path.split('/')[0]
+  const basePath = path?.split('/')[0] || 'blog'
+  const sectionLabel = basePath.charAt(0).toUpperCase() + basePath.slice(1)
 
   return (
     <>
+      <TrackReadingHistory slug={slug} path={path} title={title} date={date} />
       <ReadingProgress />
       <SectionContainer>
         <ScrollTopAndComment />
         <article>
           <div className="xl:divide-y xl:divide-gray-200 xl:dark:divide-gray-700">
-            <header className="pt-6 xl:pb-6">
+            <header className="animate-fade-in pt-6 xl:pb-6">
               <div className="space-y-6">
+                <Breadcrumb
+                  items={[
+                    { label: 'Home', href: '/' },
+                    { label: sectionLabel, href: `/${basePath}` },
+                    { label: title },
+                  ]}
+                />
+
                 {/* Metadata: Date, Reading Time, Author */}
-                <div className="flex flex-wrap items-center justify-center gap-4 text-sm text-gray-600 dark:text-gray-400">
+                <div className="flex flex-wrap items-center justify-center gap-4 text-sm text-gray-700 dark:text-gray-400">
                   <time dateTime={date} className="flex items-center gap-1.5">
                     <CalendarIcon />
-                    {new Date(date).toLocaleDateString(siteMetadata.locale, postDateTemplate)}
+                    <span title={formatDate(date, siteMetadata.locale)}>
+                      {formatRelativeDate(date, siteMetadata.locale)}
+                    </span>
                   </time>
                   {readingTime && (
                     <>

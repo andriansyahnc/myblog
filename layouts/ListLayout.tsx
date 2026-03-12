@@ -8,6 +8,13 @@ import type { Blog } from 'contentlayer/generated'
 import Link from '@/components/Link'
 import Tag from '@/components/Tag'
 import siteMetadata from '@/data/siteMetadata'
+import Breadcrumb from '@/components/Breadcrumb'
+import { formatRelativeDate } from '@/utils/formatRelativeDate'
+
+interface BreadcrumbItem {
+  label: string
+  href?: string
+}
 
 interface PaginationProps {
   totalPages: number
@@ -18,6 +25,7 @@ interface ListLayoutProps {
   title: string
   initialDisplayPosts?: CoreContent<Blog>[]
   pagination?: PaginationProps
+  breadcrumbItems?: BreadcrumbItem[]
 }
 
 function Pagination({ totalPages, currentPage }: PaginationProps) {
@@ -65,6 +73,7 @@ export default function ListLayout({
   title,
   initialDisplayPosts = [],
   pagination,
+  breadcrumbItems,
 }: ListLayoutProps) {
   const [searchValue, setSearchValue] = useState('')
   const filteredBlogPosts = posts.filter((post) => {
@@ -80,6 +89,7 @@ export default function ListLayout({
     <>
       <div className="divide-y divide-gray-200 dark:divide-gray-700">
         <div className="space-y-2 pb-8 pt-6 md:space-y-5">
+          {breadcrumbItems && breadcrumbItems.length > 0 && <Breadcrumb items={breadcrumbItems} />}
           <h1 className="text-3xl font-extrabold leading-9 tracking-tight text-gray-900 dark:text-gray-100 sm:text-4xl sm:leading-10 md:text-6xl md:leading-14">
             {title}
           </h1>
@@ -120,7 +130,9 @@ export default function ListLayout({
                   <dl>
                     <dt className="sr-only">Published on</dt>
                     <dd className="text-base font-medium leading-6 text-gray-500 dark:text-gray-400">
-                      <time dateTime={date}>{formatDate(date, siteMetadata.locale)}</time>
+                      <time dateTime={date} title={formatDate(date, siteMetadata.locale)}>
+                        {formatRelativeDate(date, siteMetadata.locale)}
+                      </time>
                     </dd>
                   </dl>
                   <div className="space-y-3 xl:col-span-3">

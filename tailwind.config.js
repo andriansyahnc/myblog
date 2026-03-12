@@ -39,6 +39,20 @@ module.exports = {
         'gradient-secondary': 'linear-gradient(135deg, #0ea5e9 0%, #2563eb 100%)',
         'gradient-text': 'linear-gradient(135deg, #22d3ee 0%, #60a5fa 100%)',
       },
+      keyframes: {
+        'fade-in': {
+          '0%': { opacity: '0' },
+          '100%': { opacity: '1' },
+        },
+        'slide-up': {
+          '0%': { opacity: '0', transform: 'translateY(20px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
+      },
+      animation: {
+        'fade-in': 'fade-in 0.5s ease-out forwards',
+        'slide-up': 'slide-up 0.5s ease-out forwards',
+      },
       typography: (/** @type {any} */ { theme }) => ({
         DEFAULT: {
           css: {

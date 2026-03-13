@@ -2,7 +2,6 @@ import siteMetadata from '@/data/siteMetadata'
 import headerNavLinks from '@/data/headerNavLinks'
 import Link from './Link'
 import MobileNav from './MobileNav'
-import ThemeSwitch from './ThemeSwitch'
 import SearchButton from './SearchButton'
 
 const Header = () => {
@@ -41,7 +40,6 @@ const Header = () => {
           {/* Right Actions */}
           <div className="flex items-center gap-2 sm:gap-3">
             <SearchButton />
-            <ThemeSwitch />
             <MobileNav />
           </div>
         </div>

@@ -4,6 +4,7 @@ import CheatsheetClient from './CheatsheetClient'
 
 export const metadata: Metadata = genPageMetadata({
   title: 'Cheatsheet',
+  path: '/cheatsheet',
   description: 'Quick-reference commands for Git, Docker, databases, Linux, and development tools.',
 })
 

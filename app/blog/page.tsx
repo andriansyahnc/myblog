@@ -8,7 +8,7 @@ import SkeletonCard from '@/components/SkeletonCard'
 
 const POSTS_PER_PAGE = 12
 
-export const metadata: Metadata = genPageMetadata({ title: 'Blog' })
+export const metadata: Metadata = genPageMetadata({ title: 'Blog', path: '/blog' })
 
 export default function BlogPage() {
   const posts = allCoreContent(sortPosts(allBlogs))

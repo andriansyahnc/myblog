@@ -1,7 +1,8 @@
 import WorkTimeline from '@/components/WorkTimeline'
 import { genPageMetadata } from 'app/seo'
+import type { Metadata } from 'next'
 
-export const metadata = genPageMetadata({ title: 'Experience' })
+export const metadata: Metadata = genPageMetadata({ title: 'Experience', path: '/experience' })
 
 export default function ExperiencePage() {
   return (

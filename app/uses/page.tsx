@@ -1,8 +1,10 @@
 import { genPageMetadata } from 'app/seo'
 import UsesClient from './UsesClient'
+import type { Metadata } from 'next'
 
-export const metadata = genPageMetadata({
+export const metadata: Metadata = genPageMetadata({
   title: 'Uses',
+  path: '/uses',
   description: 'Software, tools, and gear I use for development and productivity',
 })
 

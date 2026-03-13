@@ -38,6 +38,7 @@ const MobileNav = () => {
   const [navShow, setNavShow] = useState(false)
   const panelRef = useRef<HTMLDivElement>(null)
   const closeButtonRef = useRef<HTMLButtonElement>(null)
+  const triggerButtonRef = useRef<HTMLButtonElement>(null)
 
   const onToggleNav = () => {
     setNavShow((status) => {
@@ -52,7 +53,10 @@ const MobileNav = () => {
 
   // Close nav when route changes
   useEffect(() => {
-    if (!navShow) return
+    if (!navShow) {
+      triggerButtonRef.current?.focus()
+      return
+    }
 
     closeButtonRef.current?.focus()
 
@@ -90,6 +94,7 @@ const MobileNav = () => {
     <>
       {/* Mobile Menu Button */}
       <button
+        ref={triggerButtonRef}
         aria-label="Toggle Menu"
         aria-expanded={navShow}
         onClick={onToggleNav}

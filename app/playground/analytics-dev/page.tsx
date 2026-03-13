@@ -4,6 +4,7 @@ import AnalyticsEventTester from './AnalyticsEventTester'
 
 export const metadata = genPageMetadata({
   title: 'Analytics Event Tester',
+  path: '/playground/analytics-dev',
   description: 'Development-only page for validating Umami event tracking payloads',
 })
 

@@ -1,8 +1,10 @@
 import { genPageMetadata } from 'app/seo'
 import Link from '@/components/Link'
+import type { Metadata } from 'next'
 
-export const metadata = genPageMetadata({
+export const metadata: Metadata = genPageMetadata({
   title: 'Playground',
+  path: '/playground',
   description:
     'Interactive tools and live demonstrations - JSON beautifier, formatters, and developer utilities',
 })

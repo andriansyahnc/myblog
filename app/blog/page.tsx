@@ -4,6 +4,7 @@ import { allBlogs } from 'contentlayer/generated'
 import { genPageMetadata } from 'app/seo'
 import { Metadata } from 'next'
 import { Suspense } from 'react'
+import SkeletonCard from '@/components/SkeletonCard'
 
 const POSTS_PER_PAGE = 12
 
@@ -24,8 +25,10 @@ export default function BlogPage() {
   return (
     <Suspense
       fallback={
-        <div className="py-12 text-center text-gray-500 dark:text-gray-400">
-          Loading blog posts...
+        <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <SkeletonCard key={i} />
+          ))}
         </div>
       }
     >

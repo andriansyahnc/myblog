@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Link from './Link'
 import headerNavLinks from '@/data/headerNavLinks'
 
@@ -36,6 +36,8 @@ const CloseIcon = () => (
 
 const MobileNav = () => {
   const [navShow, setNavShow] = useState(false)
+  const panelRef = useRef<HTMLDivElement>(null)
+  const closeButtonRef = useRef<HTMLButtonElement>(null)
 
   const onToggleNav = () => {
     setNavShow((status) => {
@@ -50,12 +52,36 @@ const MobileNav = () => {
 
   // Close nav when route changes
   useEffect(() => {
+    if (!navShow) return
+
+    closeButtonRef.current?.focus()
+
+    const panel = panelRef.current
+    if (!panel) return
+
+    const focusable = panel.querySelectorAll<HTMLElement>(
+      'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])'
+    )
+    const firstEl = focusable[0]
+    const lastEl = focusable[focusable.length - 1]
+
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && navShow) {
         setNavShow(false)
         document.body.style.overflow = 'auto'
       }
+
+      if (e.key === 'Tab' && firstEl && lastEl) {
+        if (e.shiftKey && document.activeElement === firstEl) {
+          e.preventDefault()
+          lastEl.focus()
+        } else if (!e.shiftKey && document.activeElement === lastEl) {
+          e.preventDefault()
+          firstEl.focus()
+        }
+      }
     }
+
     window.addEventListener('keydown', handleEscape)
     return () => window.removeEventListener('keydown', handleEscape)
   }, [navShow])
@@ -83,6 +109,10 @@ const MobileNav = () => {
 
       {/* Mobile Menu Panel */}
       <div
+        ref={panelRef}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Navigation menu"
         className={`fixed inset-x-0 top-0 z-30 max-h-screen overflow-y-auto bg-white shadow-lg transition-all duration-300 ease-in-out dark:bg-gray-950 sm:hidden ${
           navShow ? 'translate-y-0 opacity-100' : 'pointer-events-none -translate-y-full opacity-0'
         }`}
@@ -90,6 +120,7 @@ const MobileNav = () => {
         {/* Close Button */}
         <div className="flex items-center justify-end border-b border-gray-200 px-6 py-4 dark:border-gray-700">
           <button
+            ref={closeButtonRef}
             aria-label="Close Menu"
             onClick={onToggleNav}
             className="focus-ring inline-flex h-11 w-11 items-center justify-center rounded-lg p-2 text-gray-900 hover:bg-gray-100 dark:text-gray-100 dark:hover:bg-gray-800"

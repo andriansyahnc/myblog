@@ -15,16 +15,20 @@ export function genPageMetadata({ title, description, image, ...rest }: PageSEOP
     openGraph: {
       title: `${title} | ${siteMetadata.title}`,
       description: description || siteMetadata.description,
-      url: './',
+      url: siteMetadata.siteUrl,
       siteName: siteMetadata.title,
-      images: image ? [image] : [siteMetadata.socialBanner],
+      images: image
+        ? [{ url: image, width: 1200, height: 630, alt: title }]
+        : [{ url: siteMetadata.socialBanner, width: 1200, height: 630, alt: siteMetadata.title }],
       locale: 'en_US',
       type: 'website',
     },
     twitter: {
       title: `${title} | ${siteMetadata.title}`,
       card: 'summary_large_image',
-      images: image ? [image] : [siteMetadata.socialBanner],
+      images: image
+        ? [{ url: image, width: 1200, height: 630, alt: title }]
+        : [{ url: siteMetadata.socialBanner, width: 1200, height: 630, alt: siteMetadata.title }],
     },
     ...rest,
   }

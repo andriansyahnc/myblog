@@ -53,10 +53,13 @@ const ThemeSwitch = () => {
   useEffect(() => setMounted(true), [])
 
   return (
-    <div className="mr-5">
+    <div>
       <Menu as="div" className="relative inline-block text-left">
         <div>
-          <Menu.Button className="focus-ring inline-flex h-11 w-11 items-center justify-center rounded-lg bg-gray-100 text-gray-900 transition-colors hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-100 dark:hover:bg-gray-700">
+          <Menu.Button
+            aria-label="Toggle color theme"
+            className="focus-ring inline-flex h-11 w-11 items-center justify-center rounded-lg bg-gray-100 text-gray-900 transition-colors hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-100 dark:hover:bg-gray-700"
+          >
             {!mounted ? <Sun /> : resolvedTheme === 'dark' ? <Moon /> : <Sun />}
           </Menu.Button>
         </div>
@@ -79,6 +82,9 @@ const ThemeSwitch = () => {
                         <Sun />
                       </div>
                       Light
+                      {theme === 'light' && (
+                        <span className="ml-auto h-2 w-2 rounded-full bg-cyan-500" />
+                      )}
                     </button>
                   </Menu.Item>
                 </RadioGroup.Option>
@@ -89,6 +95,9 @@ const ThemeSwitch = () => {
                         <Moon />
                       </div>
                       Dark
+                      {theme === 'dark' && (
+                        <span className="ml-auto h-2 w-2 rounded-full bg-cyan-500" />
+                      )}
                     </button>
                   </Menu.Item>
                 </RadioGroup.Option>
@@ -99,6 +108,9 @@ const ThemeSwitch = () => {
                         <Monitor />
                       </div>
                       System
+                      {theme === 'system' && (
+                        <span className="ml-auto h-2 w-2 rounded-full bg-cyan-500" />
+                      )}
                     </button>
                   </Menu.Item>
                 </RadioGroup.Option>

@@ -74,7 +74,7 @@ const Card = ({ title, description, imgSrc, href, role, period, techStack, impac
                 src={imgSrc}
                 className="w-full object-cover object-top transition-transform duration-300 group-hover:scale-105 md:h-60 lg:h-96"
                 width={544}
-                height={1000}
+                height={384}
               />
             </Link>
           ) : (
@@ -83,7 +83,7 @@ const Card = ({ title, description, imgSrc, href, role, period, techStack, impac
               src={imgSrc}
               className="w-full flex-shrink-0 object-cover object-top md:h-60 lg:h-96"
               width={544}
-              height={1000}
+              height={384}
             />
           ))}
         <div className="flex flex-1 flex-col space-y-4 p-6">

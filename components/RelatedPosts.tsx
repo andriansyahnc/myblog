@@ -1,7 +1,6 @@
 'use client'
 
 import Link from '@/components/Link'
-import Tag from '@/components/Tag'
 import { UMAMI_EVENTS } from '@/data/umamiEvents'
 
 interface RelatedPost {
@@ -59,7 +58,12 @@ export default function RelatedPosts({ currentTags, allPosts, currentSlug }: Rel
             )}
             <div className="flex flex-wrap gap-1">
               {post.tags.slice(0, 3).map((tag) => (
-                <Tag key={tag} text={tag} />
+                <span
+                  key={tag}
+                  className="rounded-full border border-cyan-500/30 bg-cyan-500/10 px-2 py-0.5 text-xs font-medium text-cyan-700 dark:text-cyan-400"
+                >
+                  {tag}
+                </span>
               ))}
               {post.tags.length > 3 && (
                 <span className="rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-600 dark:bg-gray-700 dark:text-gray-400">

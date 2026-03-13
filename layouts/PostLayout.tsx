@@ -16,6 +16,7 @@ import { formatDate } from 'pliny/utils/formatDate'
 import { formatRelativeDate } from '@/utils/formatRelativeDate'
 import TrackReadingHistory from '@/components/TrackReadingHistory'
 import PostScrollDepthTracker from '@/components/PostScrollDepthTracker'
+import { BlogPostingSchema } from '@/components/seo/JsonLd'
 
 const CalendarIcon = () => (
   <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -108,6 +109,7 @@ export default function PostLayout({
     <>
       <TrackReadingHistory slug={slug} path={path} title={title} date={date} />
       <PostScrollDepthTracker slug={slug} title={title} />
+      <BlogPostingSchema post={content} siteUrl={siteMetadata.siteUrl} />
       <ReadingProgress />
       <SectionContainer>
         <ScrollTopAndComment />
@@ -149,7 +151,7 @@ export default function PostLayout({
                             src={authorDetails[0]?.avatar || ''}
                             width={24}
                             height={24}
-                            alt="avatar"
+                            alt={authorDetails[0]?.name || 'Author avatar'}
                             className="h-6 w-6 rounded-full"
                           />
                         )}
@@ -190,7 +192,8 @@ export default function PostLayout({
                 <div className="flex flex-wrap items-center gap-4">
                   <Link
                     href={discussUrl(path)}
-                    rel="nofollow"
+                    rel="nofollow noopener noreferrer"
+                    target="_blank"
                     className="inline-flex items-center gap-1.5 text-cyan-600 transition-colors hover:text-blue-600 dark:text-cyan-400 dark:hover:text-blue-400"
                   >
                     <TwitterIcon />
@@ -224,7 +227,7 @@ export default function PostLayout({
                                 src={author.avatar}
                                 width={80}
                                 height={80}
-                                alt="avatar"
+                                alt={author.name}
                                 className="relative h-20 w-20 rounded-full border-4 border-white dark:border-gray-800"
                               />
                             </div>

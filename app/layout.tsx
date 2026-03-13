@@ -35,14 +35,14 @@ export const metadata: Metadata = {
   openGraph: {
     title: siteMetadata.title,
     description: siteMetadata.description,
-    url: './',
+    url: siteMetadata.siteUrl,
     siteName: siteMetadata.title,
-    images: [siteMetadata.socialBanner],
+    images: [{ url: siteMetadata.socialBanner, width: 1200, height: 630, alt: siteMetadata.title }],
     locale: 'en_US',
     type: 'website',
   },
   alternates: {
-    canonical: './',
+    canonical: siteMetadata.siteUrl,
     types: {
       'application/rss+xml': `${siteMetadata.siteUrl}/feed.xml`,
     },
@@ -94,7 +94,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           Skip to main content
         </a>
         <WebSiteSchema siteUrl={siteMetadata.siteUrl} name={siteMetadata.title} />
-        <UmamiDebugProbe />
+        {enableUmamiDebugButton && <UmamiDebugProbe />}
         {enableUmamiDebugButton && <UmamiDebugTestButton />}
         {process.env.NODE_ENV !== 'production' && enableUmamiInDev && umamiWebsiteId && (
           <Script

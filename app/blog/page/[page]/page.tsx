@@ -2,6 +2,7 @@ import ListLayout from '@/layouts/ListLayoutWithTags'
 import { allCoreContent, sortPosts } from 'pliny/utils/contentlayer'
 import { allBlogs } from 'contentlayer/generated'
 import { Suspense } from 'react'
+import SkeletonCard from '@/components/SkeletonCard'
 
 const POSTS_PER_PAGE = 12
 
@@ -28,8 +29,10 @@ export default async function Page(props: { params: Promise<{ page: string }> })
   return (
     <Suspense
       fallback={
-        <div className="py-12 text-center text-gray-500 dark:text-gray-400">
-          Loading blog posts...
+        <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <SkeletonCard key={i} />
+          ))}
         </div>
       }
     >

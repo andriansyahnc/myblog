@@ -73,7 +73,7 @@ export default function Home({ posts }: HomeProps) {
             href="/about"
             className="rounded-full bg-gradient-to-r from-cyan-500 to-blue-600 px-8 py-3 font-semibold text-white transition-all duration-200 hover:from-cyan-600 hover:to-blue-700 hover:shadow-lg hover:shadow-cyan-500/50 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 dark:focus:ring-offset-white"
           >
-            Get in Touch
+            About Me
           </Link>
           <Link
             href="/projects"

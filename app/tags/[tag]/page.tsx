@@ -7,6 +7,7 @@ import tagData from 'app/tag-data.json'
 import { genPageMetadata } from 'app/seo'
 import { Metadata } from 'next'
 import { Suspense } from 'react'
+import SkeletonCard from '@/components/SkeletonCard'
 
 export async function generateMetadata(props: {
   params: Promise<{ tag: string }>
@@ -17,7 +18,7 @@ export async function generateMetadata(props: {
     title: tag,
     description: `${siteMetadata.title} ${tag} tagged content`,
     alternates: {
-      canonical: './',
+      canonical: `${siteMetadata.siteUrl}/tags/${tag}`,
       types: {
         'application/rss+xml': `${siteMetadata.siteUrl}/tags/${tag}/feed.xml`,
       },
@@ -45,8 +46,10 @@ export default async function TagPage(props: { params: Promise<{ tag: string }> 
   return (
     <Suspense
       fallback={
-        <div className="py-12 text-center text-gray-500 dark:text-gray-400">
-          Loading tag posts...
+        <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <SkeletonCard key={i} />
+          ))}
         </div>
       }
     >

@@ -40,36 +40,100 @@ function Pagination({ totalPages, currentPage }: PaginationProps) {
   const prevPage = currentPage - 1 > 0
   const nextPage = currentPage + 1 <= totalPages
 
+  const pages: Array<number | 'ellipsis-left' | 'ellipsis-right'> = []
+  if (totalPages <= 7) {
+    for (let i = 1; i <= totalPages; i += 1) pages.push(i)
+  } else {
+    const start = Math.max(2, currentPage - 1)
+    const end = Math.min(totalPages - 1, currentPage + 1)
+
+    pages.push(1)
+    if (start > 2) pages.push('ellipsis-left')
+    for (let i = start; i <= end; i += 1) pages.push(i)
+    if (end < totalPages - 1) pages.push('ellipsis-right')
+    pages.push(totalPages)
+  }
+
+  const pageHref = (page: number) => (page === 1 ? `/${basePath}/` : `/${basePath}/page/${page}`)
+
   return (
-    <div className="space-y-2 pb-8 pt-6 md:space-y-5">
-      <nav aria-label="Pagination" className="flex justify-between">
-        {!prevPage && (
-          <button className="cursor-auto opacity-50" disabled aria-disabled="true">
-            Previous
-          </button>
-        )}
-        {prevPage && (
+    <div className="space-y-3 pb-8 pt-8">
+      <nav aria-label="Pagination" className="flex flex-wrap items-center justify-center gap-2">
+        {prevPage ? (
           <Link
-            href={currentPage - 1 === 1 ? `/${basePath}/` : `/${basePath}/page/${currentPage - 1}`}
+            href={pageHref(currentPage - 1)}
             rel="prev"
+            aria-label="Go to previous page"
+            className="rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 transition-colors hover:border-cyan-500 hover:text-cyan-600 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:hover:border-cyan-400 dark:hover:text-cyan-400"
           >
             Previous
           </Link>
+        ) : (
+          <span
+            className="cursor-not-allowed rounded-md border border-gray-200 bg-gray-100 px-3 py-2 text-sm font-medium text-gray-400 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-500"
+            aria-disabled="true"
+          >
+            Previous
+          </span>
         )}
-        <span aria-current="page">
-          {currentPage} of {totalPages}
-        </span>
-        {!nextPage && (
-          <button className="cursor-auto opacity-50" disabled aria-disabled="true">
-            Next
-          </button>
-        )}
-        {nextPage && (
-          <Link href={`/${basePath}/page/${currentPage + 1}`} rel="next">
+
+        <div className="flex flex-wrap items-center justify-center gap-2" aria-label="Page numbers">
+          {pages.map((page) => {
+            if (typeof page !== 'number') {
+              return (
+                <span
+                  key={page}
+                  aria-hidden="true"
+                  className="px-1 py-2 text-sm font-medium text-gray-500 dark:text-gray-400"
+                >
+                  ...
+                </span>
+              )
+            }
+
+            const isCurrent = page === currentPage
+            return isCurrent ? (
+              <span
+                key={page}
+                aria-current="page"
+                className="rounded-md bg-gradient-to-r from-cyan-500 to-blue-600 px-3 py-2 text-sm font-semibold text-white"
+              >
+                {page}
+              </span>
+            ) : (
+              <Link
+                key={page}
+                href={pageHref(page)}
+                aria-label={`Go to page ${page}`}
+                className="rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 transition-colors hover:border-cyan-500 hover:text-cyan-600 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:hover:border-cyan-400 dark:hover:text-cyan-400"
+              >
+                {page}
+              </Link>
+            )
+          })}
+        </div>
+
+        {nextPage ? (
+          <Link
+            href={pageHref(currentPage + 1)}
+            rel="next"
+            aria-label="Go to next page"
+            className="rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 transition-colors hover:border-cyan-500 hover:text-cyan-600 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:hover:border-cyan-400 dark:hover:text-cyan-400"
+          >
             Next
           </Link>
+        ) : (
+          <span
+            className="cursor-not-allowed rounded-md border border-gray-200 bg-gray-100 px-3 py-2 text-sm font-medium text-gray-400 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-500"
+            aria-disabled="true"
+          >
+            Next
+          </span>
         )}
       </nav>
+      <p className="text-center text-sm text-gray-500 dark:text-gray-400">
+        Page {currentPage} of {totalPages}
+      </p>
     </div>
   )
 }
@@ -234,6 +298,8 @@ export default function ListLayoutWithTags({
         <div className="mb-8 rounded-lg border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800/50">
           <button
             onClick={() => setFiltersOpen(!filtersOpen)}
+            aria-expanded={filtersOpen}
+            aria-controls="filters-panel"
             className="flex w-full items-center justify-between p-4 text-left transition-colors hover:bg-gray-50 dark:hover:bg-gray-700/50"
           >
             <div className="flex items-center gap-3">
@@ -275,7 +341,7 @@ export default function ListLayoutWithTags({
           </button>
 
           {filtersOpen && (
-            <div className="border-t border-gray-200 p-4 dark:border-gray-700">
+            <div id="filters-panel" className="border-t border-gray-200 p-4 dark:border-gray-700">
               {/* Search */}
               <div className="mb-4">
                 <label

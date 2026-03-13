@@ -10,7 +10,7 @@ export default function JsonLd({ data }: JsonLdProps) {
 
 interface BlogPost {
   title: string
-  summary: string
+  summary?: string
   date: string
   lastmod?: string
   author?: string
@@ -23,7 +23,7 @@ export function BlogPostingSchema({ post, siteUrl }: { post: BlogPost; siteUrl: 
     '@context': 'https://schema.org',
     '@type': 'BlogPosting',
     headline: post.title,
-    description: post.summary,
+    description: post.summary || post.title,
     datePublished: post.date,
     dateModified: post.lastmod || post.date,
     author: {

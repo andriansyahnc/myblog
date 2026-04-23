@@ -1,32 +1,6 @@
-'use client'
-
-import { useRef, useEffect } from 'react'
 import Image from './Image'
 import Link from './Link'
 import { memo } from 'react'
-
-// Singleton IntersectionObserver shared across all Card instances
-let sharedObserver: IntersectionObserver | null = null
-const observerCallbacks = new Map<Element, () => void>()
-
-function getSharedObserver(): IntersectionObserver | null {
-  if (typeof window === 'undefined') return null
-  if (!sharedObserver) {
-    sharedObserver = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            observerCallbacks.get(entry.target)?.()
-            observerCallbacks.delete(entry.target)
-            sharedObserver?.unobserve(entry.target)
-          }
-        })
-      },
-      { threshold: 0.1, rootMargin: '0px 0px -50px 0px' }
-    )
-  }
-  return sharedObserver
-}
 
 interface CardProps {
   title: string
@@ -40,23 +14,8 @@ interface CardProps {
 }
 
 const Card = ({ title, description, imgSrc, href, role, period, techStack, impact }: CardProps) => {
-  const cardRef = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    const el = cardRef.current
-    if (!el) return
-    const observer = getSharedObserver()
-    if (!observer) return
-    observerCallbacks.set(el, () => el.classList.add('animate-in'))
-    observer.observe(el)
-    return () => {
-      observerCallbacks.delete(el)
-      observer.unobserve(el)
-    }
-  }, [])
-
   return (
-    <div ref={cardRef} className="group flex flex-col opacity-0">
+    <div className="group flex flex-col">
       <div
         className={`${
           imgSrc && 'flex flex-col'
@@ -75,6 +34,7 @@ const Card = ({ title, description, imgSrc, href, role, period, techStack, impac
                 className="w-full object-cover object-top transition-transform duration-300 group-hover:scale-105 md:h-60 lg:h-96"
                 width={544}
                 height={384}
+                sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
               />
             </Link>
           ) : (
@@ -84,6 +44,7 @@ const Card = ({ title, description, imgSrc, href, role, period, techStack, impac
               className="w-full flex-shrink-0 object-cover object-top md:h-60 lg:h-96"
               width={544}
               height={384}
+              sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
             />
           ))}
         <div className="flex flex-1 flex-col space-y-4 p-6">

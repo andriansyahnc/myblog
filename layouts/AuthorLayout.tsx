@@ -25,6 +25,7 @@ export default function AuthorLayout({ children, content }: Props) {
                 alt="avatar"
                 width={160}
                 height={160}
+                priority
                 className="relative h-40 w-40 rounded-full ring-4 ring-white dark:ring-gray-800"
               />
             </div>

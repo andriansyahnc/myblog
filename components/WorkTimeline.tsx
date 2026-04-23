@@ -1,5 +1,3 @@
-'use client'
-
 import projectsData from '@/data/projectsData'
 import Link from '@/components/Link'
 

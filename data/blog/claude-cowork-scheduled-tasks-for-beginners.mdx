@@ -1,0 +1,63 @@
+---
+title: 'Claude Cowork Scheduled Tasks for Beginners: Let Claude Do the Recurring Work'
+date: '2026-07-13'
+tags: ['Claude', 'Claude Cowork', 'automation', 'scheduled tasks', 'AI', 'productivity', 'workflow']
+draft: true
+summary: Learn how to schedule recurring work in Claude Cowork so it runs on its own—daily, weekly, or hourly. This beginner guide walks you through testing your prompt first, setting a cadence, and the one gotcha every newcomer hits: each run starts fresh, so put everything the task needs in the prompt.
+---
+
+You know that report you rebuild every Monday morning? Or the standup summary you copy-paste together before every sync? Claude Cowork can just *do* those for you, on a schedule—no reminder, no you.
+
+**Scheduled tasks** let you describe a job once, pick how often it should run, and Cowork runs it automatically. Here's how to set one up without tripping over the usual beginner snags.
+
+> **TLDR:** Confirm you're on a paid plan → test the prompt in a normal task → run `/schedule` (or use the "Scheduled" sidebar) → pick a cadence → remember each run starts fresh, so put all the context in the prompt.
+
+## 1. Make Sure You're on a Paid Plan
+
+Scheduled tasks live in **Claude Cowork**, which is available on the paid plans only—Pro, Max, Team, and Enterprise. If you don't see Cowork, that's the first thing to check. No point debugging a feature your plan doesn't include yet.
+
+## 2. Test the Prompt First
+
+Before you automate anything, run it once as a normal task and see what comes back.
+
+Example: "Read my calendar and unread Slack, then give me a 5-bullet 'what needs my attention today.'"
+
+If the output is what you'd actually want, it's ready to schedule. If not, fix the prompt now—it's much easier to debug in a live chat than to wonder why your 8am task keeps sending you something odd.
+
+## 3. Schedule It
+
+Two ways, pick whichever is in front of you:
+
+- **From inside a task:** type `/schedule` and Claude walks you through it.
+- **From scratch:** click **"Scheduled"** in the sidebar and fill in the fields—name, description, prompt instructions, frequency, model, and working folder.
+
+That's it. Claude saves your prompt as the task's standing instructions and runs it on time.
+
+## 4. Pick a Cadence
+
+Choose how often it should run: **hourly, daily, weekdays, weekly, or on-demand.** Match it to the real rhythm of the work.
+
+Example: a "what needs my attention today" brief fits **weekdays at 8am**. A backlog cleanup might only need **weekly**. Don't over-schedule—an hourly task you don't read is just noise.
+
+## 5. Remember: Every Run Starts Fresh
+
+This is the one that trips up beginners. Each scheduled run is a **brand-new session**—Claude reads your files, connectors, and context *at run time*, does the task, and saves the output. It does **not** remember the last run.
+
+So put everything the task needs **in the prompt itself**. Don't rely on "as we discussed"—there's no earlier conversation to lean on. Be explicit: which folder, which files, what the output should look like.
+
+## 6. It Runs Even When You're Offline
+
+Here's the nice part: scheduled tasks now run **remotely, with no device online**. Your laptop can be closed and the task still fires on time—no more "it only ran when my computer was awake." Set it and forget it, for real!
+
+## A Quick Word of Caution
+
+Give a scheduled task real power and you want a safety net:
+
+- If the task **writes files or pushes code**, keep a human review gate—have it open a pull request you approve, not commit straight to main.
+- Because each run is fresh, **double-check the first few outputs** before you trust it unattended. Confirm the cadence, the model, and that the result is something you'd actually want landing in your inbox.
+
+## Wrapping Up
+
+Scheduled tasks turn Claude from something you *ask* into something that quietly *shows up*—the Monday report already written, the daily brief already waiting. Start with one small, well-tested task, watch it for a week, and grow from there. Try it today and hand off your most repetitive chore first!
+
+For more practical tips and tutorials, check out other articles on [NC's Blog](https://nc-andriansyah.me).

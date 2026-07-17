@@ -10,11 +10,14 @@ const ContentSecurityPolicy = `
   default-src 'self';
   script-src 'self' 'unsafe-eval' 'unsafe-inline' giscus.app analytics.umami.is us.umami.is cloud.umami.is;
   style-src 'self' 'unsafe-inline';
-  img-src * blob: data:;
-  media-src *.s3.amazonaws.com;
-  connect-src *;
+  img-src 'self' blob: data: picsum.photos;
+  media-src 'self' *.s3.amazonaws.com;
+  connect-src 'self' analytics.umami.is us.umami.is cloud.umami.is;
   font-src 'self';
-  frame-src giscus.app
+  frame-src giscus.app;
+  base-uri 'self';
+  object-src 'none';
+  frame-ancestors 'self'
 `
 
 const securityHeaders = [

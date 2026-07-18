@@ -127,7 +127,13 @@ export default async function Page(props: { params: Promise<{ slug: string[] }> 
         // eslint-disable-next-line @next/next/no-css-tags
         <link rel="stylesheet" href="/static/katex/katex.min.css" />
       )}
-      <Layout content={mainContent} authorDetails={authorDetails} next={next} prev={prev}>
+      <Layout
+        content={mainContent}
+        authorDetails={authorDetails}
+        next={next}
+        prev={prev}
+        posts={sortedCoreContents}
+      >
         <MDXLayoutRenderer code={post.body.code} components={components} toc={post.toc} />
       </Layout>
     </>

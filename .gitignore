@@ -28,6 +28,9 @@ public/sitemap.xml
 # search
 /public/search.json
 
+# KaTeX assets copied from node_modules at build time (see postbuild.mjs)
+/public/static/katex
+
 # misc
 .DS_Store
 

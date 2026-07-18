@@ -1,5 +1,4 @@
 import 'css/prism.css'
-import 'katex/dist/katex.css'
 
 import { components } from '@/components/MDXComponents'
 import { MDXLayoutRenderer } from 'pliny/mdx-components'
@@ -12,6 +11,17 @@ import PostBanner from '@/layouts/PostBanner'
 import { Metadata } from 'next'
 import siteMetadata from '@/data/siteMetadata'
 import { notFound } from 'next/navigation'
+
+// remark-math's inline ($...$) and block ($$...$$) delimiters. Checked
+// against the raw MDX with fenced/inline code stripped first, since code
+// containing a couple of dollar signs (PHP variables, JS template
+// literals) isn't math and shouldn't pull in KaTeX's CSS.
+const MATH_RE = /\$\$[\s\S]+?\$\$|(?<!\$)\$(?!\$)(?:[^$\n\\]|\\.)+?(?<!\$)\$(?!\$)/
+
+function usesMath(raw: string): boolean {
+  const withoutCode = raw.replace(/```[\s\S]*?```/g, '').replace(/`[^`\n]*`/g, '')
+  return MATH_RE.test(withoutCode)
+}
 
 const defaultLayout = 'PostLayout'
 const layouts = {
@@ -107,8 +117,19 @@ export default async function Page(props: { params: Promise<{ slug: string[] }> 
   const Layout = layouts[layoutKey]
 
   return (
-    <Layout content={mainContent} authorDetails={authorDetails} next={next} prev={prev}>
-      <MDXLayoutRenderer code={post.body.code} components={components} toc={post.toc} />
-    </Layout>
+    <>
+      {usesMath(post.body.raw) && (
+        // A manual <link>, not `import 'katex/dist/katex.css'`, is deliberate:
+        // Turbopack coalesces CSS `import`s into a shared chunk loaded on
+        // every page regardless of a next/dynamic() boundary, which would
+        // defeat the point (0/20 current posts use math). A <link> only
+        // costs a request on pages that actually render it.
+        // eslint-disable-next-line @next/next/no-css-tags
+        <link rel="stylesheet" href="/static/katex/katex.min.css" />
+      )}
+      <Layout content={mainContent} authorDetails={authorDetails} next={next} prev={prev}>
+        <MDXLayoutRenderer code={post.body.code} components={components} toc={post.toc} />
+      </Layout>
+    </>
   )
 }

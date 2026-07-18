@@ -10,7 +10,7 @@ const siteMetadata = {
     "Explore NC's Blog for daily tech insights, practical code snippets, and real-life solutions in backend development, Drupal, and leadership. Join the journey of a tech lead sharing hands-on experiences.",
   language: 'en-us',
   theme: 'dark', // system, dark or light
-  siteUrl: 'https://nc-andriansyah.me/',
+  siteUrl: 'https://nc-andriansyah.me',
   siteRepo: 'https://github.com/andriansyahnc/myblog',
   siteLogo: '/static/images/logo.png',
   socialBanner: '/static/images/twitter-card.png',

@@ -1,70 +1,169 @@
 ---
 title: 'KafkaJS Graceful Shutdown: Ensuring a Clean Exit for Your Kafka Consumers'
 tags: ['kafka', 'nodejs']
-summary: 'Learn how to implement a KafkaJS graceful shutdown to ensure your Kafka consumers exit cleanly and avoid data loss in Node.js.'
+summary: 'Learn how to implement a correct KafkaJS graceful shutdown — handling in-flight messages, shutdown timeouts, and consumer crashes — so your Kafka consumers exit cleanly without data loss.'
 date: '2024-10-01'
+lastmod: '2026-07-19'
 draft: false
 ---
 
 ### KafkaJS Graceful Shutdown: Ensuring a Clean Exit for Your Kafka Consumers
 
-When building systems that rely on Kafka, ensuring a smooth shutdown process is essential. Abruptly terminating Kafka consumers can lead to data inconsistencies, uncommitted messages, and resource leakage. In this guide, we'll look into how to implement a graceful shutdown using KafkaJS, ensuring that your application exits cleanly, while committing any outstanding messages and closing necessary connections.
+When building systems that rely on Kafka, ensuring a smooth shutdown process is essential. Abruptly terminating Kafka consumers can lead to data inconsistencies, uncommitted messages, and resource leakage. In this guide, we'll implement a graceful shutdown using KafkaJS that actually holds up in production — not just a `SIGTERM` handler that calls `disconnect()` and hopes for the best.
 
 #### Why Graceful Shutdown Matters
 
-A graceful shutdown is crucial in a microservice architecture where applications may need to shut down frequently due to deployments or scaling events. Without handling shutdown signals properly, the Kafka consumer might stop mid-processing, causing issues like:
+A graceful shutdown is crucial in a microservice architecture where applications may need to shut down frequently due to deployments or scaling events. Every rolling deploy on Kubernetes, every autoscaling event, every `pm2 reload` sends a `SIGTERM` to your process — often while a consumer is mid-batch. Without handling that signal properly, you risk:
 
-- Unacknowledged messages.
-- Potential data loss.
-- Open connections not being closed, leading to memory leaks or connection exhaustion.
-  By handling shutdown signals like `SIGTERM` or `SIGINT`, you ensure your consumers complete their tasks, commit processed messages, and close all resources before the application exits.
+- Messages that were already being processed getting cut off mid-flight.
+- Uncommitted offsets, causing the same messages to be redelivered (and reprocessed) after restart.
+- Open connections not being closed, leading to memory leaks or connection exhaustion on the broker side.
 
-#### Implementing Graceful Shutdown in KafkaJS
+By handling `SIGTERM` and `SIGINT` properly, you let consumers finish what they're doing, commit their offsets, and close cleanly before the process exits.
 
-Let’s walk through a simple implementation of graceful shutdown using KafkaJS, Node.js, and MongoDB.
+#### The Three Hard Parts Most Guides Skip
+
+Most graceful-shutdown examples stop at "call `consumer.disconnect()` in a signal handler." That's necessary but not sufficient. Three things actually make a shutdown handler production-ready:
+
+1. **In-flight message handling.** What happens to the message your `eachMessage` callback is processing right now when the signal arrives?
+2. **A shutdown timeout.** What if `disconnect()` itself hangs — because your handler is stuck on a downstream call with no timeout?
+3. **Consumer crashes.** A crash isn't a shutdown, but if you don't handle it, your consumer can silently stop consuming while the process keeps running.
+
+Here's how to handle all three.
+
+#### A Complete, Correct Example
 
 ```javascript
-const gracefulShutdown = async (exitCode = 0) => {
-  logger.log('Received SIGTERM, shutting down gracefully...')
-  try {
-    // Disconnect the Kafka consumer
-    await consumer.disconnect()
+const { Kafka, logLevel } = require('kafkajs')
 
-    // Close the database connection, or something else
-    // await mongoose.disconnectMongo();
+const kafka = new Kafka({
+  clientId: 'orders-consumer',
+  brokers: ['kafka-1:9092', 'kafka-2:9092'],
+  logLevel: logLevel.ERROR,
+})
+
+const consumer = kafka.consumer({ groupId: 'orders-processor' })
+
+let isShuttingDown = false
+
+async function run() {
+  await consumer.connect()
+  await consumer.subscribe({ topic: 'orders', fromBeginning: false })
+
+  await consumer.run({
+    eachMessage: async ({ message }) => {
+      if (isShuttingDown) {
+        // A shutdown started while this message was queued. Skip picking
+        // up new work — the offset stays uncommitted, so it's redelivered
+        // to whichever consumer picks up the partition next.
+        return
+      }
+
+      await processOrder(JSON.parse(message.value.toString()))
+    },
+  })
+
+  consumer.on(consumer.events.CRASH, ({ payload }) => {
+    console.error('Consumer crashed:', payload.error)
+    if (!payload.restart) {
+      // KafkaJS gave up retrying internally — exit and let your process
+      // manager (systemd, Kubernetes, PM2) restart the whole process.
+      process.exit(1)
+    }
+  })
+}
+
+const SHUTDOWN_TIMEOUT_MS = 10_000
+
+async function shutdown(signal) {
+  if (isShuttingDown) return
+  isShuttingDown = true
+
+  console.log(`Received ${signal}, shutting down consumer...`)
+
+  const disconnect = consumer.disconnect()
+  const timeout = new Promise((_, reject) =>
+    setTimeout(() => reject(new Error('Shutdown timed out')), SHUTDOWN_TIMEOUT_MS)
+  )
+
+  try {
+    await Promise.race([disconnect, timeout])
+    process.exit(0)
   } catch (error) {
-    // Log any errors that occur during shutdown
-    ErrorLogger.log(`Error during graceful shutdown: ${error.message}`)
-  } finally {
-    // Exit the process with the specified exit code
-    process.exit(exitCode)
+    console.error('Forced shutdown:', error.message)
+    process.exit(1)
   }
 }
 
-// Listen for termination signals
-process.on('SIGTERM', gracefulShutdown)
+process.on('SIGTERM', () => shutdown('SIGTERM'))
+process.on('SIGINT', () => shutdown('SIGINT'))
+
+run().catch((error) => {
+  console.error('Failed to start consumer:', error)
+  process.exit(1)
+})
 ```
 
 #### Breaking Down the Code
 
-1. Signal Handling: We use process.on('SIGTERM') to listen for the termination signal. When the signal is received, the gracefulShutdown function is triggered.
-2. KafkaJS Consumer Disconnect: The consumer.disconnect() gracefully closes the connection to Kafka, ensuring all in-flight messages are committed or acknowledged before disconnecting.
-3. MongoDB Disconnection: For databases, it’s crucial to close connections properly to avoid memory leaks. Here, mongoose.disconnectMongo() cleanly shuts down the MongoDB connection.
-4. Error Handling: If any part of the shutdown process fails (such as Kafka or MongoDB disconnection), we log the error for future debugging.
-5. Exiting the Process: After the shutdown steps complete, process.exit(exitCode) is called to end the Node.js process with the provided exit code.
+1. **`isShuttingDown` flag.** Set the moment a signal arrives, checked at the top of `eachMessage`. It stops the consumer from picking up _new_ work once shutdown has started — the message already in flight is unaffected.
+2. **`consumer.disconnect()` waits for you.** This is the part most guides get wrong by omission: KafkaJS's `disconnect()` does not abort an in-flight `eachMessage` (or `eachBatch`) call. It waits for the current invocation to finish, commits its offset, and only then closes the connection. You don't need to manually track "am I mid-message" — KafkaJS already does this for you.
+3. **The shutdown timeout is the safety net for the case above.** If your `eachMessage` handler is stuck — say, a downstream HTTP call with no timeout — `disconnect()` will wait for it _forever_. `Promise.race` against a timeout means a hung handler can't hang your deploys too; after 10 seconds you force-exit instead.
+4. **Signal handling.** `SIGTERM` (sent by orchestrators and process managers) and `SIGINT` (Ctrl+C locally) both route to the same `shutdown` function.
+5. **Crash handling is separate from shutdown.** A crash means KafkaJS itself detected a fatal error in the consumer loop. Check `payload.restart` — if KafkaJS says it won't retry, exit deliberately rather than leaving a process running with a dead consumer.
 
-#### Enhancing with Other Shutdown Signals
+#### Handling `eachBatch` Differently
 
-You can also listen for other termination signals such as `SIGINT` (interrupt signal, typically from Ctrl+C in the terminal) and apply the same graceful shutdown logic:
+If you process messages in batches instead of one at a time, the shutdown story changes slightly. `eachBatch` gives you `resolveOffset`, `heartbeat`, `isRunning`, and `isStale` — use them:
 
 ```javascript
-process.on('SIGINT', gracefulShutdown)
+await consumer.run({
+  eachBatch: async ({ batch, resolveOffset, heartbeat, isRunning, isStale }) => {
+    for (const message of batch.messages) {
+      if (!isRunning() || isStale()) break
+
+      await processOrder(JSON.parse(message.value.toString()))
+      resolveOffset(message.offset)
+      await heartbeat()
+    }
+  },
+})
 ```
+
+Call `resolveOffset()` after _each_ message succeeds, not once at the end of the batch — if the process crashes partway through, you don't want to redeliver messages you'd already processed. `isRunning()`/`isStale()` let you bail out of a long batch loop early if a shutdown or rebalance has started. The same `consumer.disconnect()` behavior applies: it waits for the current `eachBatch` invocation to return before closing.
+
+#### `stop()` vs `disconnect()`
+
+KafkaJS actually gives you two ways to halt consumption, and picking the wrong one causes confusing behavior:
+
+- **`consumer.stop()`** pauses the run loop but keeps the consumer as a member of its consumer group. Use this if you want to temporarily halt processing (a feature flag, a maintenance window) without triggering a rebalance that reshuffles partitions to other consumers.
+- **`consumer.disconnect()`** stops the run loop _and_ leaves the consumer group entirely, closing the underlying connection. This is what you want on process exit — it immediately frees up the partitions for another consumer instance to pick up, rather than making the group wait out the session timeout.
+
+For a shutdown handler specifically, `disconnect()` is correct. Reach for `stop()` only if you need to pause without giving up group membership.
+
+#### Common Mistakes to Avoid
+
+A few anti-patterns that undermine an otherwise-correct shutdown handler:
+
+- **Calling `process.exit()` before `disconnect()` resolves.** This is the single most common mistake — it defeats the entire point. If you exit synchronously in the signal handler instead of awaiting the disconnect, KafkaJS never gets the chance to finish committing the in-flight message's offset.
+- **Only handling `SIGTERM`.** Local development sends `SIGINT` (Ctrl+C), not `SIGTERM`. A handler that only listens for one will behave correctly in production but hang or force-kill during local testing, which is exactly when you want to be validating the shutdown path.
+- **Forgetting the `isShuttingDown` guard in a multi-partition consumer.** With `partitionsConsumedConcurrently` set above 1, KafkaJS can invoke `eachMessage` for several partitions in parallel. Without the guard, a signal arriving mid-drain still lets _new_ concurrent invocations start picking up fresh messages before `disconnect()` actually closes the connection.
+- **No timeout on the disconnect itself.** Covered above, but worth repeating: a hung handler with no timeout wrapper turns every deploy into a game of chicken with your orchestrator's `SIGKILL` grace period.
+
+#### Testing Your Shutdown Handler Locally
+
+Don't just trust the code — verify it. Start your consumer, publish a message that takes a few seconds to process, and send it a real signal mid-processing:
+
+```bash
+kill -TERM $(pgrep -f "node consumer.js")
+```
+
+You should see the in-flight message finish processing, then a clean "shutting down" log, then the process exit. If you're running in Docker, `docker stop` sends `SIGTERM` and waits (10 seconds by default) before `SIGKILL` — a good real-world check that your `SHUTDOWN_TIMEOUT_MS` is comfortably under that window.
 
 #### Final Thoughts
 
-By implementing a graceful shutdown mechanism, you ensure your KafkaJS consumers stop their work without leaving any uncommitted messages behind. This practice is especially important in production environments where stability and consistency are crucial.
+A correct graceful shutdown does three things: stops picking up new work, lets in-flight work finish (which KafkaJS already handles via `disconnect()`), and has a hard timeout so a stuck handler can't hang your deploys forever. Add crash handling on top and you've covered the failure modes that actually show up in production — not just the happy path.
 
-Graceful shutdowns are not just about Kafka consumers. Make sure to apply this pattern across all components of your application that deal with critical resources like databases, file systems, and network connections.
+This pattern isn't Kafka-specific. Apply the same shape — stop accepting new work, drain what's in flight with a timeout, exit deliberately — to any long-running consumer of a queue, database connection pool, or in-progress HTTP request.
 
 For more coding tips and tutorials, check out other articles on [NC's Blog](http://nc-andriansyah.me).

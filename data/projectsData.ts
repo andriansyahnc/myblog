@@ -15,10 +15,10 @@ const projectsData: Project[] = [
   {
     title: `Keller Williams' Command`,
     description: `Real estate platform and CRM designed exclusively for Keller Williams agents. Handles marketing automation, lead management, and transaction coordination.`,
-    imgSrc: '/static/images/command.png',
+    imgSrc: '/static/images/command.avif',
     href: 'https://console.command.kw.com',
     role: 'Backend Engineer',
-    period: '2020 - Present',
+    period: '2020 - 2026',
     techStack: ['Node.js', 'Laravel', 'Golang', 'MongoDB', 'PubSub'],
     impact: 'Serving 180K+ agents worldwide',
     category: 'consulting',

@@ -1,16 +1,9 @@
 ---
 title: 'AsyncLocalStorage in Node.js - Beginner Guide'
-tags:
-  [
-    'Javascript',
-    'Software Development',
-    'Node.js',
-    'AsyncLocalStorage',
-    'Context Management',
-    'Backend Development',
-  ]
+tags: ['javascript', 'nodejs']
 summary: 'Learn how to use AsyncLocalStorage in Node.js to manage request-level context with practical, file-based examples.'
 date: '2025-08-18'
+lastmod: '2026-07-19'
 draft: false
 ---
 
@@ -47,18 +40,18 @@ async-local-storage-example/
 
 #### Step 1: Setup AsyncLocalStorage Context
 
-```
+```js
 // context.js
-import { AsyncLocalStorage } from "node:async_hooks";
+import { AsyncLocalStorage } from 'node:async_hooks'
 
-const asyncLocalStorage = new AsyncLocalStorage();
+const asyncLocalStorage = new AsyncLocalStorage()
 
 export function runWithContext(store, callback) {
-  return asyncLocalStorage.run(store, callback);
+  return asyncLocalStorage.run(store, callback)
 }
 
 export function getContext() {
-  return asyncLocalStorage.getStore();
+  return asyncLocalStorage.getStore()
 }
 ```
 
@@ -177,6 +170,57 @@ This demonstrates that even in deeply nested async calls, you can reliably fetch
 - Transaction tracing across microservices.
 - Multi-tenant apps where you need tenant context.
 - Monitoring & debugging request flow.
+
+### AsyncLocalStorage and OpenTelemetry
+
+If you've used OpenTelemetry's Node.js SDK, you've already been relying on AsyncLocalStorage without necessarily realizing it. The standard context manager for Node — `AsyncLocalStorageContextManager` from `@opentelemetry/context-async-hooks` — is built directly on top of the same primitive this guide walks through. That's how OpenTelemetry knows which span is "active" as your code moves through async operations: the same mechanism that propagates your `requestId`.
+
+You can combine the two directly — enrich the active OpenTelemetry span with your own request context:
+
+```js
+// logger.js (or anywhere inside your request-scoped code)
+import { trace } from '@opentelemetry/api'
+import { getContext } from './context.js'
+
+export function annotateActiveSpan() {
+  const ctx = getContext()
+  const span = trace.getActiveSpan()
+  if (ctx && span) {
+    span.setAttribute('request.id', ctx.requestId)
+  }
+}
+```
+
+Since both your custom context and OpenTelemetry's active-span tracking ride on the same `AsyncLocalStorage` instance internally, calling this anywhere inside the request lifecycle reliably tags the current trace — no extra propagation logic needed.
+
+### Testing Code That Uses AsyncLocalStorage
+
+Since `getContext()` returns `undefined` outside of a `run()` call, any test that exercises code depending on it needs to set up that context itself — the same way a real request would:
+
+```js
+import { runWithContext } from './context.js'
+import { logInfo } from './logger.js'
+
+test('logInfo includes the request ID from context', () => {
+  const store = { requestId: 'test-request-id' }
+
+  runWithContext(store, () => {
+    // Anything called synchronously or asynchronously inside this
+    // callback sees the same context a real request would.
+    logInfo('test message')
+  })
+})
+```
+
+If you forget this and call `logInfo()` directly in a test with no wrapping `runWithContext`, you'll get the `[no-context]` fallback rather than a test failure — worth adding an explicit assertion on the logged output if you want a missing context to actually fail the test rather than silently degrade.
+
+### Common Pitfalls
+
+A few things that catch people out once they start relying on this in production:
+
+- **Context doesn't cross `worker_threads` boundaries.** Each worker thread runs in its own isolate with its own event loop — `AsyncLocalStorage` state doesn't survive `postMessage`. If a worker needs the request context, pass the specific fields you need explicitly when you spawn or message it.
+- **Everything must run inside the `run()` callback.** If you kick off a "fire and forget" operation _outside_ the callback passed to `asyncLocalStorage.run()` — for example, scheduling work from a module-level event listener set up at startup — that code never had context to inherit in the first place. `getContext()` will return `undefined`, not stale data, so this fails loudly rather than silently, but it's worth knowing why.
+- **It's not free, but it's cheap.** Modern Node's `AsyncLocalStorage` (backed by `async_hooks`) has measurably low overhead for typical request-handling workloads. It's not zero — avoid creating a new store per-item in a tight loop processing thousands of records — but for one store per HTTP request, the cost is negligible.
 
 ### Conclusion
 

@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect, useMemo } from 'react'
-import { genPageMetadata } from 'app/seo'
 import { DateTime } from 'luxon'
 import siteMetadata from '@/data/siteMetadata'
 
@@ -100,7 +99,7 @@ export default function TimezoneCompare() {
   const formatDateForZone = (timezone: string): string => {
     try {
       return baseDateTime.setZone(timezone).toFormat('ccc, LLL dd, yyyy') // e.g., Wed, Jan 03, 2026
-    } catch (error) {
+    } catch {
       return 'Invalid date'
     }
   }

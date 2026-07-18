@@ -8,19 +8,18 @@
     "build": "contentlayer2 build && next build && cross-env NODE_OPTIONS='--experimental-json-modules' node ./scripts/postbuild.mjs",
     "serve": "next start",
     "analyze": "cross-env ANALYZE=true next build",
-    "lint": "next lint --fix --dir pages --dir app --dir components --dir lib --dir layouts --dir scripts",
+    "lint": "eslint --fix .",
     "optimize-images": "node ./scripts/optimize-images.mjs",
     "prepare": "husky || true"
   },
   "dependencies": {
     "@headlessui/react": "1.7.19",
-    "@next/bundle-analyzer": "14.2.1",
+    "@next/bundle-analyzer": "16.2.10",
     "@tailwindcss/forms": "^0.5.10",
     "@tailwindcss/typography": "^0.5.16",
-    "@vercel/analytics": "^1.5.0",
     "@vercel/speed-insights": "^1.2.0",
     "autoprefixer": "^10.4.21",
-    "axios": "^1.15.2",
+    "axios": "^1.18.1",
     "contentlayer2": "0.5.8",
     "esbuild": "0.25.0",
     "github-slugger": "^2.0.0",
@@ -28,8 +27,9 @@
     "hast-util-from-html-isomorphic": "^2.0.0",
     "image-size": "1.0.0",
     "katex": "^0.16.22",
+    "kbar": "0.1.0-beta.45",
     "luxon": "^3.5.0",
-    "next": "16.2.4",
+    "next": "16.2.10",
     "next-contentlayer2": "0.5.8",
     "next-themes": "^0.3.0",
     "pliny": "0.2.0",
@@ -53,19 +53,15 @@
   "devDependencies": {
     "@commitlint/cli": "^21.0.2",
     "@commitlint/config-conventional": "^21.0.2",
-    "@svgr/webpack": "^8.1.0",
     "@types/luxon": "^3.7.1",
     "@types/mdx": "^2.0.13",
     "@types/node": "25.0.3",
     "@types/react": "^18.3.23",
-    "@typescript-eslint/eslint-plugin": "^6.21.0",
-    "@typescript-eslint/parser": "^6.21.0",
     "cross-env": "^7.0.3",
-    "eslint": "^8.57.1",
-    "eslint-config-next": "14.2.1",
-    "eslint-config-prettier": "^8.10.2",
-    "eslint-plugin-jsx-a11y": "^6.10.2",
-    "eslint-plugin-prettier": "^5.5.4",
+    "eslint": "^9.39.5",
+    "eslint-config-next": "^16.2.10",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.6",
     "husky": "^9.1.7",
     "js-yaml": "3.14.2",
     "lint-staged": "^13.3.0",
@@ -86,15 +82,5 @@
   "packageManager": "pnpm@10.12.4",
   "engines": {
     "node": ">=24.x"
-  },
-  "pnpm": {
-    "overrides": {
-      "gray-matter>js-yaml": "3.14.2",
-      "eslint>ajv": "^6.12.6",
-      "@eslint/eslintrc>ajv": "^6.12.6",
-      "svgo": "3.3.3",
-      "qs": "6.15.1",
-      "@isaacs/brace-expansion": "5.0.1"
-    }
   }
 }

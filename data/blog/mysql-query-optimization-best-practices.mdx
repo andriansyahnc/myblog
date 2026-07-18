@@ -1,34 +1,71 @@
 ---
-title: 'Improving MySQL Database Queries: Best Practices for Better Performance'
-tags: ["MySQL", "Query Optimization", "Database Indexing", "SQL Performance", "Common Table Expressions (CTEs)", "Subquery Optimization", "Query Execution Plan (QEP)", "SQL Best Practices", "Database Performance Tuning", "MySQL Indexing"]
-summary: 'Learn how to optimize MySQL database queries for better performance. Tips include using indexes, optimizing CTEs, avoiding subqueries, and analyzing queries with QEP'
-date: '2024-10-2'
+title: 'MySQL Query Optimization: Indexes, EXPLAIN, and Common Pitfalls'
+tags: ['mysql']
+summary: 'Learn how to optimize MySQL queries with indexes, composite index ordering, EXPLAIN plans, and correctly rewriting subqueries — including a common rewrite that silently returns duplicate rows.'
+date: '2024-10-02'
+lastmod: '2026-07-19'
 draft: false
 ---
 
-When working with MySQL, one of the most critical aspects of ensuring a performant application is optimizing your database queries. Poorly optimized queries can slow down your system, increase load times, and create bottlenecks in your application. In this article, we will discuss several best practices to improve MySQL database query performance.
+When working with MySQL, one of the most critical aspects of ensuring a performant application is optimizing your database queries. Poorly optimized queries can slow down your system, increase load times, and create bottlenecks in your application. This article covers the practices that actually move the needle — and one common "optimization" that quietly changes what your query returns.
 
 ### Create Indexes on `WHERE` and `JOIN` Columns
-Indexes are essential for speeding up queries, especially when you're filtering with WHERE or joining tables using JOIN. Without an index, MySQL has to scan every row to find the relevant data, which is both time-consuming and resource-heavy.
 
-#### Composite Indexes for Pattern Queries
-If your queries often involve multiple columns, consider creating composite indexes. A composite index allows MySQL to filter by multiple columns in a single scan, rather than scanning separately for each column. For example:
+Indexes are essential for speeding up queries, especially when you're filtering with `WHERE` or joining tables using `JOIN`. Without an index, MySQL has to scan every row to find the relevant data, which is both time-consuming and resource-heavy.
+
+Here's the difference an index makes on a table with a million rows. Without an index on `orders.user_id`:
+
+```sql
+EXPLAIN SELECT * FROM orders WHERE user_id = 42;
+```
+
+```
++----+-------------+--------+------+---------------+------+---------+------+---------+-------------+
+| id | select_type | table  | type | possible_keys | key  | key_len | ref  | rows    | Extra       |
++----+-------------+--------+------+---------------+------+---------+------+---------+-------------+
+|  1 | SIMPLE      | orders | ALL  | NULL          | NULL | NULL    | NULL | 1048576 | Using where |
++----+-------------+--------+------+---------------+------+---------+------+---------+-------------+
+```
+
+`type: ALL` means a full table scan — MySQL examines every row. After adding `CREATE INDEX idx_orders_user_id ON orders (user_id);`:
+
+```
++----+-------------+--------+------+--------------------+--------------------+---------+-------+------+-------+
+| id | select_type | table  | type | possible_keys      | key                | key_len | ref   | rows | Extra |
++----+-------------+--------+------+--------------------+--------------------+---------+-------+------+-------+
+|  1 | SIMPLE      | orders | ref  | idx_orders_user_id | idx_orders_user_id | 4       | const | 12   | NULL  |
++----+-------------+--------+------+--------------------+--------------------+---------+-------+------+-------+
+```
+
+`type: ref` means MySQL used the index to jump straight to matching rows — `rows` drops from a million to a dozen. That's the difference indexing actually buys you, and it's why `EXPLAIN` (more below) should be your first move whenever a query feels slow, not a guess.
+
+#### Composite Indexes and the Leftmost-Prefix Rule
+
+If your queries often filter on multiple columns together, consider a composite index:
 
 ```sql
 CREATE INDEX idx_user_order ON orders (user_id, order_date);
 ```
 
-In this example, if you're often querying by user_id and order_date, a composite index helps optimize this pattern.
+The column _order_ matters, and it's the part most people get wrong. MySQL can only use a composite index from its leftmost column inward — this index helps:
 
-#### Best Practices for Indexes:
-- Add indexes to columns used in WHERE, JOIN, or ORDER BY.
-- Limit the number of indexes per table to avoid overhead.
-- Regularly monitor and clean unused indexes.
+- `WHERE user_id = ?` — uses the index (leftmost column alone).
+- `WHERE user_id = ? AND order_date = ?` — uses the full index.
+- `WHERE user_id = ? ORDER BY order_date` — uses the index for both the filter and the sort, avoiding a separate `Using filesort` step.
+
+But it does **not** help a query that filters on `order_date` alone, without `user_id` — MySQL can't use a non-leftmost column of a composite index in isolation. If you have queries that filter by `order_date` on its own, you need a separate index for that access pattern, or to reconsider the column order based on which query matters more.
+
+#### Best Practices for Indexes
+
+- Add indexes to columns used in `WHERE`, `JOIN`, or `ORDER BY`.
+- Order composite index columns by how your queries actually filter — most selective and most commonly-used-alone column first.
+- Limit the number of indexes per table — every index speeds up reads but slows down writes (it has to be maintained on every `INSERT`/`UPDATE`/`DELETE`).
+- Regularly review `information_schema` or a tool like `pt-duplicate-key-checker` for unused or redundant indexes.
 
 ### Optimize Common Table Expressions (CTEs)
-When using Common Table Expressions (CTEs), start with the least detailed (i.e., aggregated) data set. CTEs can often become inefficient if the first query returns a large dataset, especially when that dataset isn’t necessary for the final result. Think of it as "starting small" before building up.
 
-#### Aggregated CTE Example:
+When using Common Table Expressions (CTEs), start with the least detailed (i.e., aggregated) data set rather than pulling in a large, detailed table and filtering afterward.
+
 ```sql
 WITH summary AS (
   SELECT user_id, COUNT(order_id) AS total_orders
@@ -37,51 +74,79 @@ WITH summary AS (
 )
 SELECT * FROM summary WHERE total_orders > 10;
 ```
-In this case, start with summary data, instead of working with a large, detailed table of all order records.
 
-#### Avoid Historical Data in CTE:
-- Use CTEs for aggregated data.
-- Avoid referencing historical or detailed tables directly in CTEs.
+One nuance worth knowing: MySQL 8.0's optimizer will often _inline_ a non-recursive CTE that's referenced only once, treating it much like a derived table rather than materializing it separately — but a CTE referenced multiple times in the same query is typically materialized once and reused. If a CTE-heavy query is underperforming, check `EXPLAIN` for a `Materialize` step before assuming the CTE itself is the problem.
 
-### Avoid Subqueries When Possible
-Subqueries may seem convenient but can be a performance hit, especially when they aren't optimized. Subqueries often run multiple times, especially when used in WHERE clauses, making them less efficient than alternatives like joins or CTEs.
+### Rewriting Subqueries — Carefully
 
-#### Example of a Subquery to Avoid:
+This is the section where most "optimization" advice, including an earlier version of this article, gets it wrong.
+
+#### The Rewrite That Looks Right But Isn't
+
+Here's a subquery that finds every user with at least one order over 100:
+
 ```sql
 SELECT * FROM users
 WHERE user_id IN (SELECT user_id FROM orders WHERE total > 100);
 ```
-Instead, rewrite the query using a JOIN:
+
+A very common piece of advice is "avoid subqueries, use a JOIN instead":
+
 ```sql
+-- Looks like the same thing. It isn't.
 SELECT u.* FROM users u
 JOIN orders o ON u.user_id = o.user_id
 WHERE o.total > 100;
 ```
 
-#### Why Avoid Subqueries?
-- Subqueries often execute multiple times.
-- Joins or CTEs are generally faster for complex queries.
+**This JOIN is not equivalent to the subquery above.** If a user has three orders over 100, the subquery returns that user once — the JOIN returns them three times, once per matching order. Run this on real data and you'll get duplicate rows silently mixed into your result set, which is a much worse bug than a slow query.
 
-### Use Query Execution Plan (QEP) for Optimization
-MySQL’s Query Execution Plan (QEP) is one of the best tools for understanding how your query is executed. By analyzing the plan, you can identify bottlenecks, missing indexes, or inefficient joins.
+#### Two Correct Fixes
 
-#### How to Use QEP:
-Run EXPLAIN before your query to see its execution plan:
+If you want the JOIN's row-per-order shape, that's a different query and that's fine — just be intentional about it. If you want the subquery's "each user once" semantics with JOIN-like performance, use `EXISTS`:
+
+```sql
+SELECT u.* FROM users u
+WHERE EXISTS (
+  SELECT 1 FROM orders o
+  WHERE o.user_id = u.user_id AND o.total > 100
+);
+```
+
+`EXISTS` preserves the correct semantics — each qualifying user appears exactly once — and MySQL's optimizer can short-circuit as soon as it finds one matching order, without needing to deduplicate afterward.
+
+If you specifically need the JOIN form for other reasons, add `DISTINCT` to restore the correct semantics:
+
+```sql
+SELECT DISTINCT u.* FROM users u
+JOIN orders o ON u.user_id = o.user_id
+WHERE o.total > 100;
+```
+
+This works, but MySQL still has to produce the duplicate rows first and then deduplicate them — generally more work than `EXISTS` doing the equivalent check directly.
+
+#### "Avoid Subqueries" Is Outdated Advice
+
+The blanket "subqueries are slow" claim is a holdover from older MySQL versions. Since MySQL 5.6, the optimizer can transform many `IN`/`EXISTS` subqueries into semi-joins — internally similar to a JOIN — when it's safe to do so, including strategies like materialization, `FirstMatch`, and `LooseScan` depending on the query shape. In practice, a properly indexed subquery on MySQL 5.6+ (and especially 8.0) often performs comparably to a JOIN.
+
+The actionable advice isn't "avoid subqueries" — it's **check `EXPLAIN`, specifically for whether the subquery shows as a separate `SUBQUERY`/`DEPENDENT SUBQUERY` (re-executed per outer row — genuinely slow) versus being folded into the main plan as a semi-join.** Don't rewrite based on a rule of thumb; rewrite based on what `EXPLAIN` actually shows you.
+
+### Use the Query Execution Plan (`EXPLAIN`) for Optimization
+
+`EXPLAIN` is the single most useful tool for understanding how MySQL will actually execute your query — always check it before guessing at an optimization.
 
 ```sql
 EXPLAIN SELECT * FROM orders WHERE user_id = 1;
 ```
 
-The output will show how MySQL processes the query, including whether indexes are being used or if a full table scan is required. Use this information to make improvements, such as adding necessary indexes or restructuring the query.
+Beyond `type` and `possible_keys` (covered above), a few more fields are worth reading every time:
 
-#### Key Points to Look For in QEP:
-- type: Ensure this is index or ref instead of ALL, which indicates a full scan.
-- possible_keys: Shows potential indexes that can be used. Ensure this field isn't empty.
-- Extra: Watch for unwanted operations like Using temporary or Using filesort.
+- **`rows`** — MySQL's estimate of how many rows it has to examine to produce the result. This is an estimate from table statistics, not an exact count, but a huge `rows` value on a query you expected to be selective is a strong signal something's wrong (missing index, or an index that doesn't match your filter).
+- **`filtered`** — the estimated percentage of the examined rows that actually match your `WHERE` conditions after the index lookup. Low `filtered` alongside a high `rows` means MySQL is reading a lot and keeping little of it.
+- **`Extra`** — watch for `Using temporary` (MySQL built a temp table, often from `GROUP BY`/`DISTINCT` on unindexed columns) or `Using filesort` (a sort that couldn't be satisfied by an index) — both are common, fixable performance drains.
 
 ### Conclusion
-Improving your MySQL database queries can drastically enhance your application's performance. Start by indexing the right columns, using CTEs wisely, avoiding subqueries, and regularly reviewing your queries with QEP. These best practices will help you optimize query execution, reduce load times, and keep your database running efficiently.
 
-By following these steps, you’ll create queries that are scalable and performant, helping your system handle larger datasets as it grows.
+Improving your MySQL query performance comes down to a few habits: index the columns you actually filter and sort on (in the right order for composite indexes), understand how CTEs get materialized, and treat "subqueries vs. JOINs" as a semantic decision first and a performance decision second — verified with `EXPLAIN`, not folklore. Getting the rewrite wrong doesn't just cost you performance; as the example above shows, it can silently change your results.
 
 For more coding tips and tutorials, check out other articles on [NC's Blog](http://nc-andriansyah.me).

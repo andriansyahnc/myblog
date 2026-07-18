@@ -1,7 +1,5 @@
 import 'css/prism.css'
-import 'katex/dist/katex.css'
 
-import PageTitle from '@/components/PageTitle'
 import { components } from '@/components/MDXComponents'
 import { MDXLayoutRenderer } from 'pliny/mdx-components'
 import { sortPosts, coreContent, allCoreContent } from 'pliny/utils/contentlayer'
@@ -13,6 +11,17 @@ import PostBanner from '@/layouts/PostBanner'
 import { Metadata } from 'next'
 import siteMetadata from '@/data/siteMetadata'
 import { notFound } from 'next/navigation'
+
+// remark-math's inline ($...$) and block ($$...$$) delimiters. Checked
+// against the raw MDX with fenced/inline code stripped first, since code
+// containing a couple of dollar signs (PHP variables, JS template
+// literals) isn't math and shouldn't pull in KaTeX's CSS.
+const MATH_RE = /\$\$[\s\S]+?\$\$|(?<!\$)\$(?!\$)(?:[^$\n\\]|\\.)+?(?<!\$)\$(?!\$)/
+
+function usesMath(raw: string): boolean {
+  const withoutCode = raw.replace(/```[\s\S]*?```/g, '').replace(/`[^`\n]*`/g, '')
+  return MATH_RE.test(withoutCode)
+}
 
 const defaultLayout = 'PostLayout'
 const layouts = {
@@ -41,7 +50,9 @@ export async function generateMetadata(props: {
   const publishedAt = new Date(post.date).toISOString()
   const modifiedAt = new Date(post.lastmod || post.date).toISOString()
   const authors = authorDetails.map((author) => author.name)
-  let imageList = [siteMetadata.socialBanner]
+  // Posts can set a custom `images` frontmatter field; otherwise generate a
+  // branded per-post card instead of falling back to a static image.
+  let imageList = [`${siteMetadata.siteUrl}/api/og?title=${encodeURIComponent(post.title)}`]
   if (post.images) {
     imageList = typeof post.images === 'string' ? [post.images] : post.images
   }
@@ -54,6 +65,9 @@ export async function generateMetadata(props: {
   return {
     title: post.title,
     description: post.summary,
+    alternates: {
+      canonical: post.canonicalUrl || `${siteMetadata.siteUrl}/blog/${post.slug}`,
+    },
     openGraph: {
       title: post.title,
       description: post.summary,
@@ -100,24 +114,28 @@ export default async function Page(props: { params: Promise<{ slug: string[] }> 
     return coreContent(authorResults as Authors)
   })
   const mainContent = coreContent(post)
-  const jsonLd = post.structuredData
-  jsonLd['author'] = authorDetails.map((author) => {
-    return {
-      '@type': 'Person',
-      name: author.name,
-    }
-  })
 
   const layoutKey = (post.layout || defaultLayout) as LayoutKey
   const Layout = layouts[layoutKey]
 
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
-      <Layout content={mainContent} authorDetails={authorDetails} next={next} prev={prev}>
+      {usesMath(post.body.raw) && (
+        // A manual <link>, not `import 'katex/dist/katex.css'`, is deliberate:
+        // Turbopack coalesces CSS `import`s into a shared chunk loaded on
+        // every page regardless of a next/dynamic() boundary, which would
+        // defeat the point (0/20 current posts use math). A <link> only
+        // costs a request on pages that actually render it.
+        // eslint-disable-next-line @next/next/no-css-tags
+        <link rel="stylesheet" href="/static/katex/katex.min.css" />
+      )}
+      <Layout
+        content={mainContent}
+        authorDetails={authorDetails}
+        next={next}
+        prev={prev}
+        posts={sortedCoreContents}
+      >
         <MDXLayoutRenderer code={post.body.code} components={components} toc={post.toc} />
       </Layout>
     </>

@@ -17,4 +17,9 @@ overrides:
   mdast-util-to-hast@>=13.0.0 <13.2.1: '>=13.2.1'
   next@>=13.3.0 <14.2.34: '>=14.2.34'
   next@>=13.3.1-canary.0 <14.2.35: '>=14.2.35'
-  qs@<6.14.1: '>=6.14.1'
+  gray-matter>js-yaml: 3.14.2
+  eslint>ajv: ^6.12.6
+  '@eslint/eslintrc>ajv': ^6.12.6
+  svgo: 3.3.3
+  qs: 6.15.1
+  '@isaacs/brace-expansion': 5.0.1

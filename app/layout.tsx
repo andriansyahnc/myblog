@@ -1,16 +1,14 @@
 import 'css/tailwind.css'
-import 'pliny/search/algolia.css'
 
 import { Space_Grotesk } from 'next/font/google'
 import { Analytics, AnalyticsConfig } from 'pliny/analytics'
-import { SearchProvider, SearchConfig } from 'pliny/search'
+import SearchGate from '@/components/SearchGate'
 import Header from '@/components/Header'
 import SectionContainer from '@/components/SectionContainer'
 import Footer from '@/components/Footer'
 import siteMetadata from '@/data/siteMetadata'
 import { ThemeProviders } from './theme-providers'
 import { Metadata } from 'next'
-import { Analytics as VercelAnalytics } from '@vercel/analytics/react'
 import { SpeedInsights } from '@vercel/speed-insights/next'
 import { WebSiteSchema } from '@/components/seo/JsonLd'
 import Script from 'next/script'
@@ -29,7 +27,8 @@ export const metadata: Metadata = {
   metadataBase: new URL(siteMetadata.siteUrl),
   title: {
     default: siteMetadata.title,
-    template: `%s | ${siteMetadata.title}`,
+    // Short suffix so post titles don't truncate in search results.
+    template: `%s | ${siteMetadata.headerTitle}`,
   },
   description: siteMetadata.description,
   openGraph: {
@@ -42,7 +41,9 @@ export const metadata: Metadata = {
     type: 'website',
   },
   alternates: {
-    canonical: siteMetadata.siteUrl,
+    // No site-wide canonical here — it would be inherited by every child route
+    // and tell search engines that all pages are duplicates of the homepage.
+    // Each page sets its own canonical (see generateMetadata / genPageMetadata).
     types: {
       'application/rss+xml': `${siteMetadata.siteUrl}/feed.xml`,
     },
@@ -104,18 +105,17 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             strategy="afterInteractive"
           />
         )}
-        <VercelAnalytics />
         <SpeedInsights />
         <ThemeProviders>
           <Analytics analyticsConfig={analyticsConfig} />
           <SectionContainer>
             <div className="flex h-screen flex-col justify-between font-sans">
-              <SearchProvider searchConfig={siteMetadata.search as SearchConfig}>
+              <SearchGate>
                 <Header />
                 <main id="main-content" className="mb-auto">
                   {children}
                 </main>
-              </SearchProvider>
+              </SearchGate>
               <Footer />
             </div>
           </SectionContainer>

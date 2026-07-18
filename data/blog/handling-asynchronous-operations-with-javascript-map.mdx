@@ -1,8 +1,8 @@
 ---
 title: "Handling Asynchronous Operations with JavaScript's map"
-tags: ["JavaScript", "Async", "map", "Promise"]
-date: "2024-08-28"
-summary: "In JavaScript, combining map with async functions can lead to an array of unresolved promises. The key to resolving this is Promise.all, which handles multiple promises and returns their resolved values."
+tags: ['javascript']
+date: '2024-08-28'
+summary: 'In JavaScript, combining map with async functions can lead to an array of unresolved promises. The key to resolving this is Promise.all, which handles multiple promises and returns their resolved values.'
 draft: false
 ---
 
@@ -17,14 +17,15 @@ Consider an asynchronous function that fetches data based on an ID. You use map 
 ```javascript
 const fetchData = async (id) => {
   // Simulate an API call
-  return { id, data: `Data for ${id}` };
-};
+  return { id, data: `Data for ${id}` }
+}
 
-const ids = [1, 2, 3];
+const ids = [1, 2, 3]
 
-const results = ids.map(fetchData);
-console.log(results); // Logs: [Promise, Promise, Promise]
+const results = ids.map(fetchData)
+console.log(results) // Logs: [Promise, Promise, Promise]
 ```
+
 Here, results is an array of promises, not the actual data. This is because map doesn’t wait for the promises to resolve.
 
 ## Why Does This Happen?
@@ -40,14 +41,15 @@ Here’s how you can modify the example:
 ```javascript
 const fetchData = async (id) => {
   // Simulate an API call
-  return { id, data: `Data for ${id}` };
-};
+  return { id, data: `Data for ${id}` }
+}
 
-const ids = [1, 2, 3];
+const ids = [1, 2, 3]
 
-const results = await Promise.all(ids.map(fetchData));
-console.log(results); // Logs: [{ id: 1, data: 'Data for 1' }, { id: 2, data: 'Data for 2' }, { id: 3, data: 'Data for 3' }]
+const results = await Promise.all(ids.map(fetchData))
+console.log(results) // Logs: [{ id: 1, data: 'Data for 1' }, { id: 2, data: 'Data for 2' }, { id: 3, data: 'Data for 3' }]
 ```
+
 With Promise.all, all promises are resolved before you get the final array of data.
 
 ## Key Takeaways

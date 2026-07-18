@@ -1,31 +1,70 @@
 ---
-title: "How to Fix a Dirty Database Using a Go Script"
-date: "2024-09-24"
-summary: "Learn how to fix a dirty database state caused by failed migrations in Go using the golang-migrate package, even when you don't have MySQL admin permissions."
-tags: ["golang", "database", "migrations", "golang-migrate", "dirty database", "fix database", "Go scripts"]
+title: 'How to Fix a Dirty Database Using a Go Script'
+date: '2024-09-24'
+lastmod: '2026-07-19'
+summary: "Fix golang-migrate's 'Dirty database version N. Fix and force version.' error — what it actually means, how to find the right version to force, and a Go script (plus the CLI equivalent) to clear it."
+tags: ['golang', 'databases']
+draft: false
 ---
 
-### Introduction
+### "Dirty database version 1. Fix and force version."
 
-A dirty database state occurs when a migration fails mid-way, leaving the database in an inconsistent state. This can block further migrations until the issue is resolved. In this guide, we will show you how to programmatically fix a dirty database using a Go script with the `golang-migrate` package.
+If you're here, you've almost certainly hit this exact error from `golang-migrate`:
 
-By the end of this article, you'll know how to force a migration version in Go, clearing the dirty state and allowing further migrations to be executed smoothly.
+```
+Dirty database version 1. Fix and force version.
+```
+
+It happens when a migration starts running, fails partway through, and `golang-migrate` marks the schema as "dirty" in its `schema_migrations` tracking table — a safety mechanism that blocks any further migrations from running until you explicitly resolve the inconsistency. This guide covers what that actually means, how to pick the right version to force, and a Go script to clear it (plus the CLI command if you don't need a custom script at all).
 
 ### Why Does a Database Become Dirty?
 
-A dirty database often occurs due to:
+`golang-migrate` tracks two things in its `schema_migrations` table: the current migration `version`, and a `dirty` boolean. A dirty database usually comes from:
 
-- Partial failures during migrations (e.g., network issues, syntax errors).
-- Manual schema changes that mismatch with migrations.
-- Incomplete or failed rollback operations.
+- A migration failing partway through — a syntax error, a network blip, a lock timeout — after it already made some schema changes.
+- Manually editing the schema in a way that no longer matches what the migration tooling expects.
+- Killing the process (deploy timeout, `Ctrl+C`, OOM kill) while a migration was mid-flight.
 
-When a migration fails, the database becomes “dirty,” preventing future migrations until you address the issue and force the version.
+Once `dirty = true`, `golang-migrate` refuses to run `Up()`, `Down()`, or `Steps()` again — on purpose. Continuing to apply migrations on top of an unknown schema state is how you get silent corruption; the dirty flag forces a human to look at what actually happened before anything else runs.
+
+### What `Force()` Actually Does (and Doesn't Do)
+
+This is the part that trips people up: **`Force()` does not touch your schema.** It only writes a version number to `schema_migrations` and clears the `dirty` flag. It doesn't roll back a half-applied migration, doesn't re-run anything, and doesn't verify the schema matches that version — it just tells `golang-migrate` "trust me, the schema is now at version N, and it's not dirty."
+
+That means the actual fix happens in two steps, in this order:
+
+1. **You** inspect the schema and manually finish, undo, or verify whatever the failed migration left behind.
+2. **`Force()`** tells the tracking table what version to resume from.
+
+Do it in the other order and you'll clear the dirty flag on a schema that's still broken — the tool will happily let you run further migrations on top of it.
+
+### Finding the Right Version to Force
+
+Check the current state directly:
+
+```sql
+SELECT version, dirty FROM schema_migrations;
+```
+
+Then decide which version to force to, based on what actually happened:
+
+- **The failed migration's changes were fully applied, just not marked clean** (e.g., the process was killed right after the last statement succeeded) — force to that migration's own version.
+- **The failed migration partially applied and you manually finished or reverted it** — force to whichever version matches the schema's _actual_ current state: the failed migration's version if you completed it, or the previous version if you reverted it.
+- **You're not sure what state the schema is in** — stop and inspect the schema against your migration files before forcing anything. Forcing a wrong version doesn't fix a mismatch, it just hides it until the next migration fails in a more confusing way.
+
+### The CLI Shortcut
+
+If you have the `migrate` CLI installed, this is usually faster than writing a script:
+
+```bash
+migrate -path ./migrations -database "mysql://user:password@tcp(127.0.0.1:3306)/mydb" force 1
+```
+
+Reach for the Go script below instead when you don't have direct database credentials on hand (only your application's runtime environment does), or when you want this baked into an internal ops tool rather than a one-off CLI invocation.
 
 ### Step-by-Step Guide to Fix a Dirty Database with Go
 
 #### 1. Install the `golang-migrate` Package
-
-First, you need to install the `golang-migrate` package, which will help you handle database migrations:
 
 ```bash
 go get -u github.com/golang-migrate/migrate/v4
@@ -39,35 +78,27 @@ go get -u github.com/golang-migrate/migrate/v4/database/mysql
 
 #### 2. Create a Go Script to Force the Migration Version
 
-Now, let's create a Go script that will force the migration version and clear the dirty state: (fix_migration.go)
-
 ```go
 package main
 
 import (
 	"flag"
+	"log"
+	"os"
+	"strconv"
+
 	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/mysql"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
-	"log"
-	"strconv"
-)
-
-var (
-	commit  string
-	builtAt string
 )
 
 func main() {
-	// load environment
-
 	versionStr := flag.String("version", "", "Migration version to force (required)")
-
 	flag.Parse()
 
-	// Check if required flags are provided
+	// Check if the required flag is provided
 	if *versionStr == "" {
-		log.Fatalf("Error: You must provide a migration version to force using the -version flag")
+		log.Fatal("Error: you must provide a migration version to force using the -version flag")
 	}
 
 	forcedVersion, err := strconv.Atoi(*versionStr)
@@ -75,54 +106,66 @@ func main() {
 		log.Fatalf("Invalid version number provided: %v", err)
 	}
 
-	err = database.InitDBTables()
-	if err != nil {
-		logger.Error().Println(err)
+	// Read the connection string from the environment so you never hardcode
+	// credentials, e.g.
+	//   export DATABASE_DSN="user:password@tcp(127.0.0.1:3306)/mydb"
+	dsn := os.Getenv("DATABASE_DSN")
+	if dsn == "" {
+		log.Fatal("Error: DATABASE_DSN environment variable is not set")
 	}
-
-	connectionString := cfg.BuildDbConnString()
 
 	m, err := migrate.New(
-		"file://migrations", // Path to migration files
-		"mysql://"+connectionString,
+		"file://migrations", // Path to your migration files
+		"mysql://"+dsn,
 	)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("Failed to initialize migrate: %v", err)
 	}
+	defer m.Close()
 
-	// Run migration up
-	err = m.Force(forcedVersion)
-	if err != nil {
+	// Force the migration version and clear the dirty state
+	if err := m.Force(forcedVersion); err != nil {
 		log.Fatalf("Failed to force migration version: %v", err)
 	}
 
-	log.Printf("Successfully forced migration version to: %d\n", forcedVersion)
+	log.Printf("Successfully forced migration version to: %d", forcedVersion)
 }
-
 ```
 
 #### 3. How It Works
 
-- Flags: The -version flags allow you to specify the version number you want to force.
-- Error Handling: The script checks if the -version flag is missing and ensures the provided version is a valid integer.
-- Migration Logic: Once the script connects to the database, it forces the migration version and clears the dirty state.
+- **Flags**: The `-version` flag lets you specify the version number you want to force.
+- **Configuration**: The connection string is read from the `DATABASE_DSN` environment variable, so no credentials are ever hardcoded in the script.
+- **Error Handling**: The script checks that the `-version` flag is present and that the provided version is a valid integer.
+- **Migration Logic**: `m.Force(forcedVersion)` writes that version to `schema_migrations` and clears the dirty flag — nothing else. See the section above before running this.
 
 #### 4. Running the Script
 
-```
-go run fix_migration.go -version=20240924005347
+```bash
+export DATABASE_DSN="user:password@tcp(127.0.0.1:3306)/mydb"
+go run fix_migration.go -version=1
 ```
 
-If you don't pass the -version flag, the script will exit with an error, prompting you to provide it.
+If you don't pass the `-version` flag, the script exits with an error rather than guessing.
 
 ### Best Practices
-- Backup Your Database: Always back up your database before forcing a migration, especially if you're working in a production environment.
-- Check for Schema Conflicts: Before forcing the migration, ensure that the schema aligns with what the migration expects.
-- Use Transactional Migrations: If possible, run migrations in a transactional manner, so a failed migration rolls back automatically.
+
+- **Back up your database first.** Always, but especially before touching migration state in a production environment.
+- **Diagnose before you force.** Read the failed migration's SQL and compare it against the actual current schema — don't force a version based on a guess.
+- **Prefer transactional migrations where your database supports them.** MySQL's DDL statements mostly aren't transactional (unlike PostgreSQL), which is exactly why dirty states happen more often there — a multi-statement migration can fail halfway with no automatic rollback.
+- **Treat a dirty database as a signal to fix your migration, not just the flag.** If a migration keeps leaving things dirty, the migration itself likely needs to be split into smaller, safer steps.
+
+### Preventing Dirty States in the First Place
+
+Forcing a version fixes the immediate block, but a migration pipeline that hits this often is worth hardening:
+
+- **Test migrations against a copy of production schema, not just a fresh empty database.** Migrations frequently fail against real data — a `NOT NULL` column with no default hits existing rows, a unique index collides with duplicate data that only exists in production.
+- **Keep migrations small.** A migration that does one `ALTER TABLE` fails cleanly; a migration that does five things in sequence can leave you dirty partway through with four different possible states to diagnose.
+- **Run migrations as part of your deploy pipeline, not manually on a live box.** A migration run from CI/CD is far less likely to be interrupted by someone's laptop losing network mid-`ALTER TABLE` than one run by hand over SSH.
+- **On MySQL specifically, be aware most DDL isn't transactional.** PostgreSQL can wrap a migration in a transaction and roll it back cleanly on failure; MySQL generally can't for schema changes. If you're on MySQL, treat every migration as something that could leave you dirty, and plan accordingly.
 
 ### Conclusion
-By following the steps in this article, you can quickly and safely fix a dirty database state using a Go script and the golang-migrate package. This approach helps avoid manual intervention and ensures smooth execution of future migrations.
 
-With this solution, you no longer need to worry about blocked migrations due to dirty states, keeping your database healthy and ready for updates.
+`golang-migrate`'s dirty-state guard exists to stop you from making a bad situation worse — the fix isn't to bypass it, it's to actually resolve what the failed migration left behind, then tell the tool the schema is clean again. Diagnose the real state first, force the version second, and you're back to normal migrations without any guesswork about what's actually in your schema.
 
 For more coding tips and tutorials, check out other articles on [NC's Blog](http://nc-andriansyah.me).

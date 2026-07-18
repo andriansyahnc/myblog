@@ -50,7 +50,9 @@ export async function generateMetadata(props: {
   const publishedAt = new Date(post.date).toISOString()
   const modifiedAt = new Date(post.lastmod || post.date).toISOString()
   const authors = authorDetails.map((author) => author.name)
-  let imageList = [siteMetadata.socialBanner]
+  // Posts can set a custom `images` frontmatter field; otherwise generate a
+  // branded per-post card instead of falling back to a static image.
+  let imageList = [`${siteMetadata.siteUrl}/api/og?title=${encodeURIComponent(post.title)}`]
   if (post.images) {
     imageList = typeof post.images === 'string' ? [post.images] : post.images
   }

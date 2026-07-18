@@ -13,7 +13,9 @@ const siteMetadata = {
   siteUrl: 'https://nc-andriansyah.me',
   siteRepo: 'https://github.com/andriansyahnc/myblog',
   siteLogo: '/static/images/logo.png',
-  socialBanner: '/static/images/twitter-card.png',
+  // Dynamically generated (app/api/og/route.tsx) — the static file this
+  // used to point at (twitter-card.png) didn't exist in public/.
+  socialBanner: '/api/og',
   // mastodon: 'https://mastodon.social/@mastodonuser',
   email: '4andriansyah@gmail.com',
   // Primary consulting booking link, surfaced on /hire-me and /links.

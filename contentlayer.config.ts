@@ -154,7 +154,7 @@ export default makeSource({
       const { createTagCount, createSearchIndex } = await import('./scripts/contentlayer-utils.mjs')
       createTagCount(allBlogs)
       createSearchIndex(allBlogs)
-    } catch (error) {
+    } catch {
       console.log('onSuccess callback skipped - will run in postbuild')
     }
   },

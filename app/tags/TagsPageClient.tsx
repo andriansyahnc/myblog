@@ -2,7 +2,6 @@
 
 import { useState, useMemo } from 'react'
 import Link from '@/components/Link'
-import Tag from '@/components/Tag'
 import { slug } from 'github-slugger'
 import tagData from 'app/tag-data.json'
 import { useDebounce } from '@/hooks/useDebounce'
@@ -21,7 +20,6 @@ export default function TagsPageClient() {
   const sortedTags = tagKeys.sort((a, b) => (tagCounts[b] ?? 0) - (tagCounts[a] ?? 0))
 
   const totalTags = tagKeys.length
-  const maxCount = Math.max(...Object.values(tagCounts))
 
   // Filter tags based on debounced search query
   const filteredTags = useMemo(() => {
@@ -61,7 +59,7 @@ export default function TagsPageClient() {
       default:
         return topTags
     }
-  }, [viewMode, showAll, filteredTags, sortedTags, topTags, searchQuery])
+  }, [debouncedSearch, viewMode, showAll, filteredTags, sortedTags, topTags])
 
   return (
     <>

@@ -12,12 +12,21 @@ export default function sitemap(): MetadataRoute.Sitemap {
       lastModified: post.lastmod || post.date,
     }))
 
-  const routes = ['', 'blog', 'projects', 'tags', 'about', 'playground', 'cheatsheet', 'uses'].map(
-    (route) => ({
-      url: `${siteUrl}/${route}`,
-      lastModified: new Date().toISOString().split('T')[0],
-    })
-  )
+  const routes = [
+    '',
+    'blog',
+    'projects',
+    'tags',
+    'about',
+    'experience',
+    'hire-me',
+    'playground',
+    'cheatsheet',
+    'uses',
+  ].map((route) => ({
+    url: `${siteUrl}/${route}`,
+    lastModified: new Date().toISOString().split('T')[0],
+  }))
 
   const playgroundRoutes = ['json-beautifier', 'timezone-compare'].map((tool) => ({
     url: `${siteUrl}/playground/${tool}`,

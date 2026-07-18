@@ -9,6 +9,9 @@ export const UMAMI_EVENTS = {
   TAG_FILTER_CHANGED: 'tag-filter-changed',
   TAG_FILTER_CLEARED: 'tag-filter-cleared',
   POST_SCROLL_DEPTH: 'post-scroll-depth',
+  HIRE_ME_CTA_CLICK: 'hire-me-cta-click',
+  POST_HIRE_CTA_CLICK: 'post-hire-cta-click',
+  LINKS_CLICK: 'links-click',
   MANUAL_PROD_TEST: 'manual-prod-test',
 } as const
 
@@ -44,6 +47,15 @@ export type UmamiEventPayloadMap = {
     depth: number
     slug: string
     title: string
+  }
+  [UMAMI_EVENTS.HIRE_ME_CTA_CLICK]: {
+    source: string
+  }
+  [UMAMI_EVENTS.POST_HIRE_CTA_CLICK]: {
+    slug?: string
+  }
+  [UMAMI_EVENTS.LINKS_CLICK]: {
+    target: string
   }
   [UMAMI_EVENTS.MANUAL_PROD_TEST]: undefined
 }
@@ -103,6 +115,22 @@ const payloadValidators: Record<UmamiEventName, PayloadValidator> = {
     if (!isString(payload.slug)) errors.push('slug must be a string')
     if (!isString(payload.title)) errors.push('title must be a string')
     return errors
+  },
+  [UMAMI_EVENTS.HIRE_ME_CTA_CLICK]: (payload) => {
+    if (!isRecord(payload)) return ['payload must be an object']
+    return isString(payload.source) ? [] : ['source must be a string']
+  },
+  [UMAMI_EVENTS.POST_HIRE_CTA_CLICK]: (payload) => {
+    if (payload === undefined) return []
+    if (!isRecord(payload)) return ['payload must be an object']
+    if ('slug' in payload && payload.slug !== undefined && !isString(payload.slug)) {
+      return ['slug must be a string when provided']
+    }
+    return []
+  },
+  [UMAMI_EVENTS.LINKS_CLICK]: (payload) => {
+    if (!isRecord(payload)) return ['payload must be an object']
+    return isString(payload.target) ? [] : ['target must be a string']
   },
   [UMAMI_EVENTS.MANUAL_PROD_TEST]: () => [],
 }

@@ -17,6 +17,7 @@ import { formatRelativeDate } from '@/utils/formatRelativeDate'
 import TrackReadingHistory from '@/components/TrackReadingHistory'
 import PostScrollDepthTracker from '@/components/PostScrollDepthTracker'
 import { BlogPostingSchema, BreadcrumbListSchema } from '@/components/seo/JsonLd'
+import PostCTA from '@/components/PostCTA'
 
 const CalendarIcon = () => (
   <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -81,8 +82,18 @@ const ArrowLeftIcon = () => (
 )
 
 const editUrl = (path: string) => `${siteMetadata.siteRepo}/blob/main/data/${path}`
-const discussUrl = (path: string) =>
-  `https://mobile.twitter.com/search?q=${encodeURIComponent(`${siteMetadata.siteUrl}/${path}`)}`
+
+const LinkedInIcon = () => (
+  <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
+    <path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14zM8.34 17V10.24H6.09V17h2.25zM7.21 9.23a1.3 1.3 0 1 0 0-2.61 1.3 1.3 0 0 0 0 2.61zM18 17v-3.71c0-1.98-.42-3.5-2.74-3.5-1.11 0-1.86.61-2.17 1.19h-.03v-1.01H10.9V17h2.25v-3.35c0-.88.17-1.74 1.26-1.74 1.08 0 1.09 1.01 1.09 1.8V17H18z" />
+  </svg>
+)
+
+const GitHubIcon = () => (
+  <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
+    <path d="M12 2C6.48 2 2 6.48 2 12c0 4.42 2.87 8.17 6.84 9.5.5.09.68-.22.68-.48v-1.7c-2.78.6-3.37-1.34-3.37-1.34-.45-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.89 1.53 2.34 1.09 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.56-1.11-4.56-4.94 0-1.09.39-1.99 1.03-2.69-.1-.25-.45-1.27.1-2.65 0 0 .84-.27 2.75 1.03A9.56 9.56 0 0 1 12 6.8c.85 0 1.71.11 2.51.34 1.91-1.3 2.75-1.03 2.75-1.03.55 1.38.2 2.4.1 2.65.64.7 1.03 1.6 1.03 2.69 0 3.84-2.34 4.69-4.57 4.94.36.31.68.92.68 1.85v2.74c0 .27.18.58.69.48A10 10 0 0 0 22 12c0-5.52-4.48-10-10-10z" />
+  </svg>
+)
 
 interface LayoutProps {
   content: CoreContent<Blog>
@@ -195,27 +206,18 @@ export default function PostLayout({
                 {children}
               </div>
 
-              {/* Article Footer - Share & Edit Links */}
-              <div className="mt-10 border-t border-gray-200 pt-6 text-sm text-gray-700 dark:border-gray-700 dark:text-gray-300">
-                <div className="flex flex-wrap items-center gap-4">
-                  <Link
-                    href={discussUrl(path)}
-                    rel="nofollow noopener noreferrer"
-                    target="_blank"
-                    className="inline-flex items-center gap-1.5 text-cyan-600 transition-colors hover:text-blue-600 dark:text-cyan-400 dark:hover:text-blue-400"
-                  >
-                    <TwitterIcon />
-                    Discuss on Twitter
-                  </Link>
-                  <span className="text-gray-300 dark:text-gray-600">•</span>
-                  <Link
-                    href={editUrl(filePath)}
-                    className="inline-flex items-center gap-1.5 text-cyan-600 transition-colors hover:text-blue-600 dark:text-cyan-400 dark:hover:text-blue-400"
-                  >
-                    <EditIcon />
-                    Edit on GitHub
-                  </Link>
-                </div>
+              {/* Conversion CTA: newsletter + consulting nudge */}
+              <PostCTA slug={slug} />
+
+              {/* Edit link */}
+              <div className="mt-8 text-sm text-gray-500 dark:text-gray-400">
+                <Link
+                  href={editUrl(filePath)}
+                  className="inline-flex items-center gap-1.5 transition-colors hover:text-cyan-600 dark:hover:text-cyan-400"
+                >
+                  <EditIcon />
+                  Edit this page on GitHub
+                </Link>
               </div>
 
               {/* Author Bio Section */}
@@ -245,17 +247,47 @@ export default function PostLayout({
                           <h4 className="text-lg font-bold text-gray-900 dark:text-gray-100">
                             {author.name}
                           </h4>
-                          {author.twitter && (
+                          <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+                            Backend engineer & tech lead. I write about distributed systems and help
+                            teams design, scale, and rescue their backends.
+                          </p>
+                          <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
                             <Link
-                              href={author.twitter}
-                              className="mt-1 inline-flex items-center gap-1 text-sm text-cyan-600 transition-colors hover:text-blue-600 dark:text-cyan-400 dark:hover:text-blue-400"
+                              href="/hire-me"
+                              className="inline-flex items-center gap-1 font-semibold text-cyan-600 transition-colors hover:text-blue-600 dark:text-cyan-400 dark:hover:text-blue-400"
                             >
-                              <TwitterIcon />
-                              {author.twitter
-                                .replace('https://twitter.com/', '@')
-                                .replace('https://x.com/', '@')}
+                              Work with me →
                             </Link>
-                          )}
+                            {author.linkedin && (
+                              <Link
+                                href={author.linkedin}
+                                className="inline-flex items-center gap-1 text-gray-600 transition-colors hover:text-cyan-600 dark:text-gray-400 dark:hover:text-cyan-400"
+                              >
+                                <LinkedInIcon />
+                                LinkedIn
+                              </Link>
+                            )}
+                            {author.github && (
+                              <Link
+                                href={author.github}
+                                className="inline-flex items-center gap-1 text-gray-600 transition-colors hover:text-cyan-600 dark:text-gray-400 dark:hover:text-cyan-400"
+                              >
+                                <GitHubIcon />
+                                GitHub
+                              </Link>
+                            )}
+                            {author.twitter && (
+                              <Link
+                                href={author.twitter}
+                                className="inline-flex items-center gap-1 text-gray-600 transition-colors hover:text-cyan-600 dark:text-gray-400 dark:hover:text-cyan-400"
+                              >
+                                <TwitterIcon />
+                                {author.twitter
+                                  .replace('https://twitter.com/', '@')
+                                  .replace('https://x.com/', '@')}
+                              </Link>
+                            )}
+                          </div>
                         </div>
                       </div>
                     ))}

@@ -3,6 +3,7 @@ title: 'Setting Up MongoDB Unit Tests with mongodb-memory-server for Seamless Te
 tags: ['mongodb', 'testing', 'nodejs']
 summary: 'In this article, we explore how to implement mongodb-memory-server to simplify and optimize your MongoDB unit tests. By using an in-memory MongoDB instance, you can run tests in isolation without affecting your production database. We walk through configuring MongoDB for production and testing environments, creating a schema, setting up the necessary tests, and adding debugging capabilities for troubleshooting. This setup ensures fast, reliable, and independent unit tests for your MongoDB projects.'
 date: '2024-10-23'
+lastmod: '2026-07-19'
 draft: false
 ---
 
@@ -56,7 +57,10 @@ This code handles connecting to a live MongoDB instance using environment variab
 Now, let’s see how to implement mongodb-memory-server for testing purposes. Create a new file, tests/handler/db.js, and set up your in-memory MongoDB like this:
 
 ```js
-// I'm using mongodb-memory-server v10.1.2 and mongoose v7.8.2
+// Check the current major versions on npm before you start — both
+// mongodb-memory-server and mongoose move fast enough that a version
+// pinned in a blog post goes stale within a year. The API shown here
+// has been stable across recent major versions of both.
 const mongoose = require('mongoose')
 const { MongoMemoryServer } = require('mongodb-memory-server')
 
@@ -164,6 +168,75 @@ test('should fail when saving a duplicate email', async () => {
 ```
 
 This structure ensures that your tests are independent of each other and use a fresh in-memory database instance.
+
+### Pin the MongoDB Binary Version
+
+By default, `mongodb-memory-server` downloads a MongoDB binary the first time it runs and caches it locally. Left unpinned, that can mean your tests run against a different MongoDB version than production — and in CI, the first download on a cold cache adds real time and a new failure mode (the download itself can flake). Pin it explicitly to match your production MongoDB version:
+
+```js
+mongod = await MongoMemoryServer.create({
+  binary: {
+    version: '7.0.14', // match whatever your production MongoDB actually runs
+  },
+})
+```
+
+Check your production MongoDB version and use that here — the point isn't the specific number, it's that the test database and the production database should be running the same major version so you're not debugging a behavior difference that only exists in tests.
+
+### Using a Replica Set for Transactions
+
+If your application code uses MongoDB transactions (`session.startTransaction()`), a plain `MongoMemoryServer` won't work — **transactions require a replica set**, and a standalone in-memory instance doesn't provide one. This is one of the most common "why does this only fail in tests" surprises with this library. Swap in `MongoMemoryReplSet` instead:
+
+```js
+const { MongoMemoryReplSet } = require('mongodb-memory-server')
+
+let replset
+
+const connect = async () => {
+  replset = await MongoMemoryReplSet.create({ replSet: { count: 1 } })
+  await mongoose.connect(replset.getUri())
+}
+
+const closeDatabase = async () => {
+  await mongoose.connection.dropDatabase()
+  await mongoose.connection.close()
+  await replset.stop()
+}
+```
+
+A single-member replica set (`count: 1`) is enough to unlock transaction support in tests — you don't need to simulate a full multi-node cluster to test transactional code paths.
+
+### Sharing One Instance Across Your Whole Test Suite
+
+The setup above starts and stops a fresh in-memory MongoDB per test _file_, which is simple but adds startup overhead if you have many files. For larger suites, start one instance for the entire run using your test runner's global setup/teardown hooks. With Jest:
+
+```js
+// jest.global-setup.js
+const { MongoMemoryServer } = require('mongodb-memory-server')
+
+module.exports = async function globalSetup() {
+  const mongod = await MongoMemoryServer.create()
+  global.__MONGOD__ = mongod
+  process.env.MONGO_URI = mongod.getUri()
+}
+```
+
+```js
+// jest.global-teardown.js
+module.exports = async function globalTeardown() {
+  await global.__MONGOD__.stop()
+}
+```
+
+```js
+// jest.config.js
+module.exports = {
+  globalSetup: './jest.global-setup.js',
+  globalTeardown: './jest.global-teardown.js',
+}
+```
+
+Each test file then connects to `process.env.MONGO_URI` and is responsible for its own `clearDatabase()` between tests (as shown earlier), rather than each file paying the cost of spinning up a new MongoDB binary. This same pattern works with Vitest too — the `connect`/`closeDatabase`/`clearDatabase` functions shown throughout this post don't depend on anything Jest-specific, since they're just Mongoose calls wrapped in plain async functions.
 
 ### Debugging with mongodb-memory-server
 

@@ -9,7 +9,6 @@ import Footer from '@/components/Footer'
 import siteMetadata from '@/data/siteMetadata'
 import { ThemeProviders } from './theme-providers'
 import { Metadata } from 'next'
-import { Analytics as VercelAnalytics } from '@vercel/analytics/react'
 import { SpeedInsights } from '@vercel/speed-insights/next'
 import { WebSiteSchema } from '@/components/seo/JsonLd'
 import Script from 'next/script'
@@ -106,7 +105,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             strategy="afterInteractive"
           />
         )}
-        <VercelAnalytics />
         <SpeedInsights />
         <ThemeProviders>
           <Analytics analyticsConfig={analyticsConfig} />

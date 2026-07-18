@@ -20,6 +20,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     'about',
     'experience',
     'hire-me',
+    'links',
     'playground',
     'cheatsheet',
     'uses',

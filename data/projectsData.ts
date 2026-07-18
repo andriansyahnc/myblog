@@ -18,7 +18,7 @@ const projectsData: Project[] = [
     imgSrc: '/static/images/command.png',
     href: 'https://console.command.kw.com',
     role: 'Backend Engineer',
-    period: '2020 - Present',
+    period: '2020 - 2026',
     techStack: ['Node.js', 'Laravel', 'Golang', 'MongoDB', 'PubSub'],
     impact: 'Serving 180K+ agents worldwide',
     category: 'consulting',

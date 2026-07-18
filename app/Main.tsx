@@ -58,28 +58,30 @@ export default function Home({ posts }: HomeProps) {
         {/* Hero heading */}
         <div className="max-w-4xl space-y-4">
           <h1 className="text-4xl font-extrabold leading-tight tracking-tight sm:text-5xl md:text-6xl lg:text-7xl">
-            I do code and
+            Backend systems in
             <br />
-            make content <span className="gradient-text">about it!</span>
+            the <span className="gradient-text">real world</span>
           </h1>
           <p className="mx-auto max-w-2xl text-base leading-relaxed text-gray-700 dark:text-gray-300 md:text-lg">
-            {siteMetadata.description}
+            I&apos;m NC — a backend engineer and tech lead with 15+ years shipping distributed
+            systems that stay up at 3am. Here I share war stories and practical fixes on Node.js,
+            Go, Kafka, and databases.
           </p>
         </div>
 
         {/* CTA Buttons */}
         <div className="flex flex-wrap items-center justify-center gap-4">
           <Link
-            href="/about"
+            href="/blog"
             className="rounded-full bg-gradient-to-r from-cyan-500 to-blue-600 px-8 py-3 font-semibold text-white transition-all duration-200 hover:from-cyan-600 hover:to-blue-700 hover:shadow-lg hover:shadow-cyan-500/50 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 dark:focus:ring-offset-white"
           >
-            About Me
+            Read the blog
           </Link>
           <Link
-            href="/projects"
+            href="/hire-me"
             className="rounded-full border-2 border-cyan-500 bg-transparent px-8 py-3 font-semibold text-cyan-500 transition-all duration-200 hover:bg-cyan-500 hover:text-white focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 dark:border-cyan-400 dark:text-cyan-400 dark:hover:bg-cyan-400 dark:hover:text-gray-900 dark:focus:ring-offset-gray-950"
           >
-            View Projects
+            Work with me
           </Link>
         </div>
 

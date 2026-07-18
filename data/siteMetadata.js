@@ -3,11 +3,11 @@ const umamiWebsiteId = process.env.NEXT_UMAMI_ID
 const umamiScriptSrc = process.env.NEXT_UMAMI_SRC
 
 const siteMetadata = {
-  title: "NC's Daily Tech - Code Snippets and Real-Life Solutions",
+  title: 'M Andriansyah Nurcahya (NC)',
   author: 'M Andriansyah Nurcahya (NC)',
-  headerTitle: "NC' Blog",
+  headerTitle: 'Andriansyah Nurcahya',
   description:
-    "Explore NC's Blog for daily tech insights, practical code snippets, and real-life solutions in backend development, Drupal, and leadership. Join the journey of a tech lead sharing hands-on experiences.",
+    'M Andriansyah Nurcahya (NC) — backend engineer and tech lead writing about distributed systems, Node.js, Go, Kafka, databases, and engineering leadership. Real-world war stories and practical fixes.',
   language: 'en-us',
   theme: 'dark', // system, dark or light
   siteUrl: 'https://nc-andriansyah.me',
@@ -16,6 +16,9 @@ const siteMetadata = {
   socialBanner: '/static/images/twitter-card.png',
   // mastodon: 'https://mastodon.social/@mastodonuser',
   email: '4andriansyah@gmail.com',
+  // Primary consulting booking link, surfaced on /hire-me and /links.
+  booking: 'https://calendly.com/andriansyahnc/30min',
+  upwork: 'https://www.upwork.com/freelancers/~019f0231bf928ca773',
   github: 'https://github.com/andriansyahnc',
   twitter: 'https://twitter.com/andriansyahnc',
   facebook: 'https://facebook.com/andriansyahnc',

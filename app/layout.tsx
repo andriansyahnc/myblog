@@ -29,7 +29,8 @@ export const metadata: Metadata = {
   metadataBase: new URL(siteMetadata.siteUrl),
   title: {
     default: siteMetadata.title,
-    template: `%s | ${siteMetadata.title}`,
+    // Short suffix so post titles don't truncate in search results.
+    template: `%s | ${siteMetadata.headerTitle}`,
   },
   description: siteMetadata.description,
   openGraph: {

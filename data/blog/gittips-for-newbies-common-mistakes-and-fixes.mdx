@@ -1,14 +1,15 @@
 ---
 title: 'Git Tips for Newbies: Avoiding Common Mistakes and Simple Fixes'
 date: '2024-08-15'
-tags: ["Git", "Version Control", "Git Tips", "Newbie Guide", "Developer Tools", "Coding Mistakes", "Tech Tutorials"]
+tags: ['git']
 draft: false
-summary: "Mastering Git can feel like unlocking a series of cryptic secrets. This guide helps you navigate common Git mistakes with simple fixes, transforming your Git experience from confusing to controlled and efficient."
+summary: 'Mastering Git can feel like unlocking a series of cryptic secrets. This guide helps you navigate common Git mistakes with simple fixes, transforming your Git experience from confusing to controlled and efficient.'
 ---
 
 Getting started with Git can be a bit overwhelming, but don’t worry—everyone makes mistakes. Here are some common Git pitfalls and how to fix them quickly.
 
 ### 1. Forgot to Add a File in Your Latest Commit
+
 What happened? You committed your changes but realized you missed a file.
 
 Solution: Add the missing file to your last commit without creating a new one by running:
@@ -17,9 +18,11 @@ Solution: Add the missing file to your last commit without creating a new one by
 git add <file>
 git commit --amend --no-edit
 ```
+
 This updates the most recent commit to include the newly added file, while keeping your original commit message intact.
 
 ### 2. Remove an Unwanted File from Your Latest Commit
+
 What happened? You accidentally included a file that shouldn’t have been part of the commit.
 
 Solution: Remove the file from the commit but keep it in your working directory with:
@@ -28,9 +31,11 @@ Solution: Remove the file from the commit but keep it in your working directory 
 git reset HEAD^ -- <file>
 git commit --amend --no-edit
 ```
+
 This effectively undoes the inclusion of the file in the commit without changing the commit message.
 
 ### 3. Discard Local Changes
+
 What happened? You made changes but decide you don’t want to keep them.
 
 Solution: To discard uncommitted changes for a specific file:
@@ -38,14 +43,17 @@ Solution: To discard uncommitted changes for a specific file:
 ```bash
 git checkout -- <file>
 ```
+
 To discard all local changes and reset to the last committed state:
 
 ```bash
 git reset --hard
 ```
+
 Be careful with --hard as it will permanently remove all uncommitted changes.
 
 ### 4. Pulling Failed Due to In-Progress Work
+
 What happened? You tried to pull updates from the remote repository, but Git blocked you because you have uncommitted changes.
 
 Solution: You can handle this in two ways:
@@ -56,11 +64,13 @@ Stash Your Changes:
 git stash
 git pull
 ```
+
 This saves your local changes temporarily, allowing you to pull the latest updates. After pulling, reapply your changes with:
 
 ```bash
 git stash pop
 ```
+
 Commit Your Work:
 
 If your changes are ready to be committed, do so before pulling:
@@ -70,6 +80,7 @@ git add .
 git commit -m "WIP: work in progress"
 git pull
 ```
+
 This commits your changes, enabling a smooth pull from the remote repository.
 
 For more coding tips and tutorials, check out other articles on [NC's Blog](http://nc-andriansyah.me).

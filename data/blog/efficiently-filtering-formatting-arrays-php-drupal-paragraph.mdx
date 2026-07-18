@@ -1,7 +1,7 @@
 ---
-title: "Efficiently Filtering and Formatting Arrays in PHP: A Drupal Paragraph Use Case"
-tags: ["PHP", "Drupal", "Drupal Paragraph", "Array Filtering", "Data Formatting", "Backend Development", "Web Development", "Software Engineering"]
-summary: "Discover how to efficiently filter and format multidimensional arrays in PHP, especially when working with fields from a Drupal Paragraph. This guide walks you through a practical example, ensuring that only meaningful data is displayed and unnecessary null values are removed, all in a single pass."
+title: 'Efficiently Filtering and Formatting Arrays in PHP: A Drupal Paragraph Use Case'
+tags: ['php', 'drupal']
+summary: 'Discover how to efficiently filter and format multidimensional arrays in PHP, especially when working with fields from a Drupal Paragraph. This guide walks you through a practical example, ensuring that only meaningful data is displayed and unnecessary null values are removed, all in a single pass.'
 date: '2024-08-27'
 draft: false
 ---
@@ -9,6 +9,7 @@ draft: false
 When working with multidimensional arrays in PHP, especially in the context of Drupal, you might face the challenge of filtering out null values from fields derived from a Drupal Paragraph entity. This guide will show you how to efficiently filter and format such data, ensuring that only the meaningful content remains.
 
 ### The Challenge
+
 Imagine you have an array of data where some fields come from a Drupal Paragraph entity. Some of these fields might be null, and you want to filter out any fields where all values are null. Here’s an example:
 
 ```php
@@ -19,9 +20,11 @@ $data = [
   ['class' => 'C', 'field_1' => 3, 'field_2' => null]
 ];
 ```
+
 In this example, field_2 is null for all entries. Our goal is to remove field_2 from the final result and only keep fields with actual data.
 
 ### The Solution
+
 We can solve this by iterating over the data, building a result array, and then filtering out keys with only null values.
 
 Step 1: Initialize the Result Array
@@ -35,6 +38,7 @@ $result = [
   'field2' => []
 ];
 ```
+
 Step 2: Populate the Result Array
 
 Next, populate this array with values from the input data:
@@ -46,6 +50,7 @@ foreach ($data as $item) {
   $result['field2'][] = $item['field_2'];
 }
 ```
+
 Step 3: Filter Out Null Values
 
 Filter out keys where all values are null:
@@ -57,6 +62,7 @@ foreach ($result as $key => $values) {
   }
 }
 ```
+
 This code uses array_filter with a callback to remove keys with all null values from the result array.
 
 Step 4: Output the Results
@@ -68,6 +74,7 @@ foreach ($result as $key => $values) {
   echo $key . ' ' . implode(' ', $values) . "\n";
 }
 ```
+
 This will produce:
 
 ```
@@ -76,6 +83,7 @@ field1 1 2 3
 ```
 
 ### Conclusion
+
 By following these steps, you can efficiently filter and format multidimensional arrays in PHP, especially when dealing with Drupal Paragraph fields. This method ensures that only relevant data is processed and displayed, making your code concise and efficient. The key takeaway is that filtering and formatting can be done in a single pass, optimizing both performance and readability.
 
 For more coding tips and tutorials, check out other articles on [NC's Blog](http://nc-andriansyah.me).

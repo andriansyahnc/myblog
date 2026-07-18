@@ -54,6 +54,9 @@ export async function generateMetadata(props: {
   return {
     title: post.title,
     description: post.summary,
+    alternates: {
+      canonical: post.canonicalUrl || `${siteMetadata.siteUrl}/blog/${post.slug}`,
+    },
     openGraph: {
       title: post.title,
       description: post.summary,
@@ -100,26 +103,13 @@ export default async function Page(props: { params: Promise<{ slug: string[] }> 
     return coreContent(authorResults as Authors)
   })
   const mainContent = coreContent(post)
-  const jsonLd = post.structuredData
-  jsonLd['author'] = authorDetails.map((author) => {
-    return {
-      '@type': 'Person',
-      name: author.name,
-    }
-  })
 
   const layoutKey = (post.layout || defaultLayout) as LayoutKey
   const Layout = layouts[layoutKey]
 
   return (
-    <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
-      <Layout content={mainContent} authorDetails={authorDetails} next={next} prev={prev}>
-        <MDXLayoutRenderer code={post.body.code} components={components} toc={post.toc} />
-      </Layout>
-    </>
+    <Layout content={mainContent} authorDetails={authorDetails} next={next} prev={prev}>
+      <MDXLayoutRenderer code={post.body.code} components={components} toc={post.toc} />
+    </Layout>
   )
 }

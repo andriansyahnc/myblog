@@ -1,10 +1,25 @@
 import ListLayout from '@/layouts/ListLayoutWithTags'
 import { allCoreContent, sortPosts } from 'pliny/utils/contentlayer'
 import { allBlogs } from 'contentlayer/generated'
+import { genPageMetadata } from 'app/seo'
+import type { Metadata } from 'next'
 import { Suspense } from 'react'
 import SkeletonCard from '@/components/SkeletonCard'
 
 const POSTS_PER_PAGE = 12
+
+export async function generateMetadata(props: {
+  params: Promise<{ page: string }>
+}): Promise<Metadata> {
+  const params = await props.params
+  const pageNumber = parseInt(params.page, 10)
+  // Page 1 duplicates /blog, so canonicalize it there; deeper pages self-reference.
+  const path = pageNumber <= 1 ? '/blog' : `/blog/page/${pageNumber}`
+  return genPageMetadata({
+    title: pageNumber > 1 ? `All Articles — Page ${pageNumber}` : 'Blog',
+    path,
+  })
+}
 
 export const generateStaticParams = async () => {
   const totalPages = Math.ceil(allBlogs.length / POSTS_PER_PAGE)

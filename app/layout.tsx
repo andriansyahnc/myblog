@@ -42,7 +42,9 @@ export const metadata: Metadata = {
     type: 'website',
   },
   alternates: {
-    canonical: siteMetadata.siteUrl,
+    // No site-wide canonical here — it would be inherited by every child route
+    // and tell search engines that all pages are duplicates of the homepage.
+    // Each page sets its own canonical (see generateMetadata / genPageMetadata).
     types: {
       'application/rss+xml': `${siteMetadata.siteUrl}/feed.xml`,
     },

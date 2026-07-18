@@ -8,7 +8,7 @@ import tagData from 'app/tag-data.json'
 import { useDebounce } from '@/hooks/useDebounce'
 import Breadcrumb from '@/components/Breadcrumb'
 
-export default function Page() {
+export default function TagsPageClient() {
   const [searchQuery, setSearchQuery] = useState('')
   const [viewMode, setViewMode] = useState<'popular' | 'alphabetical' | 'all'>('popular')
   const [showAll, setShowAll] = useState(false)

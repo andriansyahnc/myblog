@@ -16,7 +16,7 @@ import { formatDate } from 'pliny/utils/formatDate'
 import { formatRelativeDate } from '@/utils/formatRelativeDate'
 import TrackReadingHistory from '@/components/TrackReadingHistory'
 import PostScrollDepthTracker from '@/components/PostScrollDepthTracker'
-import { BlogPostingSchema } from '@/components/seo/JsonLd'
+import { BlogPostingSchema, BreadcrumbListSchema } from '@/components/seo/JsonLd'
 
 const CalendarIcon = () => (
   <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -110,6 +110,14 @@ export default function PostLayout({
       <TrackReadingHistory slug={slug} path={path} title={title} date={date} />
       <PostScrollDepthTracker slug={slug} title={title} />
       <BlogPostingSchema post={content} siteUrl={siteMetadata.siteUrl} />
+      <BreadcrumbListSchema
+        siteUrl={siteMetadata.siteUrl}
+        items={[
+          { name: 'Home', path: '/' },
+          { name: sectionLabel, path: `/${basePath}` },
+          { name: title, path: `/${path}` },
+        ]}
+      />
       <ReadingProgress />
       <SectionContainer>
         <ScrollTopAndComment />

@@ -10,7 +10,8 @@
     "analyze": "cross-env ANALYZE=true next build",
     "lint": "eslint --fix .",
     "optimize-images": "node ./scripts/optimize-images.mjs",
-    "prepare": "husky || true"
+    "prepare": "husky || true",
+    "test": "vitest run"
   },
   "dependencies": {
     "@headlessui/react": "1.7.19",
@@ -69,7 +70,8 @@
     "prettier-plugin-tailwindcss": "^0.5.14",
     "sharp": "^0.34.5",
     "sharp-cli": "^5.2.0",
-    "typescript": "^5.9.2"
+    "typescript": "^5.9.2",
+    "vitest": "^3.2.4"
   },
   "lint-staged": {
     "*.+(js|jsx|ts|tsx)": [

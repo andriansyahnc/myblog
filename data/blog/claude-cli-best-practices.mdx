@@ -1,0 +1,57 @@
+---
+title: 'Claude CLI Best Practices for TypeScript Developers in 2026'
+date: '2026-07-20'
+tags: ['AI', 'TypeScript']
+draft: false
+summary: 'A practical guide to using the Claude CLI in TypeScript projects: agent config, MCP tool wiring, subagents, memory files, and safe automation patterns.'
+---
+
+Agentic coding tools moved fast this year, and the Claude CLI is now a daily driver for a lot of TypeScript teams — not just for one-off "fix this bug" prompts, but for running scoped agents against real repositories, wiring up MCP servers, and automating recurring engineering chores. The rough edges are less about the model and more about how you set the CLI up: project config, tool permissions, and how you structure the work you hand it. Here's what's actually worth doing.
+
+## Scope Your Project Config, Don't Rely on Defaults
+
+The single biggest quality-of-life improvement is a `CLAUDE.md` file at the root of your TypeScript repo. Without it, the CLI has to re-derive your conventions every session — package manager, test runner, whether you use `strict` mode, how you structure `types/`. With it, that context is loaded up front and stays consistent across sessions.
+
+Keep it short and factual:
+
+```md
+# Project conventions
+- Package manager: pnpm
+- Run `pnpm exec tsc --noEmit` before considering any change done
+- Tests: vitest, colocated as `*.test.ts`
+- No default exports except Next.js pages/route handlers
+```
+
+Avoid turning `CLAUDE.md` into a style guide essay. The CLI reads it every session, so verbosity has a real cost — every extra paragraph is context that isn't going toward your actual task. Treat it like a `.editorconfig`: terse, factual, and updated only when a convention actually changes.
+
+The other easy win is `.claude/settings.json` for permissions. TypeScript projects tend to have a predictable set of safe, read-only commands — `tsc --noEmit`, `vitest run`, `eslint`, `git status` — that don't need a confirmation prompt every time. Allowlisting those cuts down on interruption without loosening anything that actually matters, like `git push` or dependency installs, which should still require explicit approval.
+
+## Wire Up MCP Tools Deliberately
+
+The Model Context Protocol (MCP) is what lets the CLI reach outside the repo — issue trackers, design systems, internal APIs, databases. It's powerful, but the trending mistake is connecting everything available and letting the agent figure out what to use. In practice that just bloats the tool list the model has to reason over and makes it more likely to reach for the wrong tool.
+
+A better pattern for TypeScript projects: connect only the MCP servers that map to your actual workflow. If your team tracks work in Linear and reviews happen on GitHub, wire up those two and stop there. If you later find yourself repeatedly asking the CLI to "check the Figma spec," that's a signal to add a design MCP server — not a reason to add it preemptively.
+
+Deferred tool loading (where a server's full schema only loads when it's actually needed) matters more as your MCP surface grows. If you're running a dozen servers, don't assume they're all resident in context all the time — check how your CLI version handles tool discovery, since that changes how much of your context budget MCP tooling actually consumes.
+
+## Use Subagents to Protect Context, Not to Delegate Thinking
+
+Subagents are the other pattern that's genuinely changed how people use the CLI day to day. The mistake teams make early on is treating a subagent call like a magic "do this for me" button. The better mental model: a subagent is for offloading *search or verification work whose raw output you don't want cluttering your main context* — grepping a large codebase, running a broad audit, checking a PR against a checklist.
+
+For a TypeScript monorepo, that looks like:
+
+- Spawning an `Explore`-type agent to answer "where is this hook used across packages?" instead of grepping it yourself across a dozen workspaces.
+- Using a review agent to check a diff against lint/type/test criteria and report back a short summary rather than pasting the whole diff into your main thread.
+- Avoiding subagents for anything that requires the accumulated context of the conversation so far — a fresh agent doesn't know what you've already ruled out, so tasks that depend on that history belong inline.
+
+The rule of thumb: delegate *lookups*, not *understanding*. If the task requires synthesizing what you've already learned in the session, keep it in the main thread.
+
+## Memory Files and Safe Automation
+
+The newest piece of the puzzle is persistent memory — letting the CLI carry facts about a project or a user's preferences across sessions instead of re-explaining everything each time. For TypeScript teams, this is most useful for two things: recording feedback about how you want changes made (e.g., "always run the full test suite before reporting done, not just the changed file's tests") and recording project-specific facts that don't live in the code itself (a migration deadline, a compliance constraint, which package is mid-refactor).
+
+The failure mode to avoid is treating memory as a place to cache things that are already derivable from the repository — file paths, architecture, current dependencies. Those go stale the moment the code changes, and a memory system that drifts from reality is worse than no memory at all, because it's trusted by default. Save *decisions and preferences*, not *snapshots of state*.
+
+For automation — scheduled or headless CLI runs against a repo — the safe pattern is narrow scope and explicit exit conditions. A headless worker should never be free to `pnpm install`, push, or merge on its own; those need a human in the loop. And it should always report a clear status at the end, distinguishing "finished" from "blocked on something outside my control," so a broken environment doesn't get mistaken for unfinished work and re-queued endlessly. That distinction matters more as more of the day-to-day TypeScript workflow — linting, dependency bumps, small refactors — gets handed to CLI agents running without anyone watching in real time.
+
+Put together, none of this is exotic: a terse project config, deliberately scoped tools, subagents used for lookups instead of delegated judgment, and memory reserved for things that don't live in the code. It's the same discipline that makes any automation trustworthy — just applied to a tool that happens to write TypeScript for you.

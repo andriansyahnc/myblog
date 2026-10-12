@@ -13,6 +13,27 @@ interface ReadingHistoryItem {
   viewedAt: string
 }
 
+const HISTORY_FIELDS = ['slug', 'path', 'title', 'date', 'viewedAt'] as const
+
+// localStorage is user-editable: anything that is not a well-formed history is treated as empty
+export function parseReadingHistory(raw: string | null): ReadingHistoryItem[] {
+  if (!raw) return []
+  try {
+    const parsed: unknown = JSON.parse(raw)
+    const isValid =
+      Array.isArray(parsed) &&
+      parsed.every(
+        (item) =>
+          typeof item === 'object' &&
+          item !== null &&
+          HISTORY_FIELDS.every((field) => typeof item[field] === 'string')
+      )
+    return isValid ? parsed : []
+  } catch {
+    return []
+  }
+}
+
 interface TrackReadingHistoryProps {
   slug: string
   path: string
@@ -33,7 +54,7 @@ export default function TrackReadingHistory({ slug, path, title, date }: TrackRe
     }
 
     const raw = window.localStorage.getItem(READING_HISTORY_KEY)
-    const parsed: ReadingHistoryItem[] = raw ? JSON.parse(raw) : []
+    const parsed = parseReadingHistory(raw)
 
     const deduped = parsed.filter((item) => item.slug !== slug)
     const nextHistory = [nextItem, ...deduped].slice(0, MAX_HISTORY_ITEMS)

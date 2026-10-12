@@ -31,6 +31,11 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      # Non-blocking: surfaces new advisories without failing the job.
+      - name: Audit dependencies
+        run: pnpm audit --prod --audit-level=high
+        continue-on-error: true
+
       # tsc and eslint's type-aware rules both need contentlayer's generated
       # types (.contentlayer/generated) to exist first. Locally this is easy
       # to miss — a leftover .contentlayer/ from a previous build masks the

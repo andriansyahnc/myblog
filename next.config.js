@@ -4,13 +4,15 @@ const withBundleAnalyzer = require('@next/bundle-analyzer')({
   enabled: process.env.ANALYZE === 'true',
 })
 
+const isProd = process.env.NODE_ENV === 'production'
+
 // You might need to insert additional domains in script-src if you are using external services
+// 'unsafe-eval' is only needed by the Next dev server (React refresh)
 const ContentSecurityPolicy = `
   default-src 'self';
-  script-src 'self' 'unsafe-eval' 'unsafe-inline' giscus.app analytics.umami.is us.umami.is cloud.umami.is;
+  script-src 'self' ${isProd ? '' : "'unsafe-eval'"} 'unsafe-inline' giscus.app analytics.umami.is us.umami.is cloud.umami.is;
   style-src 'self' 'unsafe-inline';
-  img-src 'self' blob: data: picsum.photos;
-  media-src 'self' *.s3.amazonaws.com;
+  img-src 'self' blob: data:;
   connect-src 'self' analytics.umami.is us.umami.is cloud.umami.is;
   font-src 'self';
   frame-src giscus.app;
@@ -69,12 +71,6 @@ module.exports = () => {
       formats: ['image/avif', 'image/webp'],
       deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
       imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
-      remotePatterns: [
-        {
-          protocol: 'https',
-          hostname: 'picsum.photos',
-        },
-      ],
     },
     experimental: {
       optimizePackageImports: ['react-icons'],

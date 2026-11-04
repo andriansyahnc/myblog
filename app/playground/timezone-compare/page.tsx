@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useMemo, useSyncExternalStore } from 'react'
 import { DateTime } from 'luxon'
 import siteMetadata from '@/data/siteMetadata'
 
@@ -29,6 +29,8 @@ const popularTimezones = [
   { city: 'Bangkok', timezone: 'Asia/Bangkok', offset: 7 },
 ]
 
+const noopSubscribe = () => () => {}
+
 export default function TimezoneCompare() {
   const MAX_CITIES = siteMetadata.features?.timezoneCompare?.maxCities ?? 6
   const [timezones, setTimezones] = useState<TimeZone[]>([
@@ -39,19 +41,18 @@ export default function TimezoneCompare() {
   const [baseMinutes, setBaseMinutes] = useState<number>(0)
   const [baseDateStr, setBaseDateStr] = useState<string>('')
   const [selectedCity, setSelectedCity] = useState('')
-  const [mounted, setMounted] = useState(false)
-
-  useEffect(() => {
-    setMounted(true)
-  }, [])
+  const mounted = useSyncExternalStore(
+    noopSubscribe,
+    () => true,
+    () => false
+  )
 
   // Initialize base slider and base date to current local time/date in the base zone
-  useEffect(() => {
-    if (!mounted) return
+  if (mounted && !baseDateStr) {
     const nowInBase = DateTime.now().setZone(baseZone)
     setBaseMinutes(nowInBase.hour * 60 + nowInBase.minute)
     setBaseDateStr(nowInBase.toFormat('yyyy-LL-dd'))
-  }, [mounted, baseZone])
+  }
 
   const addTimezone = () => {
     if (!selectedCity) return

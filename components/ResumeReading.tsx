@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useMemo, useSyncExternalStore } from 'react'
 import Link from '@/components/Link'
 import siteMetadata from '@/data/siteMetadata'
 import { UMAMI_EVENTS } from '@/data/umamiEvents'
@@ -17,24 +17,31 @@ interface ReadingHistoryItem {
   viewedAt: string
 }
 
+const subscribe = (onChange: () => void) => {
+  window.addEventListener('storage', onChange)
+  return () => window.removeEventListener('storage', onChange)
+}
+
+const readHistory = () => {
+  try {
+    return window.localStorage.getItem(READING_HISTORY_KEY)
+  } catch {
+    return null
+  }
+}
+
 export default function ResumeReading() {
-  const [recentItem, setRecentItem] = useState<ReadingHistoryItem | null>(null)
+  const raw = useSyncExternalStore(subscribe, readHistory, () => null)
 
-  useEffect(() => {
-    if (typeof window === 'undefined') return
-
-    const raw = window.localStorage.getItem(READING_HISTORY_KEY)
-    if (!raw) return
-
+  const recentItem = useMemo<ReadingHistoryItem | null>(() => {
+    if (!raw) return null
     try {
       const parsed: ReadingHistoryItem[] = JSON.parse(raw)
-      if (parsed.length > 0 && parsed[0]) {
-        setRecentItem(parsed[0])
-      }
+      return parsed[0] ?? null
     } catch {
-      window.localStorage.removeItem(READING_HISTORY_KEY)
+      return null
     }
-  }, [])
+  }, [raw])
 
   if (!recentItem) return null
 

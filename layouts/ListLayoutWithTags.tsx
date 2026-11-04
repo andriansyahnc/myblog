@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { slug } from 'github-slugger'
 import { formatDate } from 'pliny/utils/formatDate'
@@ -15,6 +15,11 @@ import Breadcrumb from '@/components/Breadcrumb'
 import { UMAMI_EVENTS } from '@/data/umamiEvents'
 import { useUmamiEvent } from '@/hooks/useUmamiEvent'
 import { formatRelativeDate } from '@/utils/formatRelativeDate'
+
+const tagCounts = tagData as Record<string, number>
+const tagKeys = Object.keys(tagCounts)
+const sortedTags = [...tagKeys].sort((a, b) => (tagCounts[b] ?? 0) - (tagCounts[a] ?? 0))
+const availableTagSlugs = new Set(tagKeys.map((t) => slug(t)))
 
 interface BreadcrumbItem {
   label: string
@@ -148,10 +153,6 @@ export default function ListLayoutWithTags({
   const pathname = usePathname()
   const searchParams = useSearchParams()
   const { trackEvent } = useUmamiEvent()
-  const tagCounts = tagData as Record<string, number>
-  const tagKeys = Object.keys(tagCounts)
-  const sortedTags = tagKeys.sort((a, b) => (tagCounts[b] ?? 0) - (tagCounts[a] ?? 0))
-  const availableTagSlugs = useMemo(() => new Set(tagKeys.map((t) => slug(t))), [tagKeys])
   const [filtersOpen, setFiltersOpen] = useState(() =>
     Boolean(searchParams.get('tags') || searchParams.get('q'))
   )
@@ -163,10 +164,13 @@ export default function ListLayoutWithTags({
     return tagsFromUrl
   })
   const [searchValue, setSearchValue] = useState(() => searchParams.get('q') || '')
-  const [didHydrateFromUrl, setDidHydrateFromUrl] = useState(false)
   const hasSkippedInitialSearchTrack = useRef(false)
 
-  useEffect(() => {
+  // Sync state when the URL changes (back/forward, external links)
+  const paramsKey = searchParams.toString()
+  const [prevParamsKey, setPrevParamsKey] = useState(paramsKey)
+  if (paramsKey !== prevParamsKey) {
+    setPrevParamsKey(paramsKey)
     const tagsFromUrl = (searchParams.get('tags') || '')
       .split(',')
       .map((tag) => tag.trim())
@@ -179,8 +183,7 @@ export default function ListLayoutWithTags({
       return prevSerialized === nextSerialized ? prev : tagsFromUrl
     })
     setSearchValue((prev) => (prev === qFromUrl ? prev : qFromUrl))
-    setDidHydrateFromUrl(true)
-  }, [searchParams])
+  }
 
   useEffect(() => {
     const params = new URLSearchParams(searchParams.toString())
@@ -206,11 +209,9 @@ export default function ListLayoutWithTags({
     if (nextUrl !== currentUrl) {
       router.replace(nextUrl, { scroll: false })
     }
-  }, [availableTagSlugs, pathname, router, searchParams, searchValue, selectedTags])
+  }, [pathname, router, searchParams, searchValue, selectedTags])
 
   useEffect(() => {
-    if (!didHydrateFromUrl) return
-
     if (!hasSkippedInitialSearchTrack.current) {
       hasSkippedInitialSearchTrack.current = true
       return
@@ -225,7 +226,7 @@ export default function ListLayoutWithTags({
     }, 400)
 
     return () => window.clearTimeout(timeout)
-  }, [didHydrateFromUrl, searchValue, trackEvent])
+  }, [searchValue, trackEvent])
 
   // When filters are active, show all posts; otherwise use paginated posts
   const hasActiveFilters = selectedTags.length > 0 || searchValue !== ''
